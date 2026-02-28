@@ -36,7 +36,6 @@
         .btn-danger { background: var(--danger-color); box-shadow: 0 4px 6px rgba(239, 68, 68, 0.2); } 
         .btn-danger:hover { background: #DC2626; }
         
-        /* 搜尋與篩選 */
         .search-box { width: 100%; padding: 14px 18px; border: 1px solid var(--glass-border); border-radius: 8px; font-size: 1rem; background: var(--input-bg); margin-bottom: 20px; }
         .filter-section { background: var(--panel-bg); margin-bottom: 25px; padding: 20px; border-radius: var(--radius-soft); border: 1px solid var(--glass-border); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }
         .filter-title { margin-bottom: 10px; font-weight: bold; color: var(--slate-blue); font-size: 0.9em; }
@@ -44,7 +43,6 @@
         .cat-btn { background: var(--input-bg); color: var(--text-muted); padding: 8px 18px; border-radius: 30px; border: 1px solid var(--glass-border); font-size: 0.9em; font-weight: bold; cursor: pointer; width: auto; margin-bottom: 0; box-shadow: none; }
         .cat-btn.active, .cat-btn:hover { background: var(--primary-yellow); color: #ffffff; border-color: var(--primary-yellow); }
 
-        /* 卡片與標籤 */
         .post-card { background: var(--panel-bg); border: 1px solid var(--glass-border); padding: 30px; margin-bottom: 25px; border-radius: var(--radius-soft); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }
         .post-title-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; gap: 10px; }
         .post-title { font-size: 1.4em; margin: 0; font-weight: bold; color: var(--text-dark); }
@@ -71,16 +69,18 @@
         .pagination { display: flex; justify-content: center; gap: 8px; margin-top: 20px; }
         .page-btn { background: var(--panel-bg); color: var(--slate-blue); border: 1px solid var(--glass-border); padding: 8px 16px; border-radius: 6px; cursor: pointer; width: auto; margin-bottom: 0; box-shadow: none; }
         .page-btn.active { background: var(--primary-yellow); color: #ffffff; border-color: var(--primary-yellow); }
+        
         .inline-msg { font-weight: bold; display: block; margin-top: 5px; min-height: 24px; color: var(--danger-color); }
+        .inline-msg.success { color: var(--accent-green); }
         .system-msg { text-align: center; color: var(--slate-blue); padding: 30px; font-weight: bold; }
 
-        /* 錄影神器專屬 UI */
+        /* 錄影神器 UI */
         .recorder-box { background: #f1f5f9; border: 2px dashed var(--slate-blue); border-radius: 12px; padding: 20px; margin-bottom: 20px; text-align: center; transition: all 0.3s ease;}
         .recorder-box.recording { border-color: var(--danger-color); background: #fef2f2; animation: borderPulse 2s infinite; }
         @keyframes borderPulse { 0% { border-color: var(--danger-color); } 50% { border-color: #fca5a5; } 100% { border-color: var(--danger-color); } }
         #preview-video { width: 100%; max-width: 600px; border-radius: 8px; background: #000; margin-top: 15px; display: none; aspect-ratio: 16/9; }
-        
         .controls-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 15px; }
+        .record-hint { font-size: 0.85rem; color: var(--danger-color); margin-bottom: 10px; font-weight: bold; display: inline-block; padding: 6px 12px; background: #fef2f2; border-radius: 6px; }
     </style>
 </head>
 <body>
@@ -113,24 +113,28 @@
         <h3 style="margin-top:0;">發起新提問</h3>
         
         <div id="recorder-container" class="recorder-box">
-            <h4 style="margin: 0 0 10px 0; color: var(--slate-blue);">🎥 網頁內建錄影神器 (螢幕 + 視訊)</h4>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">免安裝軟體！直接在此錄製您的操作畫面與問題，錄製完成後請下載影片並上傳雲端。</p>
+            <h4 style="margin: 0 0 10px 0; color: var(--slate-blue);">🎥 網頁內建錄影神器 (自動上傳)</h4>
             
+            <label style="cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; font-weight: bold; color: var(--slate-blue);">
+                <input type="checkbox" id="use-camera-cb" checked style="width: 18px; height: 18px;"> 📷 同時開啟視訊鏡頭 (露臉)
+            </label>
+            <br>
+            
+            <span class="record-hint">⚠️ 提示：跳出選擇視窗時，請務必點擊「整個螢幕畫面」，切換分頁才不會定格！</span>
+
             <video id="preview-video" autoplay muted playsinline></video>
             
             <div class="controls-row">
-                <button id="btn-setup-record" onclick="setupRecording()" class="btn-outline" style="width: auto;">1. 允許取用螢幕與鏡頭</button>
-                <button id="btn-start-record" onclick="startRecording()" class="btn-danger" style="display:none; width: auto;">🔴 開始錄製</button>
-                <button id="btn-stop-record" onclick="stopRecording()" style="display:none; background: var(--slate-blue); width: auto;">⏹️ 結束錄製</button>
-                <a id="download-link" style="display:none; text-decoration: none;"><button style="background: var(--accent-green); width: auto;">⬇️ 2. 下載影片</button></a>
+                <button id="btn-setup-record" onclick="setupRecording()" class="btn-outline" style="width: auto;">1. 啟動錄影權限</button>
+                <button id="btn-start-record" onclick="startRecording()" class="btn-danger" style="display:none; width: auto;">🔴 開始錄製 (建議 3-5 分鐘內)</button>
+                <button id="btn-stop-record" onclick="stopRecording()" style="display:none; background: var(--slate-blue); width: auto;">⏹️ 結束錄製並自動上傳</button>
             </div>
-            <p id="record-status-msg" style="font-size: 0.85rem; color: var(--danger-color); margin-top: 10px; display: none; font-weight: bold;"></p>
+            <p id="record-status-msg" style="font-size: 0.95rem; margin-top: 15px; font-weight: bold; display: none;"></p>
         </div>
 
-        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 5px;">3. 請將上方下載的影片，上傳至雲端硬碟，並將連結貼於下方。</p>
         <input type="text" id="post-title" class="input-box" placeholder="提問標題 (必填)">
-        <input type="text" id="post-video" class="input-box" placeholder="貼上影片網址 (Drive / Loom / YT 連結)">
-        <textarea id="post-desc" class="input-box" placeholder="請簡述您的問題或提供相關程式碼..."></textarea>
+        <input type="text" id="post-video" class="input-box" placeholder="影片網址 (錄影完會自動填入，或手動貼上網址)" style="background: #fff;">
+        <input type="hidden" id="post-video-id"> <textarea id="post-desc" class="input-box" placeholder="請簡述您的問題或提供相關程式碼..."></textarea>
         <button onclick="submitPost()" id="btn-submit-post">🚀 發布提問</button>
         <span id="post-msg" class="inline-msg"></span>
     </div>
@@ -181,7 +185,7 @@
 
     <script>
         // 🚨 替換成你的最新 GAS 網址！
-        const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbwvfMRgSxv4ZnwaSxpMG89ldUE7ULZiV3KjcqiieMTQYBY0XF69wGHatZjZ0RAqHjMu/exec';
+        const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbzfrk6R_miCZdNuJYFFpKQtHcS9xmEepka5a6N3Qcy3eb1YNlzdg18xAwAu9jgPZ4-W/exec';
         const ADMIN_EMAIL = 'alwayslucky2hand@gmail.com';
 
         let currentUserEmail = ''; 
@@ -193,7 +197,7 @@
         let currentPage = 1;
         const itemsPerPage = 5;
 
-        // --- 🎥 錄影神器核心邏輯 ---
+        // --- 🎥 全自動錄影上傳神器核心邏輯 ---
         let mediaRecorder;
         let recordedChunks = [];
         let combinedStream;
@@ -201,27 +205,44 @@
         let camStream;
         let animationId;
 
-        async function setupRecording() {
-            try {
-                document.getElementById('btn-setup-record').innerText = "請求權限中...";
-                
-                // 1. 取得螢幕畫面 (包含系統音訊)
-                screenStream = await navigator.mediaDevices.getDisplayMedia({ 
-                    video: { displaySurface: "monitor" }, 
-                    audio: true 
-                });
+        // UI 訊息管理器 (取代 alert)
+        function showRecorderMsg(msg, isError = false, keep = false) {
+            const msgEl = document.getElementById('record-status-msg');
+            msgEl.innerText = msg;
+            msgEl.style.color = isError ? "var(--danger-color)" : "var(--slate-blue)";
+            msgEl.style.display = 'block';
+            if(!keep && !isError) setTimeout(() => msgEl.style.display = 'none', 5000);
+        }
 
-                // 2. 取得視訊鏡頭與麥克風
+        async function setupRecording() {
+            showRecorderMsg("🔄 正在請求授權...", false, true);
+            const useCamera = document.getElementById('use-camera-cb').checked;
+
+            try {
+                // 1. 強制要求麥克風 (如果有勾鏡頭就一起要)
                 try {
                     camStream = await navigator.mediaDevices.getUserMedia({ 
-                        video: { width: 320, height: 240 }, 
-                        audio: true 
+                        video: useCamera ? { width: 320, height: 240 } : false, 
+                        audio: true // 麥克風必備
                     });
                 } catch(camErr) {
-                    console.warn("無法取得鏡頭，將僅錄製螢幕", camErr);
+                    showRecorderMsg("❌ 無法啟動：請務必允許「麥克風」權限，否則無法錄製您的講解哦！", true);
+                    return;
                 }
 
-                // 3. 建立隱藏的 Canvas 進行畫中畫合成 (PIP)
+                // 2. 取得螢幕畫面 (關閉系統音避免回音)
+                try {
+                    screenStream = await navigator.mediaDevices.getDisplayMedia({ 
+                        video: { displaySurface: "monitor" }, 
+                        audio: false // 禁用系統聲音
+                    });
+                } catch(screenErr) {
+                    showRecorderMsg("❌ 您取消了螢幕分享，請重新點擊啟動。", true);
+                    if(camStream) camStream.getTracks().forEach(t => t.stop());
+                    return;
+                }
+
+                // 3. 建立隱藏 Canvas 進行畫面合成
                 const canvas = document.createElement('canvas');
                 canvas.width = 1280; 
                 canvas.height = 720;
@@ -232,19 +253,18 @@
                 screenVideo.play();
 
                 let camVideo;
-                if (camStream) {
+                if (useCamera && camStream) {
                     camVideo = document.createElement('video');
                     camVideo.srcObject = camStream; 
+                    camVideo.muted = true; // 防回音
                     camVideo.play();
                 }
 
-                // 繪製迴圈
                 function drawCanvas() {
                     if(screenVideo.readyState === screenVideo.HAVE_ENOUGH_DATA) {
                         ctx.drawImage(screenVideo, 0, 0, canvas.width, canvas.height);
                     }
                     if(camVideo && camVideo.readyState === camVideo.HAVE_ENOUGH_DATA) {
-                        // 在右下角畫出鏡頭畫面，加上白色邊框
                         const camW = 320, camH = 240;
                         const camX = canvas.width - camW - 20;
                         const camY = canvas.height - camH - 20;
@@ -257,109 +277,101 @@
                 }
                 drawCanvas();
 
-                // 4. 處理音訊混音 (麥克風 + 電腦系統聲音)
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const dest = audioContext.createMediaStreamDestination();
-                
-                if (screenStream.getAudioTracks().length > 0) {
-                    audioContext.createMediaStreamSource(screenStream).connect(dest);
-                }
-                if (camStream && camStream.getAudioTracks().length > 0) {
-                    audioContext.createMediaStreamSource(camStream).connect(dest);
-                }
-
-                // 5. 合併影像與音訊串流
-                const canvasStream = canvas.captureStream(30); // 30 FPS
+                // 4. 合併影像與純麥克風音訊
+                const canvasStream = canvas.captureStream(24); // 降低FPS省容量
                 combinedStream = new MediaStream([
                     ...canvasStream.getVideoTracks(),
-                    ...dest.stream.getAudioTracks()
+                    ...camStream.getAudioTracks() 
                 ]);
 
-                // 6. 顯示在前端預覽框
                 const previewVideo = document.getElementById('preview-video');
                 previewVideo.srcObject = combinedStream;
                 previewVideo.style.display = 'block';
+                previewVideo.muted = true; 
 
-                // UI 切換
                 document.getElementById('btn-setup-record').style.display = 'none';
                 document.getElementById('btn-start-record').style.display = 'block';
-                document.getElementById('download-link').style.display = 'none';
+                showRecorderMsg("✅ 授權成功！請點擊下方按鈕開始錄製。", false);
 
-                // 當使用者停止分享螢幕時的處理
                 screenStream.getVideoTracks()[0].onended = () => {
                     if(mediaRecorder && mediaRecorder.state === "recording") stopRecording();
                     resetRecordingUI();
                 };
 
             } catch (err) {
-                alert("無法開啟錄影：請確定您已允許瀏覽器存取螢幕與麥克風權限。\n錯誤：" + err.message);
-                document.getElementById('btn-setup-record').innerText = "1. 允許取用螢幕與鏡頭";
+                showRecorderMsg("❌ 發生未知錯誤：" + err.message, true);
             }
         }
 
         function startRecording() {
             recordedChunks = [];
-            
-            // 優先使用 webm，兼容性最好
-            let options = { mimeType: 'video/webm;codecs=vp9,opus' };
-            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-                options = { mimeType: 'video/webm' }; 
-            }
+            // 降低傳輸率以符合 GAS 上傳限制
+            let options = { mimeType: 'video/webm;codecs=vp9,opus', videoBitsPerSecond: 600000 };
+            if (!MediaRecorder.isTypeSupported(options.mimeType)) options = { mimeType: 'video/webm' }; 
 
             mediaRecorder = new MediaRecorder(combinedStream, options);
+            mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
 
-            mediaRecorder.ondataavailable = function(e) {
-                if (e.data.size > 0) recordedChunks.push(e.data);
-            };
-
-            mediaRecorder.onstop = function() {
+            // 🌟 錄製結束後的「自動上傳」流程
+            mediaRecorder.onstop = async function() {
                 const blob = new Blob(recordedChunks, { type: 'video/webm' });
-                const url = URL.createObjectURL(blob);
-                
                 const previewVideo = document.getElementById('preview-video');
-                previewVideo.srcObject = null; // 解除實況串流
-                previewVideo.src = url; // 改播剛剛錄好的影片
+                previewVideo.srcObject = null; 
+                previewVideo.src = URL.createObjectURL(blob); 
                 previewVideo.controls = true;
-
-                // 設定下載按鈕
-                const downloadLink = document.getElementById('download-link');
-                downloadLink.href = url;
-                
-                // 自動以時間命名檔名
-                const now = new Date();
-                const timeStr = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
-                downloadLink.download = `陪跑提問_${timeStr}.webm`;
-                downloadLink.style.display = 'block';
                 
                 document.getElementById('btn-stop-record').style.display = 'none';
-                document.getElementById('btn-setup-record').innerText = "重新錄製 (需重新授權)";
-                document.getElementById('btn-setup-record').style.display = 'block';
-                document.getElementById('record-status-msg').style.display = 'none';
                 document.getElementById('recorder-container').classList.remove('recording');
-
+                
                 // 關閉硬體存取
                 if(screenStream) screenStream.getTracks().forEach(t => t.stop());
                 if(camStream) camStream.getTracks().forEach(t => t.stop());
                 cancelAnimationFrame(animationId);
+
+                // 開始自動上傳
+                showRecorderMsg("⏳ 影片處理與上傳中，請稍候（約需 10~30 秒）...", false, true);
+                
+                try {
+                    const base64Data = await blobToBase64(blob);
+                    const payload = {
+                        action: 'upload_video',
+                        base64Data: base64Data,
+                        mimeType: 'video/webm',
+                        filename: `Temp_${Date.now()}.webm` // 後端會再精確改名
+                    };
+                    
+                    const res = await fetch(GAS_LIVE_URL, { method: 'POST', body: JSON.stringify(payload) });
+                    const data = await res.json();
+                    
+                    if(data.status === 'success') {
+                        document.getElementById('post-video').value = data.url;
+                        document.getElementById('post-video-id').value = data.fileId;
+                        showRecorderMsg("✅ 影片上傳成功！網址已自動填入，請填寫標題後發布。", false, true);
+                        document.getElementById('record-status-msg').style.color = "var(--accent-green)";
+                        document.getElementById('btn-setup-record').innerText = "重新錄製 (將覆蓋前一次)";
+                        document.getElementById('btn-setup-record').style.display = 'block';
+                    } else {
+                        showRecorderMsg("❌ 上傳失敗：" + data.message, true, true);
+                    }
+                } catch(e) {
+                    showRecorderMsg("❌ 網路連線錯誤，上傳失敗。影片可能超過長度限制。", true, true);
+                    document.getElementById('btn-setup-record').style.display = 'block';
+                }
             };
 
             mediaRecorder.start();
             document.getElementById('btn-start-record').style.display = 'none';
             document.getElementById('btn-stop-record').style.display = 'block';
-            
             document.getElementById('recorder-container').classList.add('recording');
-            document.getElementById('record-status-msg').innerText = "🔴 正在錄製中... 請切換到您要發問的畫面進行操作。";
-            document.getElementById('record-status-msg').style.display = 'block';
+            showRecorderMsg("🔴 正在錄製中... 請切換到您要操作的軟體或分頁。", true, true);
         }
 
         function stopRecording() {
-            if (mediaRecorder && mediaRecorder.state !== "inactive") {
-                mediaRecorder.stop();
-            }
+            if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
         }
 
         function resetRecordingUI() {
-            document.getElementById('btn-setup-record').innerText = "1. 允許取用螢幕與鏡頭";
+            document.getElementById('btn-setup-record').innerText = "1. 啟動錄影權限";
             document.getElementById('btn-setup-record').style.display = 'block';
             document.getElementById('btn-start-record').style.display = 'none';
             document.getElementById('btn-stop-record').style.display = 'none';
@@ -367,19 +379,29 @@
             document.getElementById('record-status-msg').style.display = 'none';
             document.getElementById('recorder-container').classList.remove('recording');
         }
+
+        // Blob 轉 Base64 輔助函數
+        function blobToBase64(blob) {
+            return new Promise((resolve, _) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result.split(',')[1]);
+                reader.readAsDataURL(blob);
+            });
+        }
         // --- 錄影邏輯結束 ---
 
 
-        // 基礎網站邏輯
+        // --- 網站基礎邏輯 ---
         window.onload = function() {
             document.getElementById('list-section').style.display = 'block';
             renderTypeFilter();
             fetchLiveData();
         };
 
-        function showMsg(id, text) {
+        function showAppMsg(id, text, isError=false) {
             const el = document.getElementById(id);
             el.innerText = text;
+            el.className = isError ? "inline-msg" : "inline-msg success";
             setTimeout(() => el.innerText = '', 4000);
         }
         
@@ -390,27 +412,27 @@
 
         function requestOTP() {
             const email = document.getElementById('email').value.trim();
-            if (!email) return showMsg('otp-msg', '請先輸入 Email');
+            if (!email) return showAppMsg('otp-msg', '請先輸入 Email', true);
             document.getElementById('btn-otp').innerText = "寄送中...";
             fetch(GAS_LIVE_URL, { method: 'POST', body: JSON.stringify({ action: 'requestOTP', email: email }) })
             .then(res => res.json()).then(data => {
                 document.getElementById('btn-otp').innerText = "寄送驗證碼";
-                if (data.status === "error") return showMsg('otp-msg', data.message);
+                if (data.status === "error") return showAppMsg('otp-msg', data.message, true);
                 document.getElementById('step-1').style.display = 'none';
                 document.getElementById('step-2').style.display = 'block';
-            }).catch(() => { showMsg('otp-msg', '連線失敗'); document.getElementById('btn-otp').innerText = "寄送驗證碼"; });
+            }).catch(() => { showAppMsg('otp-msg', '連線失敗', true); document.getElementById('btn-otp').innerText = "寄送驗證碼"; });
         }
 
         function verifyLogin() {
             const email = document.getElementById('email').value.trim();
             const otp = document.getElementById('otp-code').value.trim();
-            if (!otp) return showMsg('login-msg', '請輸入驗證碼');
+            if (!otp) return showAppMsg('login-msg', '請輸入驗證碼', true);
 
             document.getElementById('btn-login').innerText = "驗證中...";
             fetch(GAS_LIVE_URL, { method: 'POST', body: JSON.stringify({ action: 'verifyOTP', email: email, otp: otp }) })
             .then(res => res.json()).then(data => {
                 document.getElementById('btn-login').innerText = "登入通行";
-                if (data.status === "error") return showMsg('login-msg', data.message);
+                if (data.status === "error") return showAppMsg('login-msg', data.message, true);
                 
                 currentUserEmail = email;
                 document.getElementById('login-status').innerText = `已登入學員：${email}`;
@@ -585,19 +607,31 @@
             const title = document.getElementById('post-title').value.trim();
             const desc = document.getElementById('post-desc').value.trim();
             const videoUrl = document.getElementById('post-video').value.trim();
+            const videoFileId = document.getElementById('post-video-id').value; // 隱藏的 ID
             const btn = document.getElementById('btn-submit-post');
             
-            if(!title || !desc) return showMsg('post-msg', '標題與簡述為必填！');
+            if(!title || !desc) return showAppMsg('post-msg', '標題與簡述為必填！', true);
             
             btn.disabled = true; btn.innerText = "發布中...";
 
             fetch(GAS_LIVE_URL, {
                 method: 'POST',
-                body: JSON.stringify({ action: 'add_post', email: currentUserEmail, title: title, desc: desc, videoUrl: videoUrl })
+                body: JSON.stringify({ 
+                    action: 'add_post', 
+                    email: currentUserEmail, 
+                    title: title, 
+                    desc: desc, 
+                    videoUrl: videoUrl,
+                    videoFileId: videoFileId // 傳給後端去改名
+                })
             }).then(() => {
                 btn.disabled = false; btn.innerText = "🚀 發布提問";
-                document.getElementById('post-title').value = ''; document.getElementById('post-desc').value = ''; document.getElementById('post-video').value = '';
-                showMsg('post-msg', '提問發布成功！');
+                document.getElementById('post-title').value = ''; 
+                document.getElementById('post-desc').value = ''; 
+                document.getElementById('post-video').value = '';
+                document.getElementById('post-video-id').value = '';
+                resetRecordingUI(); // 重置錄影器
+                showAppMsg('post-msg', '提問發布成功！');
                 fetchLiveData(); 
             });
         }
@@ -607,7 +641,7 @@
             const videoUrl = document.getElementById('reply-video').value.trim();
             const btn = document.getElementById('btn-submit-reply');
             
-            if(!desc) return showMsg('reply-msg', '請輸入回覆內容！');
+            if(!desc) return showAppMsg('reply-msg', '請輸入回覆內容！', true);
             
             btn.disabled = true; btn.innerText = "傳送中...";
 
@@ -617,7 +651,7 @@
             }).then(() => {
                 btn.disabled = false; btn.innerText = "送出回覆";
                 document.getElementById('reply-desc').value = ''; document.getElementById('reply-video').value = '';
-                showMsg('reply-msg', '回覆成功！重新載入中...');
+                showAppMsg('reply-msg', '回覆成功！重新載入中...');
                 
                 fetch(GAS_LIVE_URL).then(res=>res.json()).then(data => {
                     allLiveData = data.reverse();
