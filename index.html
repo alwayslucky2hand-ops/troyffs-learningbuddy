@@ -130,7 +130,7 @@
         <h3 style="margin-top:0;">發起新提問</h3>
         
         <div id="post-recorder-container" class="recorder-box">
-            <h4 style="margin: 0 0 10px 0; color: var(--slate-blue);">🎥 網頁內建錄影神器 (自動壓縮上傳)</h4>
+            <h4 style="margin: 0 0 10px 0; color: var(--slate-blue);">🎥 網頁內建錄影神器 (超大檔案分段續傳版)</h4>
             <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">系統將同時擷取「麥克風」與「電腦畫面聲音」，且錄影時將強制關閉您的外放音效以防回音。</p>
             
             <label style="cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; font-weight: bold; color: var(--slate-blue);">
@@ -146,7 +146,7 @@
             
             <div class="controls-row">
                 <button id="post-btn-setup-record" onclick="setupRecording('post')" class="btn-outline" style="width: auto;">1. 啟動影音錄製權限</button>
-                <button id="post-btn-start-record" onclick="startRecording('post')" class="btn-danger" style="display:none; width: auto;">🔴 開始錄製 (最長支援 10 分鐘)</button>
+                <button id="post-btn-start-record" onclick="startRecording('post')" class="btn-danger" style="display:none; width: auto;">🔴 開始錄製 (支援 10+ 分鐘長影片)</button>
                 <button id="post-btn-stop-record" onclick="stopRecording('post')" style="display:none; background: var(--slate-blue); width: auto;">⏹️ 結束錄製並自動上傳</button>
                 <button id="post-btn-cancel-record" onclick="cancelRecording('post')" style="display:none; background: #fff; color: var(--slate-blue); border: 1px solid var(--glass-border); width: auto;">❌ 取消錄影</button>
             </div>
@@ -207,7 +207,7 @@
                     
                     <div class="controls-row">
                         <button id="reply-btn-setup-record" onclick="setupRecording('reply')" class="btn-outline" style="width: auto;">1. 啟動影音錄製權限</button>
-                        <button id="reply-btn-start-record" onclick="startRecording('reply')" class="btn-danger" style="display:none; width: auto;">🔴 開始錄製 (最長支援 10 分鐘)</button>
+                        <button id="reply-btn-start-record" onclick="startRecording('reply')" class="btn-danger" style="display:none; width: auto;">🔴 開始錄製 (支援 10+ 分鐘長影片)</button>
                         <button id="reply-btn-stop-record" onclick="stopRecording('reply')" style="display:none; background: var(--slate-blue); width: auto;">⏹️ 結束錄製並自動上傳</button>
                         <button id="reply-btn-cancel-record" onclick="cancelRecording('reply')" style="display:none; background: #fff; color: var(--slate-blue); border: 1px solid var(--glass-border); width: auto;">❌ 取消錄影</button>
                     </div>
@@ -217,7 +217,7 @@
                 <input type="text" id="reply-video" class="input-box" placeholder="影片網址 (錄影完自動填入，或手動貼網址)" style="background: #fff;" readonly>
                 <input type="hidden" id="reply-video-id"> 
                 <textarea id="reply-desc" class="input-box" placeholder="請輸入回覆的文字說明或程式碼..."></textarea>
-                <button onclick="submitReply()" id="btn-submit-reply">送出回覆</button>
+                <button onclick="submitReply()" id="btn-submit-reply">🚀 送出回覆</button>
                 <span id="reply-msg" class="inline-msg"></span>
             </div>
         </div>
@@ -225,7 +225,7 @@
 
     <script>
         // 🚨 替換成你的最新 GAS 網址！
-        const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbxlskYCzmBvEovom6UtLKSm4odx_xFhvlOGE78qXURsZQVNDj2ym9WbSuIfQMNntLQc/exec';
+        const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbzb1hoF5AQwY1Iz2stuy7gv2pRo5gKIyTmDkfqBht2XRcU5IBWtW1sFOzBGQ4I2cTnY/exec';
         const ADMIN_EMAIL = 'alwayslucky2hand@gmail.com';
 
         let currentUserEmail = ''; 
@@ -237,7 +237,7 @@
         const itemsPerPage = 5;
 
         // ==========================================
-        // 🎥 10分鐘 VP8 強化壓縮 + 核彈清理 錄影邏輯
+        // 🎥 革命性升級：分段續傳引擎 (支援無上限時長)
         // ==========================================
         let mediaRecorder;
         let recordedChunks = [];
@@ -247,7 +247,7 @@
         let audioContext;
         let currentRecordType = ''; 
 
-        // 核彈級清理：切斷所有硬體連線，讓瀏覽器紅點消失
+        // 徹底切斷硬體連線，紅點消失
         function killMediaTracks() {
             if (screenStream) { screenStream.getTracks().forEach(t => t.stop()); screenStream = null; }
             if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
@@ -271,12 +271,10 @@
         async function setupRecording(type) {
             currentRecordType = type;
             showRecorderMsg(type, "🔄 正在請求麥克風與螢幕權限...", false, true);
-
-            // 判斷是否需要開啟視訊鏡頭
             const useCamera = document.getElementById(`${type}-use-camera-cb`) ? document.getElementById(`${type}-use-camera-cb`).checked : false;
 
             try {
-                // 1. 強制取得麥克風 (與鏡頭)
+                // 1. 強制取得麥克風 (被封鎖會跳到 catch)
                 try {
                     micStream = await navigator.mediaDevices.getUserMedia({ 
                         audio: true, 
@@ -287,7 +285,7 @@
                     return;
                 }
 
-                // 2. 取得螢幕畫面 (開啟 audio 允許截取系統音)
+                // 2. 取得螢幕畫面 (含系統音)
                 try {
                     screenStream = await navigator.mediaDevices.getDisplayMedia({ 
                         video: { displaySurface: "monitor" }, 
@@ -299,7 +297,7 @@
                     return;
                 }
 
-                // 3. Web Audio API 混音 (麥克風 + 系統音)
+                // 3. Web Audio API 混音
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 const dest = audioContext.createMediaStreamDestination();
                 
@@ -318,7 +316,7 @@
                 previewVideo.srcObject = combinedStream;
                 previewVideo.style.display = 'block';
                 
-                // 🎯 核心：錄製當下「強制靜音」防回音干擾
+                // 🎯 錄影當下強制靜音防回音
                 previewVideo.muted = true; 
 
                 document.getElementById(`${type}-btn-setup-record`).style.display = 'none';
@@ -343,17 +341,15 @@
         function startRecording(type) {
             recordedChunks = [];
             
-            // 🎯 極限壓縮與 Google Drive 相容性優化：改用 vp8 編碼！
-            // 將 Video Bitrate 降至 400kbps，Audio 降至 64kbps 以支援 10 分鐘長度
+            // 🎯 因為使用了分段續傳，我們解除了低畫質壓縮限制，讓畫面更清晰！
+            // 優先使用 vp8 確保 Google Drive 預覽相容性
             let options;
             if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')) {
-                options = { mimeType: 'video/webm;codecs=vp8,opus', videoBitsPerSecond: 400000, audioBitsPerSecond: 64000 };
+                options = { mimeType: 'video/webm;codecs=vp8,opus', videoBitsPerSecond: 1200000 };
             } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) {
-                options = { mimeType: 'video/webm;codecs=vp8', videoBitsPerSecond: 400000 };
-            } else if (MediaRecorder.isTypeSupported('video/webm')) {
-                options = { mimeType: 'video/webm', videoBitsPerSecond: 400000 }; 
+                options = { mimeType: 'video/webm;codecs=vp8', videoBitsPerSecond: 1200000 };
             } else {
-                options = { videoBitsPerSecond: 400000 };
+                options = { videoBitsPerSecond: 1200000 };
             }
 
             mediaRecorder = new MediaRecorder(combinedStream, options);
@@ -366,49 +362,75 @@
                 previewVideo.src = URL.createObjectURL(blob); 
                 previewVideo.controls = true;
                 
-                // 🎯 錄影結束轉為播放模式，解除靜音，讓使用者聽到自己錄的聲音！
+                // 🎯 錄影結束，解除靜音讓學員可以確認聲音
                 previewVideo.muted = false; 
                 
                 document.getElementById(`${type}-btn-stop-record`).style.display = 'none';
                 document.getElementById(`${type}-btn-cancel-record`).style.display = 'none';
                 document.getElementById(`${type}-recorder-container`).classList.remove('recording');
                 
-                killMediaTracks(); // 錄完立刻斷開硬體，紅點消失！
+                killMediaTracks(); // 硬體釋放
 
-                showRecorderMsg(type, "⏳ 影片處理與上傳中，請稍候（約需 10~40 秒，請勿關閉網頁）...", false, true);
-                
                 try {
-                    const base64Data = await blobToBase64(blob);
-                    const payload = {
-                        action: 'upload_video',
-                        base64Data: base64Data,
-                        mimeType: blob.type, // 傳送正確的 MIME 給後端
-                        filename: `Temp_${Date.now()}.webm`
-                    };
+                    showRecorderMsg(type, "⏳ 正在建立大檔案專屬上傳通道...", false, true);
                     
-                    const res = await fetch(GAS_LIVE_URL, { method: 'POST', body: JSON.stringify(payload) });
-                    const data = await res.json();
+                    // 1. 向 GAS 索取「分段續傳」專屬連結
+                    const initRes = await fetch(GAS_LIVE_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ action: 'get_upload_url', filename: `Temp_${Date.now()}.webm` })
+                    });
+                    const initData = await initRes.json();
                     
-                    if(data.status === 'success') {
-                        document.getElementById(`${type}-video`).value = data.url;
-                        document.getElementById(`${type}-video-id`).value = data.fileId;
-                        showRecorderMsg(type, "✅ 影片上傳成功！網址已自動填入。(💡 提示：剛上傳的影片雲端需 3~5 分鐘處理預覽，屬正常現象)", false, true);
-                        document.getElementById(`${type}-record-status-msg`).style.color = "var(--accent-green)";
-                        document.getElementById(`${type}-btn-setup-record`).innerText = "重新錄製 (將覆蓋前一次)";
-                        document.getElementById(`${type}-btn-setup-record`).style.display = 'block';
-                    } else {
-                        showRecorderMsg(type, "❌ 上傳失敗：" + data.message, true, true);
-                        document.getElementById(`${type}-btn-setup-record`).innerText = "重新錄製";
-                        document.getElementById(`${type}-btn-setup-record`).style.display = 'block';
+                    if (initData.status !== 'success') throw new Error(initData.message);
+                    const uploadUrl = initData.uploadUrl;
+
+                    showRecorderMsg(type, "⏳ 影片切塊上傳中（支援超大檔案，請勿關閉網頁）...", false, true);
+
+                    // 2. 核心：將影片切塊 (5MB) 並直接 PUT 到 Google 伺服器
+                    const chunkSize = 5 * 1024 * 1024; // 5MB 碎片
+                    const fileSize = blob.size;
+                    let start = 0;
+                    let fileId = null;
+
+                    while (start < fileSize) {
+                        const end = Math.min(start + chunkSize, fileSize);
+                        const chunk = blob.slice(start, end);
+                        
+                        const response = await fetch(uploadUrl, {
+                            method: 'PUT',
+                            headers: { 'Content-Range': `bytes ${start}-${end - 1}/${fileSize}` },
+                            body: chunk
+                        });
+
+                        if (response.status === 308) {
+                            start = end; 
+                            let progress = Math.round((start / fileSize) * 100);
+                            showRecorderMsg(type, `⏳ 影片上傳中：${progress}% (請勿關閉網頁)...`, false, true);
+                        } else if (response.status === 200 || response.status === 201) {
+                            const data = await response.json();
+                            fileId = data.id;
+                            break;
+                        } else {
+                            throw new Error('分段上傳失敗，狀態碼：' + response.status);
+                        }
                     }
+
+                    // 3. 上傳完成，將 ID 與連結填入隱藏欄位
+                    document.getElementById(`${type}-video`).value = `https://drive.google.com/file/d/${fileId}/view`;
+                    document.getElementById(`${type}-video-id`).value = fileId;
+                    showRecorderMsg(type, "✅ 影片上傳成功！網址已自動填入。(💡 剛上傳的影片雲端需 3~5 分鐘處理預覽，屬正常現象)", false, true);
+                    document.getElementById(`${type}-record-status-msg`).style.color = "var(--accent-green)";
+                    document.getElementById(`${type}-btn-setup-record`).innerText = "重新錄製 (將覆蓋前一次)";
+                    document.getElementById(`${type}-btn-setup-record`).style.display = 'block';
+
                 } catch(e) {
-                    showRecorderMsg(type, "❌ 網路連線錯誤，上傳失敗。可能是影片超過了 10 分鐘限制導致檔案過大。", true, true);
+                    showRecorderMsg(type, "❌ 上傳發生錯誤：" + e.message, true, true);
                     document.getElementById(`${type}-btn-setup-record`).innerText = "重新錄製";
                     document.getElementById(`${type}-btn-setup-record`).style.display = 'block';
                 }
             };
 
-            mediaRecorder.start();
+            mediaRecorder.start(1000); // 每秒觸發一次資料寫入確保緩衝安全
             document.getElementById(`${type}-btn-start-record`).style.display = 'none';
             document.getElementById(`${type}-btn-stop-record`).style.display = 'block';
             document.getElementById(`${type}-recorder-container`).classList.add('recording');
@@ -422,9 +444,12 @@
         function cancelRecording(type) {
             if (mediaRecorder && mediaRecorder.state === "recording") {
                 mediaRecorder.stop(); 
+                // 覆寫 onstop 行為以防上傳
+                mediaRecorder.onstop = () => { killMediaTracks(); resetRecordingUI(type); };
+            } else {
+                killMediaTracks();
+                resetRecordingUI(type);
             }
-            killMediaTracks(); // 強制中斷，紅點消失
-            resetRecordingUI(type);
         }
 
         function resetRecordingUI(type) {
@@ -439,14 +464,6 @@
             document.getElementById(`${type}-recorder-container`).classList.remove('recording');
             document.getElementById(`${type}-video`).value = '';
             document.getElementById(`${type}-video-id`).value = '';
-        }
-
-        function blobToBase64(blob) {
-            return new Promise((resolve, _) => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result.split(',')[1]);
-                reader.readAsDataURL(blob);
-            });
         }
         // ==========================================
 
@@ -519,7 +536,7 @@
             document.getElementById('publish-section').style.display = 'none';
             document.getElementById('detail-section').style.display = 'none';
             document.getElementById('list-section').style.display = 'block';
-            killMediaTracks(); // 登出時確保硬體關閉
+            killMediaTracks(); 
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -599,6 +616,7 @@
             }
         }
 
+        // 🎯 影片直接內嵌轉換器 
         function getDriveIframe(url) {
             if (!url) return '';
             const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/\/d\/([a-zA-Z0-9_-]+)/);
