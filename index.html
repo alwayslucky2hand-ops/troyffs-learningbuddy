@@ -237,7 +237,7 @@
         const itemsPerPage = 5;
 
         // ==========================================
-        // 🎥 10分鐘強化壓縮 + 核彈清理 錄影邏輯
+        // 🎥 10分鐘 VP8 強化壓縮 + 核彈清理 錄影邏輯
         // ==========================================
         let mediaRecorder;
         let recordedChunks = [];
@@ -312,8 +312,6 @@
 
                 // 4. 合併串流
                 let tracks = [...screenStream.getVideoTracks(), ...dest.stream.getAudioTracks()];
-                // 如果有開啟鏡頭，我們需要把鏡頭也塞進串流，但因為不是畫布，所以只會錄到螢幕。
-                // 為了最穩定的「切換分頁不卡頓」，這裡直接送出螢幕影像與混音音訊
                 combinedStream = new MediaStream(tracks);
 
                 const previewVideo = document.getElementById(`${type}-preview-video`);
@@ -344,22 +342,25 @@
 
         function startRecording(type) {
             recordedChunks = [];
-            // 🎯 極限壓縮優化：為了支援到 10 分鐘 (突破 GAS 50MB 限制)
-            // 將 Video Bitrate 降至 400kbps，Audio 降至 64kbps
-            let options = { 
-                mimeType: 'video/webm;codecs=vp9,opus', 
-                videoBitsPerSecond: 400000, 
-                audioBitsPerSecond: 64000 
-            };
-            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+            
+            // 🎯 極限壓縮與 Google Drive 相容性優化：改用 vp8 編碼！
+            // 將 Video Bitrate 降至 400kbps，Audio 降至 64kbps 以支援 10 分鐘長度
+            let options;
+            if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')) {
+                options = { mimeType: 'video/webm;codecs=vp8,opus', videoBitsPerSecond: 400000, audioBitsPerSecond: 64000 };
+            } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) {
+                options = { mimeType: 'video/webm;codecs=vp8', videoBitsPerSecond: 400000 };
+            } else if (MediaRecorder.isTypeSupported('video/webm')) {
                 options = { mimeType: 'video/webm', videoBitsPerSecond: 400000 }; 
+            } else {
+                options = { videoBitsPerSecond: 400000 };
             }
 
             mediaRecorder = new MediaRecorder(combinedStream, options);
             mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
 
             mediaRecorder.onstop = async function() {
-                const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                const blob = new Blob(recordedChunks, { type: options.mimeType || 'video/webm' });
                 const previewVideo = document.getElementById(`${type}-preview-video`);
                 previewVideo.srcObject = null; 
                 previewVideo.src = URL.createObjectURL(blob); 
@@ -381,7 +382,7 @@
                     const payload = {
                         action: 'upload_video',
                         base64Data: base64Data,
-                        mimeType: 'video/webm',
+                        mimeType: blob.type, // 傳送正確的 MIME 給後端
                         filename: `Temp_${Date.now()}.webm`
                     };
                     
@@ -391,7 +392,7 @@
                     if(data.status === 'success') {
                         document.getElementById(`${type}-video`).value = data.url;
                         document.getElementById(`${type}-video-id`).value = data.fileId;
-                        showRecorderMsg(type, "✅ 影片上傳成功！網址已自動填入。", false, true);
+                        showRecorderMsg(type, "✅ 影片上傳成功！網址已自動填入。(💡 提示：剛上傳的影片雲端需 3~5 分鐘處理預覽，屬正常現象)", false, true);
                         document.getElementById(`${type}-record-status-msg`).style.color = "var(--accent-green)";
                         document.getElementById(`${type}-btn-setup-record`).innerText = "重新錄製 (將覆蓋前一次)";
                         document.getElementById(`${type}-btn-setup-record`).style.display = 'block';
@@ -598,7 +599,6 @@
             }
         }
 
-        // 🎯 影片直接內嵌轉換器 
         function getDriveIframe(url) {
             if (!url) return '';
             const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/\/d\/([a-zA-Z0-9_-]+)/);
