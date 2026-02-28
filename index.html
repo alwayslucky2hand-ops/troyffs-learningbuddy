@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover">
+    <title>賦能陪跑日誌</title>
+    <style>
+        :root {
+            --primary-yellow: #F59E0B; 
+            --primary-hover: #D97706;      
+            --slate-blue: #1F2937;     
+            --accent-green: #10B981;        
+            --bg-pure: #FFFFFF;          
+            --panel-bg: #FFFFFF;       
+            --input-bg: #F8FAFC;       
+            --text-dark: #111827;          
+            --text-muted: #6B7280;     
+            --glass-border: #CBD5E1;       
+            --radius-soft: 12px; 
+            --danger-color: #EF4444;   
+        }
+        *, *::before, *::after { box-sizing: border-box; }
+        body { font-family: 'Microsoft JhengHei', sans-serif; line-height: 1.8; max-width: 800px; margin: 0 auto; padding: 40px 20px; background: var(--bg-pure); color: var(--text-dark); min-height: 100vh; }
+        h1, h2, h3 { color: var(--slate-blue); font-weight: bold; margin-bottom: 20px; }
+        h1 { font-size: 1.8rem; text-align: center; margin-bottom: 30px;}
+        
+        .section { background: var(--panel-bg); padding: 35px; margin-bottom: 25px; border-radius: var(--radius-soft); border: 1px solid var(--glass-border); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }
+        .input-box, textarea, select { padding: 14px 18px; border: 1px solid var(--glass-border); border-radius: 8px; font-size: 16px !important; width: 100%; margin-bottom: 15px; background: var(--input-bg); color: var(--text-dark); font-family: inherit; transition: all 0.3s ease; }
+        .input-box:focus, textarea:focus { outline: none; border-color: var(--primary-yellow); background: var(--bg-pure); box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2); }
+        textarea { min-height: 120px; resize: vertical; }
+        
+        button { background: var(--primary-yellow); color: #ffffff; border: none; padding: 14px 28px; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; width: 100%; transition: background 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 10px; }
+        button:hover { background: var(--primary-hover); } 
+        button:disabled { background: #E5E7EB; color: var(--text-muted); cursor: not-allowed; }
+        .btn-outline { background: var(--input-bg); color: var(--slate-blue); border: 1px solid var(--glass-border); box-shadow: none; }
+        
+        /* 篩選與搜尋 */
+        .search-box { width: 100%; padding: 14px 18px; border: 1px solid var(--glass-border); border-radius: 8px; font-size: 1rem; background: var(--input-bg); margin-bottom: 20px; }
+        .filter-section { background: var(--panel-bg); margin-bottom: 25px; padding: 20px; border-radius: var(--radius-soft); border: 1px solid var(--glass-border); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }
+        .filter-title { margin-bottom: 10px; font-weight: bold; color: var(--slate-blue); font-size: 0.9em; }
+        .category-nav { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        .cat-btn { background: var(--input-bg); color: var(--text-muted); padding: 8px 18px; border-radius: 30px; border: 1px solid var(--glass-border); font-size: 0.9em; font-weight: bold; cursor: pointer; width: auto; margin-bottom: 0; box-shadow: none; }
+        .cat-btn.active, .cat-btn:hover { background: var(--primary-yellow); color: #ffffff; border-color: var(--primary-yellow); }
+
+        /* 卡片與標籤 */
+        .post-card { background: var(--panel-bg); border: 1px solid var(--glass-border); padding: 30px; margin-bottom: 25px; border-radius: var(--radius-soft); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }
+        .post-title-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; gap: 10px; }
+        .post-title { font-size: 1.4em; margin: 0; font-weight: bold; color: var(--text-dark); }
+        .tag-badge { padding: 4px 10px; border-radius: 6px; font-size: 0.8em; font-weight: bold; color: white; display: inline-block; white-space: nowrap; }
+        .tag-pending { background: #EF4444; animation: pulse 2s infinite; }
+        .tag-replied { background: var(--accent-green); }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 1; } }
+
+        .post-meta { font-size: 0.85em; color: var(--text-muted); margin-bottom: 15px; display: flex; gap: 15px; flex-wrap: wrap; }
+        .post-meta span { background: var(--input-bg); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--glass-border); color: var(--slate-blue); font-weight: bold;}
+        .post-excerpt { color: var(--text-dark); margin-bottom: 20px; white-space: pre-wrap; font-size: 1.05rem; }
+        
+        /* 鎖定權限 CTA 區塊 */
+        .cta-container { display: none; padding: 50px 20px; text-align: center; background: #f8fafc; flex-direction: column; justify-content: center; align-items: center; border-radius: var(--radius-soft); border: 1px dashed var(--glass-border); margin-top: 20px; }
+
+        /* 對話流 UI */
+        .thread-item { background: var(--input-bg); padding: 20px; border-radius: 12px; margin-bottom: 20px; border-left: 5px solid var(--glass-border); position: relative;}
+        .thread-item.coach { border-left-color: var(--accent-green); background: #F0FDF4; }
+        .thread-item.student { border-left-color: var(--primary-yellow); }
+        .thread-header { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.9em; border-bottom: 1px dashed #ccc; padding-bottom: 8px;}
+        .thread-role { font-weight: bold; color: var(--slate-blue); }
+        .thread-time { color: var(--text-muted); }
+        .thread-video-link { display: inline-block; margin-top: 15px; padding: 8px 16px; background: var(--slate-blue); color: #fff; text-decoration: none; border-radius: 6px; font-size: 0.9em; font-weight: bold; }
+        .thread-video-link:hover { background: #000; }
+
+        .pagination { display: flex; justify-content: center; gap: 8px; margin-top: 20px; }
+        .page-btn { background: var(--panel-bg); color: var(--slate-blue); border: 1px solid var(--glass-border); padding: 8px 16px; border-radius: 6px; cursor: pointer; width: auto; margin-bottom: 0; box-shadow: none; }
+        .page-btn.active { background: var(--primary-yellow); color: #ffffff; border-color: var(--primary-yellow); }
+        .inline-msg { font-weight: bold; display: block; margin-top: 5px; min-height: 24px; color: var(--danger-color); }
+        .system-msg { text-align: center; color: var(--slate-blue); padding: 30px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <h1>賦能陪跑日誌</h1>
+
+    <div class="section" id="login-section">
+        <h3 style="margin-top:0;">會員通行證</h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">為保障學員隱私，陪跑日誌需驗證身分方可進入。登入後可發起提問並查看您的專屬日誌。</p>
+        <p id="login-status" style="color: var(--primary-yellow); font-weight: bold; margin-bottom: 15px;">目前狀態：未登入 (訪客)</p>
+        
+        <div id="step-1" style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <input type="email" id="email" class="input-box" placeholder="輸入會員 Email" style="flex: 2; margin-bottom: 0;">
+            <button onclick="requestOTP()" id="btn-otp" style="flex: 1; margin-bottom: 0; width: auto;">寄送驗證碼</button>
+            <span id="otp-msg" class="inline-msg" style="width: 100%;"></span>
+        </div>
+        
+        <div id="step-2" style="display: none; margin-top: 10px;">
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <input type="text" id="otp-code" class="input-box" placeholder="輸入 6 位數驗證碼" style="flex: 2; margin-bottom: 0;">
+                <button onclick="verifyLogin()" id="btn-login" style="flex: 1; margin-bottom: 0; width: auto;">登入通行</button>
+                <button onclick="cancelLogin()" class="btn-outline" style="flex: 1; margin-bottom: 0; width: auto;">返回</button>
+            </div>
+            <span id="login-msg" class="inline-msg" style="width: 100%;"></span>
+        </div>
+        <button id="btn-logout" onclick="logout()" style="display: none; background: var(--danger-color); width: auto; margin-top: 20px;">登出帳號</button>
+    </div>
+
+    <div class="section" id="publish-section" style="display: none; border-left: 5px solid var(--primary-yellow);">
+        <h3 style="margin-top:0;">發起新提問</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">請將您錄製好的影片上傳至雲端硬碟，並將連結貼於下方。</p>
+        <input type="text" id="post-title" class="input-box" placeholder="提問標題 (必填)">
+        <input type="text" id="post-video" class="input-box" placeholder="貼上影片網址 (Drive / Loom / YT 連結)">
+        <textarea id="post-desc" class="input-box" placeholder="請簡述您的問題或提供相關程式碼..."></textarea>
+        <button onclick="submitPost()" id="btn-submit-post">發布提問</button>
+        <span id="post-msg" class="inline-msg"></span>
+    </div>
+
+    <div id="list-section" style="display: none;">
+        <input type="text" id="searchInput" class="search-box" placeholder="輸入關鍵字搜尋標題或內容..." oninput="filterPosts()">
+        
+        <div class="filter-section">
+            <div class="filter-title">處理狀態</div>
+            <div class="category-nav" id="type-container"></div>
+            
+            <div class="filter-title" style="margin-top: 10px;">發佈日期</div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <input type="date" id="datePicker" class="input-box" style="width: auto; margin: 0;" onchange="filterPosts()">
+                <button onclick="clearDateFilter()" class="cat-btn" style="background: var(--bg-pure);">清除</button>
+            </div>
+        </div>
+
+        <div id="loading-list" class="system-msg">正在為您準備陪跑紀錄...</div>
+        <div id="post-list"></div>
+        <div id="pagination-container" class="pagination"></div>
+    </div>
+
+    <div class="section" id="detail-section" style="display: none; padding-top: 30px;">
+        <button onclick="backToList()" class="btn-outline" style="width: auto; margin-bottom: 20px;">返回列表</button>
+        
+        <div class="post-meta" id="detail-meta" style="margin-top: 15px;"></div>
+        <h2 id="detail-title" style="margin-top: 5px; font-size: 2em; color: var(--text-dark);"></h2>
+        <hr style="border: 0; border-top: 1px solid var(--glass-border); margin: 25px 0;">
+        
+        <div id="auth-warning-container" class="cta-container">
+            <h3 id="auth-warning-message" style="color: var(--slate-blue); margin-bottom: 20px; line-height: 1.6; font-size: 1.4rem;"></h3>
+            <button id="auth-warning-btn" onclick="scrollToLogin()" style="width: auto; padding: 16px 32px; box-shadow: 0 4px 6px rgba(245, 158, 11, 0.2);">👉 立即登入解鎖</button>
+        </div>
+
+        <div id="thread-content-wrapper" style="display: none;">
+            <div id="thread-container"></div>
+            
+            <div style="margin-top:30px; border-top: 2px solid var(--glass-border); padding-top: 25px;">
+                <h3 style="margin-top:0;">新增影音回覆 / 追問</h3>
+                <input type="text" id="reply-video" class="input-box" placeholder="貼上回覆影片網址 (選填)">
+                <textarea id="reply-desc" class="input-box" placeholder="請輸入回覆的文字說明或逐字稿..."></textarea>
+                <button onclick="submitReply()" id="btn-submit-reply">送出回覆</button>
+                <span id="reply-msg" class="inline-msg"></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 🚨 重要：請更新為你最新部署後的 GAS 網址！
+        const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbwvfMRgSxv4ZnwaSxpMG89ldUE7ULZiV3KjcqiieMTQYBY0XF69wGHatZjZ0RAqHjMu/exec';
+        const ADMIN_EMAIL = 'alwayslucky2hand@gmail.com';
+
+        let currentUserEmail = ''; 
+        let allLiveData = []; 
+        let currentPost = null; 
+        
+        let currentSearchQuery = '';
+        let currentStatus = '全部';
+        let currentPage = 1;
+        const itemsPerPage = 5;
+
+        // 網頁載入時直接抓取清單，讓訪客也能看到豐富的日誌列表
+        window.onload = function() {
+            document.getElementById('list-section').style.display = 'block';
+            renderTypeFilter();
+            fetchLiveData();
+        };
+
+        function showMsg(id, text) {
+            const el = document.getElementById(id);
+            el.innerText = text;
+            setTimeout(() => el.innerText = '', 4000);
+        }
+        
+        function scrollToLogin() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            document.getElementById('email').focus();
+        }
+
+        function requestOTP() {
+            const email = document.getElementById('email').value.trim();
+            if (!email) return showMsg('otp-msg', '請先輸入 Email');
+            document.getElementById('btn-otp').innerText = "寄送中...";
+            fetch(GAS_LIVE_URL, { method: 'POST', body: JSON.stringify({ action: 'requestOTP', email: email }) })
+            .then(res => res.json()).then(data => {
+                document.getElementById('btn-otp').innerText = "寄送驗證碼";
+                if (data.status === "error") return showMsg('otp-msg', data.message);
+                document.getElementById('step-1').style.display = 'none';
+                document.getElementById('step-2').style.display = 'block';
+            }).catch(() => { showMsg('otp-msg', '連線失敗'); document.getElementById('btn-otp').innerText = "寄送驗證碼"; });
+        }
+
+        function verifyLogin() {
+            const email = document.getElementById('email').value.trim();
+            const otp = document.getElementById('otp-code').value.trim();
+            if (!otp) return showMsg('login-msg', '請輸入驗證碼');
+
+            document.getElementById('btn-login').innerText = "驗證中...";
+            fetch(GAS_LIVE_URL, { method: 'POST', body: JSON.stringify({ action: 'verifyOTP', email: email, otp: otp }) })
+            .then(res => res.json()).then(data => {
+                document.getElementById('btn-login').innerText = "登入通行";
+                if (data.status === "error") return showMsg('login-msg', data.message);
+                
+                currentUserEmail = email;
+                document.getElementById('login-status').innerText = `已登入學員：${email}`;
+                document.getElementById('step-1').style.display = 'none';
+                document.getElementById('step-2').style.display = 'none';
+                document.getElementById('btn-logout').style.display = 'block';
+                document.getElementById('publish-section').style.display = 'block';
+                
+                // 登入後，如果他剛好卡在某篇日誌的觀看頁面，自動幫他重新判斷權限解鎖
+                if(currentPost && document.getElementById('detail-section').style.display === 'block') {
+                    enterClass(currentPost.courseId);
+                }
+            });
+        }
+
+        function cancelLogin() { document.getElementById('step-1').style.display = 'flex'; document.getElementById('step-2').style.display = 'none'; }
+        function logout() { 
+            currentUserEmail = ''; 
+            document.getElementById('email').value = ''; 
+            document.getElementById('otp-code').value = ''; 
+            document.getElementById('login-status').innerText = '目前狀態：未登入 (訪客)'; 
+            document.getElementById('step-1').style.display = 'flex'; 
+            document.getElementById('btn-logout').style.display = 'none'; 
+            document.getElementById('publish-section').style.display = 'none';
+            document.getElementById('detail-section').style.display = 'none';
+            document.getElementById('list-section').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderTypeFilter() {
+            const container = document.getElementById('type-container'); 
+            container.innerHTML = '';
+            ['全部', '待回覆', '教練已回覆', '學員追問'].forEach(opt => {
+                const btn = document.createElement('button'); 
+                btn.className = opt === currentStatus ? 'cat-btn active' : 'cat-btn';
+                btn.innerText = opt; 
+                btn.onclick = () => { currentStatus = opt; currentPage = 1; renderTypeFilter(); filterPosts(); };
+                container.appendChild(btn);
+            });
+        }
+
+        function clearDateFilter() { document.getElementById('datePicker').value = ''; filterPosts(); }
+
+        function fetchLiveData() {
+            fetch(GAS_LIVE_URL).then(res => res.json()).then(data => {
+                allLiveData = data.reverse(); // 最新發布在最上面
+                document.getElementById('loading-list').style.display = 'none';
+                filterPosts();
+            }).catch(err => { document.getElementById('loading-list').innerText = '資料載入失敗'; });
+        }
+
+        function filterPosts() {
+            currentSearchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+            let dateQuery = document.getElementById('datePicker').value.replace(/-/g, '/'); 
+            
+            let filtered = allLiveData;
+            if (currentSearchQuery) {
+                filtered = filtered.filter(p => (p.title && p.title.toLowerCase().includes(currentSearchQuery)) || (p.desc && p.desc.toLowerCase().includes(currentSearchQuery)) || (p.courseId && p.courseId.toLowerCase().includes(currentSearchQuery)) );
+            }
+            if (currentStatus !== '全部') filtered = filtered.filter(p => p.status === currentStatus);
+            if (dateQuery) filtered = filtered.filter(p => p.date === dateQuery);
+
+            renderList(filtered);
+        }
+
+        function renderList(filteredData) {
+            const listContainer = document.getElementById('post-list');
+            const pagination = document.getElementById('pagination-container');
+            listContainer.innerHTML = ''; pagination.innerHTML = '';
+
+            if (filteredData.length === 0) return listContainer.innerHTML = '<p class="system-msg">目前沒有符合條件的紀錄！</p>';
+
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            const postsToShow = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+            postsToShow.forEach(post => {
+                let badgeClass = post.status.includes('已回覆') ? 'tag-replied' : 'tag-pending';
+                
+                listContainer.innerHTML += `
+                    <div class="post-card">
+                        <div class="post-title-row">
+                            <h3 class="post-title">${post.title}</h3>
+                            <span class="tag-badge ${badgeClass}">${post.status}</span>
+                        </div>
+                        <div class="post-meta">
+                            <span>編號：${post.courseId}</span>
+                            <span>發佈人：${post.email.split('@')[0]}***</span> 
+                            <span>發佈於：${post.date} ${post.time}</span>
+                        </div>
+                        <div class="post-excerpt">${post.desc}</div>
+                        <button onclick="enterClass('${post.courseId}')" class="btn-outline" style="width: auto;">進入日誌</button>
+                    </div>`;
+            });
+
+            if (totalPages > 1) {
+                for (let i = 1; i <= totalPages; i++) {
+                    const btn = document.createElement('button'); btn.className = `page-btn ${i === currentPage ? 'active' : ''}`; btn.innerText = i;
+                    btn.onclick = () => { currentPage = i; renderList(filteredData); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+                    pagination.appendChild(btn);
+                }
+            }
+        }
+
+        // 解析渲染對話流
+        function renderThread(post) {
+            let html = '';
+            // 1. 原始發問
+            let vidHtml = post.videoUrl ? `<a href="${post.videoUrl}" target="_blank" class="thread-video-link">🎥 觀看原始提問影片</a>` : '';
+            html += `
+                <div class="thread-item student">
+                    <div class="thread-header">
+                        <span class="thread-role">👤 學員提問 (${post.email})</span>
+                        <span class="thread-time">${post.date} ${post.time}</span>
+                    </div>
+                    <div class="post-excerpt">${post.desc.replace(/\n/g, '<br>')}</div>
+                    ${vidHtml}
+                </div>`;
+            
+            // 2. 橫向儲存格的回覆
+            post.replies.forEach(reply => {
+                // 格式：日期|||時間|||身分|||Email|||內容|||影音網址
+                let parts = reply.split('|||');
+                if(parts.length >= 5) {
+                    let rDate = parts[0], rTime = parts[1], rRole = parts[2], rEmail = parts[3], rContent = parts[4], rVid = parts[5] || '';
+                    let itemClass = rRole === '陪跑教練' ? 'coach' : 'student';
+                    let rVidHtml = rVid ? `<a href="${rVid}" target="_blank" class="thread-video-link">🎥 觀看回覆影片</a>` : '';
+                    
+                    html += `
+                    <div class="thread-item ${itemClass}">
+                        <div class="thread-header">
+                            <span class="thread-role">${rRole === '陪跑教練' ? '👑' : '👤'} ${rRole} (${rEmail})</span>
+                            <span class="thread-time">${rDate} ${rTime}</span>
+                        </div>
+                        <div class="post-excerpt">${rContent.replace(/\n/g, '<br>')}</div>
+                        ${rVidHtml}
+                    </div>`;
+                }
+            });
+            document.getElementById('thread-container').innerHTML = html;
+        }
+
+        function enterClass(courseId) {
+            currentPost = allLiveData.find(p => p.courseId === courseId);
+            if(!currentPost) return;
+
+            document.getElementById('publish-section').style.display = 'none';
+            document.getElementById('list-section').style.display = 'none';
+            document.getElementById('detail-section').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            document.getElementById('detail-title').innerText = currentPost.title;
+            document.getElementById('detail-meta').innerHTML = `<span>編號: ${currentPost.courseId}</span> <span>狀態: ${currentPost.status}</span>`;
+            
+            // 🎯 權限與隱私判斷邏輯
+            const authWarningContainer = document.getElementById('auth-warning-container');
+            const authWarningMessage = document.getElementById('auth-warning-message');
+            const authWarningBtn = document.getElementById('auth-warning-btn');
+            const threadContentWrapper = document.getElementById('thread-content-wrapper');
+
+            if (!currentUserEmail) {
+                // 情況 1：訪客未登入 -> 引導登入
+                authWarningContainer.style.display = 'flex';
+                threadContentWrapper.style.display = 'none';
+                authWarningMessage.innerHTML = "🔒 這是專屬陪跑日誌<br>請先登入或加入會員以解鎖您的權限！";
+                authWarningBtn.style.display = 'inline-block';
+            } else if (currentUserEmail.toLowerCase() !== currentPost.email.toLowerCase() && currentUserEmail.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+                // 情況 2：已登入，但不是發文者本人，也不是站長教練 -> 阻擋觀看，保護隱私
+                authWarningContainer.style.display = 'flex';
+                threadContentWrapper.style.display = 'none';
+                authWarningMessage.innerHTML = "⛔ 這是其他學員的專屬陪跑日誌<br>為保障學員隱私，您無權觀看哦！";
+                authWarningBtn.style.display = 'none'; 
+            } else {
+                // 情況 3：已登入，且是發文者本人 或 站長教練 -> 顯示完整內容
+                authWarningContainer.style.display = 'none';
+                threadContentWrapper.style.display = 'block';
+                renderThread(currentPost);
+            }
+        }
+
+        function submitPost() {
+            const title = document.getElementById('post-title').value.trim();
+            const desc = document.getElementById('post-desc').value.trim();
+            const videoUrl = document.getElementById('post-video').value.trim();
+            const btn = document.getElementById('btn-submit-post');
+            
+            if(!title || !desc) return showMsg('post-msg', '標題與簡述為必填！');
+            
+            btn.disabled = true; btn.innerText = "發布中...";
+
+            fetch(GAS_LIVE_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'add_post', email: currentUserEmail, title: title, desc: desc, videoUrl: videoUrl })
+            }).then(() => {
+                btn.disabled = false; btn.innerText = "發布提問";
+                document.getElementById('post-title').value = ''; document.getElementById('post-desc').value = ''; document.getElementById('post-video').value = '';
+                showMsg('post-msg', '提問發布成功！');
+                fetchLiveData(); 
+            });
+        }
+
+        function submitReply() {
+            const desc = document.getElementById('reply-desc').value.trim();
+            const videoUrl = document.getElementById('reply-video').value.trim();
+            const btn = document.getElementById('btn-submit-reply');
+            
+            if(!desc) return showMsg('reply-msg', '請輸入回覆內容！');
+            
+            btn.disabled = true; btn.innerText = "傳送中...";
+
+            fetch(GAS_LIVE_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'add_reply', courseId: currentPost.courseId, email: currentUserEmail, desc: desc, videoUrl: videoUrl })
+            }).then(() => {
+                btn.disabled = false; btn.innerText = "送出回覆";
+                document.getElementById('reply-desc').value = ''; document.getElementById('reply-video').value = '';
+                showMsg('reply-msg', '回覆成功！重新載入中...');
+                
+                // 重新抓取資料以更新對話流
+                fetch(GAS_LIVE_URL).then(res=>res.json()).then(data => {
+                    allLiveData = data.reverse();
+                    enterClass(currentPost.courseId);
+                });
+            });
+        }
+
+        function backToList() {
+            document.getElementById('detail-section').style.display = 'none';
+            document.getElementById('list-section').style.display = 'block';
+            if(currentUserEmail) document.getElementById('publish-section').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            filterPosts();
+        }
+    </script>
+</body>
+</html>
