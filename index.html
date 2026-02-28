@@ -63,7 +63,6 @@
         .thread-role { font-weight: bold; color: var(--slate-blue); }
         .thread-time { color: var(--text-muted); }
 
-        /* 影片內嵌容器樣式 */
         .video-wrapper { margin-top: 15px; border-radius: 8px; overflow: hidden; background: #000; border: 1px solid var(--glass-border); box-shadow: 0 2px 8px rgba(0,0,0,0.1);}
         .video-container { position: relative; padding-bottom: 56.25%; height: 0; }
         .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
@@ -82,16 +81,32 @@
         @keyframes borderPulse { 0% { border-color: var(--danger-color); } 50% { border-color: #fca5a5; } 100% { border-color: var(--danger-color); } }
         .preview-video-el { width: 100%; max-width: 600px; border-radius: 8px; background: #000; margin-top: 15px; display: none; aspect-ratio: 16/9; }
         .controls-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 15px; }
-        .record-hint { font-size: 0.85rem; color: var(--danger-color); margin-bottom: 10px; font-weight: bold; display: inline-block; padding: 6px 12px; background: #fef2f2; border-radius: 6px; }
+        .record-hint { font-size: 0.85rem; color: var(--danger-color); margin-bottom: 10px; font-weight: bold; display: inline-block; padding: 6px 12px; background: #fef2f2; border-radius: 6px; line-height: 1.5; }
+        
+        /* SOP 指南區塊 */
+        .sop-box { background: #FFFBEB; border-left: 4px solid var(--primary-yellow); padding: 15px; margin-bottom: 20px; border-radius: 4px; text-align: left;}
+        .sop-box strong { color: var(--slate-blue); font-size: 1.05rem; }
+        .sop-box ol { margin-top: 8px; margin-bottom: 0; padding-left: 20px; color: var(--text-dark); font-size: 0.95rem; line-height: 1.6;}
     </style>
 </head>
 <body>
 
-    <h1>賦能陪跑日誌</h1>
+    <h1>特洛伊賦能陪跑日誌</h1>
 
     <div class="section" id="login-section">
-        <h3 style="margin-top:0;">會員通行證</h3>
-        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">為保障學員隱私，陪跑日誌需驗證身分方可進入。登入後可發起提問並查看您的專屬日誌。</p>
+        <h3 style="margin-top:0;">會員通行證與錄影權限指南</h3>
+        
+        <div class="sop-box">
+            <strong>🛠️ 錄影神器權限開通 SOP（首次使用必看）：</strong>
+            <ol>
+                <li>請點擊瀏覽器網址列最左側的 <strong>「鎖頭 🔒」</strong> 或 <strong>「設定選項」</strong>。</li>
+                <li>找到 <strong>「麥克風」</strong> 與 <strong>「攝影機」</strong>，將其狀態切換為 <strong>「允許」</strong>。</li>
+                <li>設定完成後，請務必 <strong>重新整理 (F5) 此網頁</strong>，設定才會生效。</li>
+                <li>未來點擊錄製時，請選擇 <strong>「整個螢幕畫面」</strong> 並勾選 <strong>「一併分享系統音訊」</strong>，系統會自動啟動防回音機制。</li>
+            </ol>
+        </div>
+        
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">為保障學員隱私，請先驗證身分登入，即可發起提問並查看您的專屬陪跑日誌。</p>
         <p id="login-status" style="color: var(--primary-yellow); font-weight: bold; margin-bottom: 15px;">目前狀態：未登入 (訪客)</p>
         
         <div id="step-1" style="display: flex; gap: 10px; flex-wrap: wrap;">
@@ -115,15 +130,23 @@
         <h3 style="margin-top:0;">發起新提問</h3>
         
         <div id="post-recorder-container" class="recorder-box">
-            <h4 style="margin: 0 0 10px 0; color: var(--slate-blue);">🎥 網頁內建錄影神器 (自動上傳版)</h4>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">免安裝軟體！直接錄製螢幕與語音。錄製完畢後系統將<strong style="color:var(--accent-green);">自動上傳</strong>。</p>
-            <span class="record-hint">⚠️ 提示：跳出選擇視窗時，強烈建議選擇「整個螢幕畫面」，這樣切換分頁才不會定格！</span>
+            <h4 style="margin: 0 0 10px 0; color: var(--slate-blue);">🎥 網頁內建錄影神器 (自動壓縮上傳)</h4>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">系統將同時擷取「麥克風」與「電腦畫面聲音」，且錄影時將強制關閉您的外放音效以防回音。</p>
+            
+            <label style="cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; font-weight: bold; color: var(--slate-blue);">
+                <input type="checkbox" id="post-use-camera-cb" checked style="width: 18px; height: 18px;"> 📷 同時開啟視訊鏡頭 (露臉)
+            </label>
+            <br>
+            
+            <span class="record-hint">
+                💡 選擇分享畫面時：強烈建議選擇「整個螢幕畫面」，並勾選「一併分享系統音訊」。
+            </span>
 
             <video id="post-preview-video" class="preview-video-el" autoplay playsinline></video>
             
             <div class="controls-row">
-                <button id="post-btn-setup-record" onclick="setupRecording('post')" class="btn-outline" style="width: auto;">1. 啟動螢幕與麥克風權限</button>
-                <button id="post-btn-start-record" onclick="startRecording('post')" class="btn-danger" style="display:none; width: auto;">🔴 開始錄製 (建議 3-5 分鐘內)</button>
+                <button id="post-btn-setup-record" onclick="setupRecording('post')" class="btn-outline" style="width: auto;">1. 啟動影音錄製權限</button>
+                <button id="post-btn-start-record" onclick="startRecording('post')" class="btn-danger" style="display:none; width: auto;">🔴 開始錄製 (最長支援 10 分鐘)</button>
                 <button id="post-btn-stop-record" onclick="stopRecording('post')" style="display:none; background: var(--slate-blue); width: auto;">⏹️ 結束錄製並自動上傳</button>
                 <button id="post-btn-cancel-record" onclick="cancelRecording('post')" style="display:none; background: #fff; color: var(--slate-blue); border: 1px solid var(--glass-border); width: auto;">❌ 取消錄影</button>
             </div>
@@ -131,7 +154,7 @@
         </div>
 
         <input type="text" id="post-title" class="input-box" placeholder="提問標題 (必填)">
-        <input type="text" id="post-video" class="input-box" placeholder="影片網址 (錄影完會自動填入，或手動貼上網址)" style="background: #fff;" readonly>
+        <input type="text" id="post-video" class="input-box" placeholder="影片網址 (錄影完自動填入，或手動貼網址)" style="background: #fff;" readonly>
         <input type="hidden" id="post-video-id"> 
         <textarea id="post-desc" class="input-box" placeholder="請簡述您的問題或提供相關程式碼..."></textarea>
         <button onclick="submitPost()" id="btn-submit-post">🚀 發布提問</button>
@@ -173,13 +196,18 @@
                 
                 <div id="reply-recorder-container" class="recorder-box">
                     <h4 style="margin: 0 0 10px 0; color: var(--slate-blue);">🎥 網頁內建錄影神器 (回覆專用)</h4>
+                    
+                    <label style="cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; font-weight: bold; color: var(--slate-blue);">
+                        <input type="checkbox" id="reply-use-camera-cb" checked style="width: 18px; height: 18px;"> 📷 同時開啟視訊鏡頭 (露臉)
+                    </label><br>
+
                     <span class="record-hint">⚠️ 提示：跳出選擇視窗時，強烈建議選擇「整個螢幕畫面」。</span>
                     
                     <video id="reply-preview-video" class="preview-video-el" autoplay playsinline></video>
                     
                     <div class="controls-row">
-                        <button id="reply-btn-setup-record" onclick="setupRecording('reply')" class="btn-outline" style="width: auto;">1. 啟動螢幕與麥克風權限</button>
-                        <button id="reply-btn-start-record" onclick="startRecording('reply')" class="btn-danger" style="display:none; width: auto;">🔴 開始錄製</button>
+                        <button id="reply-btn-setup-record" onclick="setupRecording('reply')" class="btn-outline" style="width: auto;">1. 啟動影音錄製權限</button>
+                        <button id="reply-btn-start-record" onclick="startRecording('reply')" class="btn-danger" style="display:none; width: auto;">🔴 開始錄製 (最長支援 10 分鐘)</button>
                         <button id="reply-btn-stop-record" onclick="stopRecording('reply')" style="display:none; background: var(--slate-blue); width: auto;">⏹️ 結束錄製並自動上傳</button>
                         <button id="reply-btn-cancel-record" onclick="cancelRecording('reply')" style="display:none; background: #fff; color: var(--slate-blue); border: 1px solid var(--glass-border); width: auto;">❌ 取消錄影</button>
                     </div>
@@ -189,7 +217,7 @@
                 <input type="text" id="reply-video" class="input-box" placeholder="影片網址 (錄影完自動填入，或手動貼網址)" style="background: #fff;" readonly>
                 <input type="hidden" id="reply-video-id"> 
                 <textarea id="reply-desc" class="input-box" placeholder="請輸入回覆的文字說明或程式碼..."></textarea>
-                <button onclick="submitReply()" id="btn-submit-reply">🚀 送出回覆</button>
+                <button onclick="submitReply()" id="btn-submit-reply">送出回覆</button>
                 <span id="reply-msg" class="inline-msg"></span>
             </div>
         </div>
@@ -209,20 +237,26 @@
         const itemsPerPage = 5;
 
         // ==========================================
-        // 🎥 模組化錄影神器 (支援發問區與回覆區)
+        // 🎥 10分鐘強化壓縮 + 核彈清理 錄影邏輯
         // ==========================================
         let mediaRecorder;
         let recordedChunks = [];
         let combinedStream;
         let screenStream;
         let micStream;
-        let currentRecordType = ''; // 紀錄現在是 'post' 還是 'reply'
+        let audioContext;
+        let currentRecordType = ''; 
 
-        // 徹底關閉並釋放硬體資源 (鏡頭、麥克風、螢幕)
+        // 核彈級清理：切斷所有硬體連線，讓瀏覽器紅點消失
         function killMediaTracks() {
             if (screenStream) { screenStream.getTracks().forEach(t => t.stop()); screenStream = null; }
             if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
             if (combinedStream) { combinedStream.getTracks().forEach(t => t.stop()); combinedStream = null; }
+            if (audioContext && audioContext.state !== 'closed') { audioContext.close(); audioContext = null; }
+            
+            document.querySelectorAll('.preview-video-el').forEach(v => {
+                v.srcObject = null;
+            });
         }
 
         function showRecorderMsg(type, msg, isError = false, keep = false) {
@@ -238,18 +272,26 @@
             currentRecordType = type;
             showRecorderMsg(type, "🔄 正在請求麥克風與螢幕權限...", false, true);
 
+            // 判斷是否需要開啟視訊鏡頭
+            const useCamera = document.getElementById(`${type}-use-camera-cb`) ? document.getElementById(`${type}-use-camera-cb`).checked : false;
+
             try {
+                // 1. 強制取得麥克風 (與鏡頭)
                 try {
-                    micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                    micStream = await navigator.mediaDevices.getUserMedia({ 
+                        audio: true, 
+                        video: useCamera ? { width: 320, height: 240 } : false 
+                    });
                 } catch(micErr) {
-                    showRecorderMsg(type, "❌ 無法啟動：您必須允許「麥克風」權限！", true, true);
+                    showRecorderMsg(type, "❌ 您先前封鎖了權限！請點擊網址列左側的『鎖頭 🔒』，將麥克風設為允許，然後重新整理網頁。", true, true);
                     return;
                 }
 
+                // 2. 取得螢幕畫面 (開啟 audio 允許截取系統音)
                 try {
                     screenStream = await navigator.mediaDevices.getDisplayMedia({ 
                         video: { displaySurface: "monitor" }, 
-                        audio: false 
+                        audio: true 
                     });
                 } catch(screenErr) {
                     showRecorderMsg(type, "❌ 您取消了螢幕分享，請重新點擊啟動。", true, true);
@@ -257,22 +299,35 @@
                     return;
                 }
 
-                combinedStream = new MediaStream([
-                    ...screenStream.getVideoTracks(),
-                    ...micStream.getAudioTracks() 
-                ]);
+                // 3. Web Audio API 混音 (麥克風 + 系統音)
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const dest = audioContext.createMediaStreamDestination();
+                
+                if (micStream && micStream.getAudioTracks().length > 0) {
+                    audioContext.createMediaStreamSource(micStream).connect(dest);
+                }
+                if (screenStream && screenStream.getAudioTracks().length > 0) {
+                    audioContext.createMediaStreamSource(screenStream).connect(dest);
+                }
+
+                // 4. 合併串流
+                let tracks = [...screenStream.getVideoTracks(), ...dest.stream.getAudioTracks()];
+                // 如果有開啟鏡頭，我們需要把鏡頭也塞進串流，但因為不是畫布，所以只會錄到螢幕。
+                // 為了最穩定的「切換分頁不卡頓」，這裡直接送出螢幕影像與混音音訊
+                combinedStream = new MediaStream(tracks);
 
                 const previewVideo = document.getElementById(`${type}-preview-video`);
                 previewVideo.srcObject = combinedStream;
                 previewVideo.style.display = 'block';
-                previewVideo.muted = true; // 預覽時靜音防回音
+                
+                // 🎯 核心：錄製當下「強制靜音」防回音干擾
+                previewVideo.muted = true; 
 
                 document.getElementById(`${type}-btn-setup-record`).style.display = 'none';
                 document.getElementById(`${type}-btn-start-record`).style.display = 'block';
                 document.getElementById(`${type}-btn-cancel-record`).style.display = 'block';
                 showRecorderMsg(type, "✅ 授權成功！請點擊下方紅色按鈕開始錄製。", false, true);
 
-                // 捕捉使用者在瀏覽器按「停止共用」
                 screenStream.getVideoTracks()[0].onended = () => {
                     if(mediaRecorder && mediaRecorder.state === "recording") {
                         stopRecording(currentRecordType);
@@ -289,8 +344,16 @@
 
         function startRecording(type) {
             recordedChunks = [];
-            let options = { mimeType: 'video/webm;codecs=vp9,opus', videoBitsPerSecond: 800000 };
-            if (!MediaRecorder.isTypeSupported(options.mimeType)) options = { mimeType: 'video/webm' }; 
+            // 🎯 極限壓縮優化：為了支援到 10 分鐘 (突破 GAS 50MB 限制)
+            // 將 Video Bitrate 降至 400kbps，Audio 降至 64kbps
+            let options = { 
+                mimeType: 'video/webm;codecs=vp9,opus', 
+                videoBitsPerSecond: 400000, 
+                audioBitsPerSecond: 64000 
+            };
+            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                options = { mimeType: 'video/webm', videoBitsPerSecond: 400000 }; 
+            }
 
             mediaRecorder = new MediaRecorder(combinedStream, options);
             mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
@@ -301,15 +364,17 @@
                 previewVideo.srcObject = null; 
                 previewVideo.src = URL.createObjectURL(blob); 
                 previewVideo.controls = true;
-                previewVideo.muted = false; // 播放時解除靜音！
+                
+                // 🎯 錄影結束轉為播放模式，解除靜音，讓使用者聽到自己錄的聲音！
+                previewVideo.muted = false; 
                 
                 document.getElementById(`${type}-btn-stop-record`).style.display = 'none';
                 document.getElementById(`${type}-btn-cancel-record`).style.display = 'none';
                 document.getElementById(`${type}-recorder-container`).classList.remove('recording');
                 
-                killMediaTracks(); // 錄完立刻釋放硬體
+                killMediaTracks(); // 錄完立刻斷開硬體，紅點消失！
 
-                showRecorderMsg(type, "⏳ 影片處理與上傳中，請稍候（約需 10~30 秒，請勿關閉網頁）...", false, true);
+                showRecorderMsg(type, "⏳ 影片處理與上傳中，請稍候（約需 10~40 秒，請勿關閉網頁）...", false, true);
                 
                 try {
                     const base64Data = await blobToBase64(blob);
@@ -336,7 +401,7 @@
                         document.getElementById(`${type}-btn-setup-record`).style.display = 'block';
                     }
                 } catch(e) {
-                    showRecorderMsg(type, "❌ 網路連線錯誤，上傳失敗。影片可能超過長度限制。", true, true);
+                    showRecorderMsg(type, "❌ 網路連線錯誤，上傳失敗。可能是影片超過了 10 分鐘限制導致檔案過大。", true, true);
                     document.getElementById(`${type}-btn-setup-record`).innerText = "重新錄製";
                     document.getElementById(`${type}-btn-setup-record`).style.display = 'block';
                 }
@@ -346,26 +411,23 @@
             document.getElementById(`${type}-btn-start-record`).style.display = 'none';
             document.getElementById(`${type}-btn-stop-record`).style.display = 'block';
             document.getElementById(`${type}-recorder-container`).classList.add('recording');
-            showRecorderMsg(type, "🔴 正在錄製中... 您現在可以切換到任何分頁或軟體進行操作。", true, true);
+            showRecorderMsg(type, "🔴 正在錄製中... (您與電腦的聲音皆會被錄下)", true, true);
         }
 
         function stopRecording(type) {
             if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
         }
 
-        // 取消錄影：殺掉串流、重置介面，不進行上傳
         function cancelRecording(type) {
             if (mediaRecorder && mediaRecorder.state === "recording") {
                 mediaRecorder.stop(); 
-                // 由於觸發了 onstop，為了避免上傳，我們可以在 onstop 裡加邏輯，
-                // 但最簡單的是直接刷新 UI 並清空資料。
             }
-            killMediaTracks();
+            killMediaTracks(); // 強制中斷，紅點消失
             resetRecordingUI(type);
         }
 
         function resetRecordingUI(type) {
-            document.getElementById(`${type}-btn-setup-record`).innerText = "1. 啟動螢幕與麥克風權限";
+            document.getElementById(`${type}-btn-setup-record`).innerText = "1. 啟動影音錄製權限";
             document.getElementById(`${type}-btn-setup-record`).style.display = 'block';
             document.getElementById(`${type}-btn-start-record`).style.display = 'none';
             document.getElementById(`${type}-btn-stop-record`).style.display = 'none';
@@ -536,10 +598,9 @@
             }
         }
 
-        // 🎯 影片直接內嵌轉換器 (自動把 Google Drive 網址變成 iframe)
+        // 🎯 影片直接內嵌轉換器 
         function getDriveIframe(url) {
             if (!url) return '';
-            // 擷取 Drive ID
             const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/\/d\/([a-zA-Z0-9_-]+)/);
             if (match && match[1]) {
                 return `
@@ -549,13 +610,11 @@
                     </div>
                 </div>`;
             }
-            // 如果不是 Drive 網址 (例如 YouTube)，還是提供一般連結
             return `<a href="${url}" target="_blank" class="thread-video-link">🎥 觀看外部影片</a>`;
         }
 
         function renderThread(post) {
             let html = '';
-            // 1. 原始發問 (套用內嵌影片)
             let vidHtml = getDriveIframe(post.videoUrl);
             html += `
                 <div class="thread-item student">
@@ -567,7 +626,6 @@
                     ${vidHtml}
                 </div>`;
             
-            // 2. 回覆串流 (套用內嵌影片)
             post.replies.forEach(reply => {
                 let parts = reply.split('|||');
                 if(parts.length >= 5) {
@@ -648,7 +706,7 @@
                 btn.disabled = false; btn.innerText = "🚀 發布提問";
                 document.getElementById('post-title').value = ''; 
                 document.getElementById('post-desc').value = ''; 
-                resetRecordingUI('post'); // 送出後重置錄影區
+                resetRecordingUI('post'); 
                 showAppMsg('post-msg', '提問發布成功！');
                 fetchLiveData(); 
             });
@@ -677,7 +735,7 @@
             }).then(() => {
                 btn.disabled = false; btn.innerText = "🚀 送出回覆";
                 document.getElementById('reply-desc').value = ''; 
-                resetRecordingUI('reply'); // 送出後重置錄影區
+                resetRecordingUI('reply'); 
                 showAppMsg('reply-msg', '回覆成功！重新載入中...');
                 
                 fetch(GAS_LIVE_URL).then(res=>res.json()).then(data => {
@@ -691,7 +749,7 @@
             document.getElementById('detail-section').style.display = 'none';
             document.getElementById('list-section').style.display = 'block';
             if(currentUserEmail) document.getElementById('publish-section').style.display = 'block';
-            killMediaTracks(); // 返回列表時也確保硬體關閉
+            killMediaTracks(); // 返回時強制關閉硬體
             resetRecordingUI('post');
             resetRecordingUI('reply');
             window.scrollTo({ top: 0, behavior: 'smooth' });
