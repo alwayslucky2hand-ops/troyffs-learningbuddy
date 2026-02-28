@@ -116,7 +116,7 @@
             <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">免安裝軟體！直接錄製螢幕與語音。錄製完畢後系統將<strong style="color:var(--accent-green);">自動上傳</strong>。</p>
             <span class="record-hint">⚠️ 提示：跳出選擇視窗時，強烈建議選擇「整個螢幕畫面」，這樣切換分頁才不會定格！</span>
 
-            <video id="preview-video" autoplay muted playsinline></video>
+            <video id="preview-video" autoplay playsinline></video>
             
             <div class="controls-row">
                 <button id="btn-setup-record" onclick="setupRecording()" class="btn-outline" style="width: auto;">1. 啟動螢幕與麥克風權限</button>
@@ -176,7 +176,7 @@
 
     <script>
         // 🚨 替換成你的最新 GAS 網址！
-        const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbzRSYI9xrjDdGW030PV1TpPB5P-dPUk_4fCdNzInnevIM14FBV1Xod3VRvFHe8oD-8w/exec';
+        const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbxlskYCzmBvEovom6UtLKSm4odx_xFhvlOGE78qXURsZQVNDj2ym9WbSuIfQMNntLQc/exec';
         const ADMIN_EMAIL = 'alwayslucky2hand@gmail.com';
 
         let currentUserEmail = ''; 
@@ -206,7 +206,7 @@
             showRecorderMsg("🔄 正在請求麥克風與螢幕權限...", false, true);
 
             try {
-                // 1. 強制取得麥克風聲音 (這步失敗就擋下)
+                // 1. 強制取得麥克風聲音 
                 try {
                     micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
                 } catch(micErr) {
@@ -226,7 +226,7 @@
                     return;
                 }
 
-                // 3. 原生結合：畫面 + 麥克風 (完全不依賴畫布，切換分頁絕不卡死)
+                // 3. 原生結合：畫面 + 麥克風 
                 combinedStream = new MediaStream([
                     ...screenStream.getVideoTracks(),
                     ...micStream.getAudioTracks() 
@@ -235,7 +235,8 @@
                 const previewVideo = document.getElementById('preview-video');
                 previewVideo.srcObject = combinedStream;
                 previewVideo.style.display = 'block';
-                previewVideo.muted = true; // 預覽時靜音防回音
+                // 🚨 修正：錄影當下靜音防回音
+                previewVideo.muted = true; 
 
                 document.getElementById('btn-setup-record').style.display = 'none';
                 document.getElementById('btn-start-record').style.display = 'block';
@@ -267,6 +268,9 @@
                 previewVideo.src = URL.createObjectURL(blob); 
                 previewVideo.controls = true;
                 
+                // 🚨 重大修正：播放時解除靜音，讓使用者能聽到自己的聲音！
+                previewVideo.muted = false; 
+                
                 document.getElementById('btn-stop-record').style.display = 'none';
                 document.getElementById('recorder-container').classList.remove('recording');
                 
@@ -297,7 +301,7 @@
                         document.getElementById('btn-setup-record').innerText = "重新錄製 (將覆蓋前一次)";
                         document.getElementById('btn-setup-record').style.display = 'block';
                     } else {
-                        showRecorderMsg("❌ 上傳失敗：請檢查 Google 權限是否開啟 (" + data.message + ")", true, true);
+                        showRecorderMsg("❌ 上傳失敗：" + data.message, true, true);
                         document.getElementById('btn-setup-record').innerText = "重新錄製";
                         document.getElementById('btn-setup-record').style.display = 'block';
                     }
