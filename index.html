@@ -75,7 +75,6 @@
         .inline-msg.success { color: var(--accent-green); }
         .system-msg { text-align: center; color: var(--slate-blue); padding: 30px; font-weight: bold; }
 
-        /* 錄影神器 UI */
         .recorder-box { background: #f1f5f9; border: 2px dashed var(--slate-blue); border-radius: 12px; padding: 20px; margin-bottom: 20px; text-align: center; transition: all 0.3s ease;}
         .recorder-box.recording { border-color: var(--danger-color); background: #fef2f2; animation: borderPulse 2s infinite; }
         @keyframes borderPulse { 0% { border-color: var(--danger-color); } 50% { border-color: #fca5a5; } 100% { border-color: var(--danger-color); } }
@@ -83,7 +82,6 @@
         .controls-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 15px; }
         .record-hint { font-size: 0.85rem; color: var(--danger-color); margin-bottom: 10px; font-weight: bold; display: inline-block; padding: 6px 12px; background: #fef2f2; border-radius: 6px; line-height: 1.5; }
         
-        /* SOP 指南區塊 */
         .sop-box { background: #FFFBEB; border-left: 4px solid var(--primary-yellow); padding: 15px; margin-bottom: 20px; border-radius: 4px; text-align: left;}
         .sop-box strong { color: var(--slate-blue); font-size: 1.05rem; }
         .sop-box ol { margin-top: 8px; margin-bottom: 0; padding-left: 20px; color: var(--text-dark); font-size: 0.95rem; line-height: 1.6;}
@@ -95,17 +93,15 @@
 
     <div class="section" id="login-section">
         <h3 style="margin-top:0;">會員通行證與錄影權限指南</h3>
-        
         <div class="sop-box">
             <strong>🛠️ 錄影神器權限開通 SOP（首次使用必看）：</strong>
             <ol>
-                <li>請點擊瀏覽器網址列最左側的 <strong>「鎖頭 🔒」</strong> 或 <strong>「設定選項」</strong>。</li>
+                <li>請點擊瀏覽器網址列最左側的 <strong>「鎖頭 🔒」</strong>。</li>
                 <li>找到 <strong>「麥克風」</strong> 與 <strong>「攝影機」</strong>，將其狀態切換為 <strong>「允許」</strong>。</li>
-                <li>設定完成後，請務必 <strong>重新整理 (F5) 此網頁</strong>，設定才會生效。</li>
-                <li>未來點擊錄製時，請選擇 <strong>「整個螢幕畫面」</strong> 並勾選 <strong>「一併分享系統音訊」</strong>，系統會自動啟動防回音機制。</li>
+                <li>設定完成後，請務必 <strong>重新整理 (F5) 此網頁</strong>。</li>
+                <li>點擊錄製時，請選擇 <strong>「整個螢幕畫面」</strong> 並務必勾選 <strong>「一併分享系統音訊」</strong>！</li>
             </ol>
         </div>
-        
         <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">為保障學員隱私，請先驗證身分登入，即可發起提問並查看您的專屬陪跑日誌。</p>
         <p id="login-status" style="color: var(--primary-yellow); font-weight: bold; margin-bottom: 15px;">目前狀態：未登入 (訪客)</p>
         
@@ -128,19 +124,13 @@
 
     <div class="section" id="publish-section" style="display: none; border-left: 5px solid var(--primary-yellow);">
         <h3 style="margin-top:0;">發起新提問</h3>
-        
         <div id="post-recorder-container" class="recorder-box">
-            <h4 style="margin: 0 0 10px 0; color: var(--slate-blue);">🎥 網頁內建錄影神器 (超大檔案分段續傳版)</h4>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">系統將同時擷取「麥克風」與「電腦畫面聲音」，且錄影時將強制關閉您的外放音效以防回音。</p>
-            
+            <h4 style="margin: 0 0 10px 0; color: var(--slate-blue);">🎥 網頁內建錄影神器 (無限制時長版)</h4>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">系統將同時擷取「麥克風」與「電腦畫面聲音」，若未勾選系統音訊將無法啟動錄影。</p>
             <label style="cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; font-weight: bold; color: var(--slate-blue);">
                 <input type="checkbox" id="post-use-camera-cb" checked style="width: 18px; height: 18px;"> 📷 同時開啟視訊鏡頭 (露臉)
-            </label>
-            <br>
-            
-            <span class="record-hint">
-                💡 選擇分享畫面時：強烈建議選擇「整個螢幕畫面」，並勾選「一併分享系統音訊」。
-            </span>
+            </label><br>
+            <span class="record-hint">💡 選擇分享畫面時：強烈建議選擇「整個螢幕畫面」，並務必勾選「一併分享系統音訊」。</span>
 
             <video id="post-preview-video" class="preview-video-el" autoplay playsinline></video>
             
@@ -193,16 +183,12 @@
             
             <div style="margin-top:30px; border-top: 2px solid var(--glass-border); padding-top: 25px;">
                 <h3 style="margin-top:0;">新增影音回覆 / 追問</h3>
-                
                 <div id="reply-recorder-container" class="recorder-box">
                     <h4 style="margin: 0 0 10px 0; color: var(--slate-blue);">🎥 網頁內建錄影神器 (回覆專用)</h4>
-                    
                     <label style="cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; font-weight: bold; color: var(--slate-blue);">
                         <input type="checkbox" id="reply-use-camera-cb" checked style="width: 18px; height: 18px;"> 📷 同時開啟視訊鏡頭 (露臉)
                     </label><br>
-
-                    <span class="record-hint">⚠️ 提示：跳出選擇視窗時，強烈建議選擇「整個螢幕畫面」。</span>
-                    
+                    <span class="record-hint">⚠️ 提示：請選擇「整個螢幕畫面」，並務必勾選「一併分享系統音訊」。</span>
                     <video id="reply-preview-video" class="preview-video-el" autoplay playsinline></video>
                     
                     <div class="controls-row">
@@ -225,7 +211,7 @@
 
     <script>
         // 🚨 替換成你的最新 GAS 網址！
-        const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbxfQHizC9BiGtvoKY5Zvlw3n7N6yP8D0ahBdcjfT9Pb6apAZaZI0jT-ffxi0Jp5OBxe/exec';
+        const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbznNnl4RQLQH9vr_ms6L0xWj5yqDiVgPETskuhYu_gF6PFyiVXvT9636-nLJtLd244e/exec';
         const ADMIN_EMAIL = 'alwayslucky2hand@gmail.com';
 
         let currentUserEmail = ''; 
@@ -237,7 +223,7 @@
         const itemsPerPage = 5;
 
         // ==========================================
-        // 🎥 革命性升級：分段續傳引擎 (支援無上限時長)
+        // 🎥 GAS 中繼站接力上傳引擎 (完全免疫 CORS)
         // ==========================================
         let mediaRecorder;
         let recordedChunks = [];
@@ -247,16 +233,12 @@
         let audioContext;
         let currentRecordType = ''; 
 
-        // 徹底切斷硬體連線，紅點消失
         function killMediaTracks() {
             if (screenStream) { screenStream.getTracks().forEach(t => t.stop()); screenStream = null; }
             if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
             if (combinedStream) { combinedStream.getTracks().forEach(t => t.stop()); combinedStream = null; }
             if (audioContext && audioContext.state !== 'closed') { audioContext.close(); audioContext = null; }
-            
-            document.querySelectorAll('.preview-video-el').forEach(v => {
-                v.srcObject = null;
-            });
+            document.querySelectorAll('.preview-video-el').forEach(v => { v.srcObject = null; });
         }
 
         function showRecorderMsg(type, msg, isError = false, keep = false) {
@@ -274,22 +256,20 @@
             const useCamera = document.getElementById(`${type}-use-camera-cb`) ? document.getElementById(`${type}-use-camera-cb`).checked : false;
 
             try {
-                // 1. 強制取得麥克風 (被封鎖會跳到 catch)
                 try {
                     micStream = await navigator.mediaDevices.getUserMedia({ 
                         audio: true, 
                         video: useCamera ? { width: 320, height: 240 } : false 
                     });
                 } catch(micErr) {
-                    showRecorderMsg(type, "❌ 您先前封鎖了權限！請點擊網址列左側的『鎖頭 🔒』，將麥克風設為允許，然後重新整理網頁。", true, true);
+                    showRecorderMsg(type, "❌ 您先前封鎖了權限！請點擊網址列左側的『鎖頭 🔒』將麥克風設為允許，並重新整理。", true, true);
                     return;
                 }
 
-                // 2. 取得螢幕畫面 (含系統音)
                 try {
                     screenStream = await navigator.mediaDevices.getDisplayMedia({ 
                         video: { displaySurface: "monitor" }, 
-                        audio: true 
+                        audio: { systemAudio: "include", echoCancellation: false, noiseSuppression: false, autoGainControl: false }
                     });
                 } catch(screenErr) {
                     showRecorderMsg(type, "❌ 您取消了螢幕分享，請重新點擊啟動。", true, true);
@@ -297,7 +277,12 @@
                     return;
                 }
 
-                // 3. Web Audio API 混音
+                if (screenStream.getAudioTracks().length === 0) {
+                    killMediaTracks(); 
+                    showRecorderMsg(type, "❌ 啟動失敗：您忘記勾選左下角的「一併分享系統音訊」了！請重新啟動並務必打勾。", true, true);
+                    return; 
+                }
+
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 const dest = audioContext.createMediaStreamDestination();
                 
@@ -308,30 +293,22 @@
                     audioContext.createMediaStreamSource(screenStream).connect(dest);
                 }
 
-                // 4. 合併串流
                 let tracks = [...screenStream.getVideoTracks(), ...dest.stream.getAudioTracks()];
                 combinedStream = new MediaStream(tracks);
 
                 const previewVideo = document.getElementById(`${type}-preview-video`);
                 previewVideo.srcObject = combinedStream;
                 previewVideo.style.display = 'block';
-                
-                // 🎯 錄影當下強制靜音防回音
                 previewVideo.muted = true; 
 
                 document.getElementById(`${type}-btn-setup-record`).style.display = 'none';
                 document.getElementById(`${type}-btn-start-record`).style.display = 'block';
                 document.getElementById(`${type}-btn-cancel-record`).style.display = 'block';
-                showRecorderMsg(type, "✅ 授權成功！請點擊下方紅色按鈕開始錄製。", false, true);
+                showRecorderMsg(type, "✅ 授權成功且系統音已連接！請點擊下方紅色按鈕開始錄製。", false, true);
 
                 screenStream.getVideoTracks()[0].onended = () => {
-                    if(mediaRecorder && mediaRecorder.state === "recording") {
-                        stopRecording(currentRecordType);
-                    } else {
-                        cancelRecording(currentRecordType);
-                    }
+                    if(mediaRecorder && mediaRecorder.state === "recording") { stopRecording(currentRecordType); } else { cancelRecording(currentRecordType); }
                 };
-
             } catch (err) {
                 showRecorderMsg(type, "❌ 發生錯誤：" + err.message, true, true);
                 killMediaTracks();
@@ -340,9 +317,6 @@
 
         function startRecording(type) {
             recordedChunks = [];
-            
-            // 🎯 因為使用了分段續傳，我們解除了低畫質壓縮限制，讓畫面更清晰！
-            // 優先使用 vp8 確保 Google Drive 預覽相容性
             let options;
             if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')) {
                 options = { mimeType: 'video/webm;codecs=vp8,opus', videoBitsPerSecond: 1200000 };
@@ -361,33 +335,28 @@
                 previewVideo.srcObject = null; 
                 previewVideo.src = URL.createObjectURL(blob); 
                 previewVideo.controls = true;
-                
-                // 🎯 錄影結束，解除靜音讓學員可以確認聲音
                 previewVideo.muted = false; 
                 
                 document.getElementById(`${type}-btn-stop-record`).style.display = 'none';
                 document.getElementById(`${type}-btn-cancel-record`).style.display = 'none';
                 document.getElementById(`${type}-recorder-container`).classList.remove('recording');
                 
-                killMediaTracks(); // 硬體釋放
+                killMediaTracks(); 
 
                 try {
-                    showRecorderMsg(type, "⏳ 正在建立大檔案專屬上傳通道...", false, true);
+                    showRecorderMsg(type, "⏳ 正在與中繼站建立連線通道...", false, true);
                     
-                    // 1. 向 GAS 索取「分段續傳」專屬連結
                     const initRes = await fetch(GAS_LIVE_URL, {
                         method: 'POST',
-                        body: JSON.stringify({ action: 'get_upload_url', filename: `Temp_${Date.now()}.webm` })
+                        body: JSON.stringify({ action: 'init_upload', filename: `Temp_${Date.now()}.webm` })
                     });
                     const initData = await initRes.json();
                     
                     if (initData.status !== 'success') throw new Error(initData.message);
                     const uploadUrl = initData.uploadUrl;
 
-                    showRecorderMsg(type, "⏳ 影片切塊上傳中（支援超大檔案，請勿關閉網頁）...", false, true);
-
-                    // 2. 核心：將影片切塊 (5MB) 並直接 PUT 到 Google 伺服器
-                    const chunkSize = 5 * 1024 * 1024; // 5MB 碎片
+                    // 透過 GAS 進行 3MB 中繼傳輸 (完美避開 CORS)
+                    const chunkSize = 3 * 1024 * 1024; 
                     const fileSize = blob.size;
                     let start = 0;
                     let fileId = null;
@@ -395,30 +364,37 @@
                     while (start < fileSize) {
                         const end = Math.min(start + chunkSize, fileSize);
                         const chunk = blob.slice(start, end);
+                        const chunkBase64 = await blobToBase64(chunk);
                         
-                        const response = await fetch(uploadUrl, {
-                            method: 'PUT',
-                            headers: { 'Content-Range': `bytes ${start}-${end - 1}/${fileSize}` },
-                            body: chunk
+                        let progress = Math.round((start / fileSize) * 100);
+                        showRecorderMsg(type, `⏳ 影片上傳中：${progress}% (請勿關閉網頁)...`, false, true);
+
+                        const response = await fetch(GAS_LIVE_URL, {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                action: 'upload_chunk',
+                                uploadUrl: uploadUrl,
+                                chunkBase64: chunkBase64,
+                                start: start,
+                                totalSize: fileSize
+                            })
                         });
 
-                        if (response.status === 308) {
+                        const data = await response.json();
+
+                        if (data.status === 'resume') {
                             start = end; 
-                            let progress = Math.round((start / fileSize) * 100);
-                            showRecorderMsg(type, `⏳ 影片上傳中：${progress}% (請勿關閉網頁)...`, false, true);
-                        } else if (response.status === 200 || response.status === 201) {
-                            const data = await response.json();
-                            fileId = data.id;
+                        } else if (data.status === 'success') {
+                            fileId = data.fileId;
                             break;
                         } else {
-                            throw new Error('分段上傳失敗，狀態碼：' + response.status);
+                            throw new Error(data.message);
                         }
                     }
 
-                    // 3. 上傳完成，將 ID 與連結填入隱藏欄位
                     document.getElementById(`${type}-video`).value = `https://drive.google.com/file/d/${fileId}/view`;
                     document.getElementById(`${type}-video-id`).value = fileId;
-                    showRecorderMsg(type, "✅ 影片上傳成功！網址已自動填入。(💡 剛上傳的影片雲端需 3~5 分鐘處理預覽，屬正常現象)", false, true);
+                    showRecorderMsg(type, "✅ 影片上傳成功！網址已自動填入。(💡 剛上傳的影片雲端需 3~5 分鐘處理預覽)", false, true);
                     document.getElementById(`${type}-record-status-msg`).style.color = "var(--accent-green)";
                     document.getElementById(`${type}-btn-setup-record`).innerText = "重新錄製 (將覆蓋前一次)";
                     document.getElementById(`${type}-btn-setup-record`).style.display = 'block';
@@ -430,21 +406,18 @@
                 }
             };
 
-            mediaRecorder.start(1000); // 每秒觸發一次資料寫入確保緩衝安全
+            mediaRecorder.start(1000); 
             document.getElementById(`${type}-btn-start-record`).style.display = 'none';
             document.getElementById(`${type}-btn-stop-record`).style.display = 'block';
             document.getElementById(`${type}-recorder-container`).classList.add('recording');
-            showRecorderMsg(type, "🔴 正在錄製中... (您與電腦的聲音皆會被錄下)", true, true);
+            showRecorderMsg(type, "🔴 正在錄製中... (您與電腦的聲音皆會被嚴格錄下)", true, true);
         }
 
-        function stopRecording(type) {
-            if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
-        }
+        function stopRecording(type) { if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop(); }
 
         function cancelRecording(type) {
             if (mediaRecorder && mediaRecorder.state === "recording") {
                 mediaRecorder.stop(); 
-                // 覆寫 onstop 行為以防上傳
                 mediaRecorder.onstop = () => { killMediaTracks(); resetRecordingUI(type); };
             } else {
                 killMediaTracks();
@@ -465,8 +438,14 @@
             document.getElementById(`${type}-video`).value = '';
             document.getElementById(`${type}-video-id`).value = '';
         }
-        // ==========================================
 
+        function blobToBase64(blob) {
+            return new Promise((resolve, _) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result.split(',')[1]);
+                reader.readAsDataURL(blob);
+            });
+        }
 
         // ==========================================
         // 網站基礎邏輯
@@ -484,10 +463,7 @@
             setTimeout(() => el.innerText = '', 4000);
         }
         
-        function scrollToLogin() {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            document.getElementById('email').focus();
-        }
+        function scrollToLogin() { window.scrollTo({ top: 0, behavior: 'smooth' }); document.getElementById('email').focus(); }
 
         function requestOTP() {
             const email = document.getElementById('email').value.trim();
@@ -520,9 +496,7 @@
                 document.getElementById('btn-logout').style.display = 'block';
                 document.getElementById('publish-section').style.display = 'block';
                 
-                if(currentPost && document.getElementById('detail-section').style.display === 'block') {
-                    enterClass(currentPost.courseId);
-                }
+                if(currentPost && document.getElementById('detail-section').style.display === 'block') { enterClass(currentPost.courseId); }
             });
         }
 
@@ -616,7 +590,6 @@
             }
         }
 
-        // 🎯 影片直接內嵌轉換器 
         function getDriveIframe(url) {
             if (!url) return '';
             const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/\/d\/([a-zA-Z0-9_-]+)/);
@@ -767,7 +740,7 @@
             document.getElementById('detail-section').style.display = 'none';
             document.getElementById('list-section').style.display = 'block';
             if(currentUserEmail) document.getElementById('publish-section').style.display = 'block';
-            killMediaTracks(); // 返回時強制關閉硬體
+            killMediaTracks(); 
             resetRecordingUI('post');
             resetRecordingUI('reply');
             window.scrollTo({ top: 0, behavior: 'smooth' });
