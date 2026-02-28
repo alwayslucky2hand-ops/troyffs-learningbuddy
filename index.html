@@ -29,12 +29,14 @@
         .input-box:focus, textarea:focus { outline: none; border-color: var(--primary-yellow); background: var(--bg-pure); box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2); }
         textarea { min-height: 120px; resize: vertical; }
         
-        button { background: var(--primary-yellow); color: #ffffff; border: none; padding: 14px 28px; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; width: 100%; transition: background 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 10px; }
+        button { background: var(--primary-yellow); color: #ffffff; border: none; padding: 14px 28px; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; width: 100%; transition: background 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 10px; display: flex; justify-content: center; align-items: center; gap: 8px;}
         button:hover { background: var(--primary-hover); } 
-        button:disabled { background: #E5E7EB; color: var(--text-muted); cursor: not-allowed; }
+        button:disabled { background: #E5E7EB; color: var(--text-muted); cursor: not-allowed; box-shadow: none; }
         .btn-outline { background: var(--input-bg); color: var(--slate-blue); border: 1px solid var(--glass-border); box-shadow: none; }
+        .btn-danger { background: var(--danger-color); box-shadow: 0 4px 6px rgba(239, 68, 68, 0.2); } 
+        .btn-danger:hover { background: #DC2626; }
         
-        /* 篩選與搜尋 */
+        /* 搜尋與篩選 */
         .search-box { width: 100%; padding: 14px 18px; border: 1px solid var(--glass-border); border-radius: 8px; font-size: 1rem; background: var(--input-bg); margin-bottom: 20px; }
         .filter-section { background: var(--panel-bg); margin-bottom: 25px; padding: 20px; border-radius: var(--radius-soft); border: 1px solid var(--glass-border); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }
         .filter-title { margin-bottom: 10px; font-weight: bold; color: var(--slate-blue); font-size: 0.9em; }
@@ -55,10 +57,8 @@
         .post-meta span { background: var(--input-bg); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--glass-border); color: var(--slate-blue); font-weight: bold;}
         .post-excerpt { color: var(--text-dark); margin-bottom: 20px; white-space: pre-wrap; font-size: 1.05rem; }
         
-        /* 鎖定權限 CTA 區塊 */
         .cta-container { display: none; padding: 50px 20px; text-align: center; background: #f8fafc; flex-direction: column; justify-content: center; align-items: center; border-radius: var(--radius-soft); border: 1px dashed var(--glass-border); margin-top: 20px; }
 
-        /* 對話流 UI */
         .thread-item { background: var(--input-bg); padding: 20px; border-radius: 12px; margin-bottom: 20px; border-left: 5px solid var(--glass-border); position: relative;}
         .thread-item.coach { border-left-color: var(--accent-green); background: #F0FDF4; }
         .thread-item.student { border-left-color: var(--primary-yellow); }
@@ -73,6 +73,14 @@
         .page-btn.active { background: var(--primary-yellow); color: #ffffff; border-color: var(--primary-yellow); }
         .inline-msg { font-weight: bold; display: block; margin-top: 5px; min-height: 24px; color: var(--danger-color); }
         .system-msg { text-align: center; color: var(--slate-blue); padding: 30px; font-weight: bold; }
+
+        /* 錄影神器專屬 UI */
+        .recorder-box { background: #f1f5f9; border: 2px dashed var(--slate-blue); border-radius: 12px; padding: 20px; margin-bottom: 20px; text-align: center; transition: all 0.3s ease;}
+        .recorder-box.recording { border-color: var(--danger-color); background: #fef2f2; animation: borderPulse 2s infinite; }
+        @keyframes borderPulse { 0% { border-color: var(--danger-color); } 50% { border-color: #fca5a5; } 100% { border-color: var(--danger-color); } }
+        #preview-video { width: 100%; max-width: 600px; border-radius: 8px; background: #000; margin-top: 15px; display: none; aspect-ratio: 16/9; }
+        
+        .controls-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 15px; }
     </style>
 </head>
 <body>
@@ -103,11 +111,27 @@
 
     <div class="section" id="publish-section" style="display: none; border-left: 5px solid var(--primary-yellow);">
         <h3 style="margin-top:0;">發起新提問</h3>
-        <p style="color: var(--text-muted); font-size: 0.9rem;">請將您錄製好的影片上傳至雲端硬碟，並將連結貼於下方。</p>
+        
+        <div id="recorder-container" class="recorder-box">
+            <h4 style="margin: 0 0 10px 0; color: var(--slate-blue);">🎥 網頁內建錄影神器 (螢幕 + 視訊)</h4>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">免安裝軟體！直接在此錄製您的操作畫面與問題，錄製完成後請下載影片並上傳雲端。</p>
+            
+            <video id="preview-video" autoplay muted playsinline></video>
+            
+            <div class="controls-row">
+                <button id="btn-setup-record" onclick="setupRecording()" class="btn-outline" style="width: auto;">1. 允許取用螢幕與鏡頭</button>
+                <button id="btn-start-record" onclick="startRecording()" class="btn-danger" style="display:none; width: auto;">🔴 開始錄製</button>
+                <button id="btn-stop-record" onclick="stopRecording()" style="display:none; background: var(--slate-blue); width: auto;">⏹️ 結束錄製</button>
+                <a id="download-link" style="display:none; text-decoration: none;"><button style="background: var(--accent-green); width: auto;">⬇️ 2. 下載影片</button></a>
+            </div>
+            <p id="record-status-msg" style="font-size: 0.85rem; color: var(--danger-color); margin-top: 10px; display: none; font-weight: bold;"></p>
+        </div>
+
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 5px;">3. 請將上方下載的影片，上傳至雲端硬碟，並將連結貼於下方。</p>
         <input type="text" id="post-title" class="input-box" placeholder="提問標題 (必填)">
         <input type="text" id="post-video" class="input-box" placeholder="貼上影片網址 (Drive / Loom / YT 連結)">
         <textarea id="post-desc" class="input-box" placeholder="請簡述您的問題或提供相關程式碼..."></textarea>
-        <button onclick="submitPost()" id="btn-submit-post">發布提問</button>
+        <button onclick="submitPost()" id="btn-submit-post">🚀 發布提問</button>
         <span id="post-msg" class="inline-msg"></span>
     </div>
 
@@ -156,7 +180,7 @@
     </div>
 
     <script>
-        // 🚨 重要：請更新為你最新部署後的 GAS 網址！
+        // 🚨 替換成你的最新 GAS 網址！
         const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbwvfMRgSxv4ZnwaSxpMG89ldUE7ULZiV3KjcqiieMTQYBY0XF69wGHatZjZ0RAqHjMu/exec';
         const ADMIN_EMAIL = 'alwayslucky2hand@gmail.com';
 
@@ -169,7 +193,184 @@
         let currentPage = 1;
         const itemsPerPage = 5;
 
-        // 網頁載入時直接抓取清單，讓訪客也能看到豐富的日誌列表
+        // --- 🎥 錄影神器核心邏輯 ---
+        let mediaRecorder;
+        let recordedChunks = [];
+        let combinedStream;
+        let screenStream;
+        let camStream;
+        let animationId;
+
+        async function setupRecording() {
+            try {
+                document.getElementById('btn-setup-record').innerText = "請求權限中...";
+                
+                // 1. 取得螢幕畫面 (包含系統音訊)
+                screenStream = await navigator.mediaDevices.getDisplayMedia({ 
+                    video: { displaySurface: "monitor" }, 
+                    audio: true 
+                });
+
+                // 2. 取得視訊鏡頭與麥克風
+                try {
+                    camStream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { width: 320, height: 240 }, 
+                        audio: true 
+                    });
+                } catch(camErr) {
+                    console.warn("無法取得鏡頭，將僅錄製螢幕", camErr);
+                }
+
+                // 3. 建立隱藏的 Canvas 進行畫中畫合成 (PIP)
+                const canvas = document.createElement('canvas');
+                canvas.width = 1280; 
+                canvas.height = 720;
+                const ctx = canvas.getContext('2d');
+
+                const screenVideo = document.createElement('video');
+                screenVideo.srcObject = screenStream; 
+                screenVideo.play();
+
+                let camVideo;
+                if (camStream) {
+                    camVideo = document.createElement('video');
+                    camVideo.srcObject = camStream; 
+                    camVideo.play();
+                }
+
+                // 繪製迴圈
+                function drawCanvas() {
+                    if(screenVideo.readyState === screenVideo.HAVE_ENOUGH_DATA) {
+                        ctx.drawImage(screenVideo, 0, 0, canvas.width, canvas.height);
+                    }
+                    if(camVideo && camVideo.readyState === camVideo.HAVE_ENOUGH_DATA) {
+                        // 在右下角畫出鏡頭畫面，加上白色邊框
+                        const camW = 320, camH = 240;
+                        const camX = canvas.width - camW - 20;
+                        const camY = canvas.height - camH - 20;
+                        ctx.lineWidth = 4;
+                        ctx.strokeStyle = "white";
+                        ctx.strokeRect(camX, camY, camW, camH);
+                        ctx.drawImage(camVideo, camX, camY, camW, camH);
+                    }
+                    animationId = requestAnimationFrame(drawCanvas);
+                }
+                drawCanvas();
+
+                // 4. 處理音訊混音 (麥克風 + 電腦系統聲音)
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const dest = audioContext.createMediaStreamDestination();
+                
+                if (screenStream.getAudioTracks().length > 0) {
+                    audioContext.createMediaStreamSource(screenStream).connect(dest);
+                }
+                if (camStream && camStream.getAudioTracks().length > 0) {
+                    audioContext.createMediaStreamSource(camStream).connect(dest);
+                }
+
+                // 5. 合併影像與音訊串流
+                const canvasStream = canvas.captureStream(30); // 30 FPS
+                combinedStream = new MediaStream([
+                    ...canvasStream.getVideoTracks(),
+                    ...dest.stream.getAudioTracks()
+                ]);
+
+                // 6. 顯示在前端預覽框
+                const previewVideo = document.getElementById('preview-video');
+                previewVideo.srcObject = combinedStream;
+                previewVideo.style.display = 'block';
+
+                // UI 切換
+                document.getElementById('btn-setup-record').style.display = 'none';
+                document.getElementById('btn-start-record').style.display = 'block';
+                document.getElementById('download-link').style.display = 'none';
+
+                // 當使用者停止分享螢幕時的處理
+                screenStream.getVideoTracks()[0].onended = () => {
+                    if(mediaRecorder && mediaRecorder.state === "recording") stopRecording();
+                    resetRecordingUI();
+                };
+
+            } catch (err) {
+                alert("無法開啟錄影：請確定您已允許瀏覽器存取螢幕與麥克風權限。\n錯誤：" + err.message);
+                document.getElementById('btn-setup-record').innerText = "1. 允許取用螢幕與鏡頭";
+            }
+        }
+
+        function startRecording() {
+            recordedChunks = [];
+            
+            // 優先使用 webm，兼容性最好
+            let options = { mimeType: 'video/webm;codecs=vp9,opus' };
+            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                options = { mimeType: 'video/webm' }; 
+            }
+
+            mediaRecorder = new MediaRecorder(combinedStream, options);
+
+            mediaRecorder.ondataavailable = function(e) {
+                if (e.data.size > 0) recordedChunks.push(e.data);
+            };
+
+            mediaRecorder.onstop = function() {
+                const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                const url = URL.createObjectURL(blob);
+                
+                const previewVideo = document.getElementById('preview-video');
+                previewVideo.srcObject = null; // 解除實況串流
+                previewVideo.src = url; // 改播剛剛錄好的影片
+                previewVideo.controls = true;
+
+                // 設定下載按鈕
+                const downloadLink = document.getElementById('download-link');
+                downloadLink.href = url;
+                
+                // 自動以時間命名檔名
+                const now = new Date();
+                const timeStr = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
+                downloadLink.download = `陪跑提問_${timeStr}.webm`;
+                downloadLink.style.display = 'block';
+                
+                document.getElementById('btn-stop-record').style.display = 'none';
+                document.getElementById('btn-setup-record').innerText = "重新錄製 (需重新授權)";
+                document.getElementById('btn-setup-record').style.display = 'block';
+                document.getElementById('record-status-msg').style.display = 'none';
+                document.getElementById('recorder-container').classList.remove('recording');
+
+                // 關閉硬體存取
+                if(screenStream) screenStream.getTracks().forEach(t => t.stop());
+                if(camStream) camStream.getTracks().forEach(t => t.stop());
+                cancelAnimationFrame(animationId);
+            };
+
+            mediaRecorder.start();
+            document.getElementById('btn-start-record').style.display = 'none';
+            document.getElementById('btn-stop-record').style.display = 'block';
+            
+            document.getElementById('recorder-container').classList.add('recording');
+            document.getElementById('record-status-msg').innerText = "🔴 正在錄製中... 請切換到您要發問的畫面進行操作。";
+            document.getElementById('record-status-msg').style.display = 'block';
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state !== "inactive") {
+                mediaRecorder.stop();
+            }
+        }
+
+        function resetRecordingUI() {
+            document.getElementById('btn-setup-record').innerText = "1. 允許取用螢幕與鏡頭";
+            document.getElementById('btn-setup-record').style.display = 'block';
+            document.getElementById('btn-start-record').style.display = 'none';
+            document.getElementById('btn-stop-record').style.display = 'none';
+            document.getElementById('preview-video').style.display = 'none';
+            document.getElementById('record-status-msg').style.display = 'none';
+            document.getElementById('recorder-container').classList.remove('recording');
+        }
+        // --- 錄影邏輯結束 ---
+
+
+        // 基礎網站邏輯
         window.onload = function() {
             document.getElementById('list-section').style.display = 'block';
             renderTypeFilter();
@@ -218,7 +419,6 @@
                 document.getElementById('btn-logout').style.display = 'block';
                 document.getElementById('publish-section').style.display = 'block';
                 
-                // 登入後，如果他剛好卡在某篇日誌的觀看頁面，自動幫他重新判斷權限解鎖
                 if(currentPost && document.getElementById('detail-section').style.display === 'block') {
                     enterClass(currentPost.courseId);
                 }
@@ -255,7 +455,7 @@
 
         function fetchLiveData() {
             fetch(GAS_LIVE_URL).then(res => res.json()).then(data => {
-                allLiveData = data.reverse(); // 最新發布在最上面
+                allLiveData = data.reverse(); 
                 document.getElementById('loading-list').style.display = 'none';
                 filterPosts();
             }).catch(err => { document.getElementById('loading-list').innerText = '資料載入失敗'; });
@@ -313,10 +513,8 @@
             }
         }
 
-        // 解析渲染對話流
         function renderThread(post) {
             let html = '';
-            // 1. 原始發問
             let vidHtml = post.videoUrl ? `<a href="${post.videoUrl}" target="_blank" class="thread-video-link">🎥 觀看原始提問影片</a>` : '';
             html += `
                 <div class="thread-item student">
@@ -328,9 +526,7 @@
                     ${vidHtml}
                 </div>`;
             
-            // 2. 橫向儲存格的回覆
             post.replies.forEach(reply => {
-                // 格式：日期|||時間|||身分|||Email|||內容|||影音網址
                 let parts = reply.split('|||');
                 if(parts.length >= 5) {
                     let rDate = parts[0], rTime = parts[1], rRole = parts[2], rEmail = parts[3], rContent = parts[4], rVid = parts[5] || '';
@@ -363,26 +559,22 @@
             document.getElementById('detail-title').innerText = currentPost.title;
             document.getElementById('detail-meta').innerHTML = `<span>編號: ${currentPost.courseId}</span> <span>狀態: ${currentPost.status}</span>`;
             
-            // 🎯 權限與隱私判斷邏輯
             const authWarningContainer = document.getElementById('auth-warning-container');
             const authWarningMessage = document.getElementById('auth-warning-message');
             const authWarningBtn = document.getElementById('auth-warning-btn');
             const threadContentWrapper = document.getElementById('thread-content-wrapper');
 
             if (!currentUserEmail) {
-                // 情況 1：訪客未登入 -> 引導登入
                 authWarningContainer.style.display = 'flex';
                 threadContentWrapper.style.display = 'none';
                 authWarningMessage.innerHTML = "🔒 這是專屬陪跑日誌<br>請先登入或加入會員以解鎖您的權限！";
                 authWarningBtn.style.display = 'inline-block';
             } else if (currentUserEmail.toLowerCase() !== currentPost.email.toLowerCase() && currentUserEmail.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
-                // 情況 2：已登入，但不是發文者本人，也不是站長教練 -> 阻擋觀看，保護隱私
                 authWarningContainer.style.display = 'flex';
                 threadContentWrapper.style.display = 'none';
                 authWarningMessage.innerHTML = "⛔ 這是其他學員的專屬陪跑日誌<br>為保障學員隱私，您無權觀看哦！";
                 authWarningBtn.style.display = 'none'; 
             } else {
-                // 情況 3：已登入，且是發文者本人 或 站長教練 -> 顯示完整內容
                 authWarningContainer.style.display = 'none';
                 threadContentWrapper.style.display = 'block';
                 renderThread(currentPost);
@@ -403,7 +595,7 @@
                 method: 'POST',
                 body: JSON.stringify({ action: 'add_post', email: currentUserEmail, title: title, desc: desc, videoUrl: videoUrl })
             }).then(() => {
-                btn.disabled = false; btn.innerText = "發布提問";
+                btn.disabled = false; btn.innerText = "🚀 發布提問";
                 document.getElementById('post-title').value = ''; document.getElementById('post-desc').value = ''; document.getElementById('post-video').value = '';
                 showMsg('post-msg', '提問發布成功！');
                 fetchLiveData(); 
@@ -427,7 +619,6 @@
                 document.getElementById('reply-desc').value = ''; document.getElementById('reply-video').value = '';
                 showMsg('reply-msg', '回覆成功！重新載入中...');
                 
-                // 重新抓取資料以更新對話流
                 fetch(GAS_LIVE_URL).then(res=>res.json()).then(data => {
                     allLiveData = data.reverse();
                     enterClass(currentPost.courseId);
