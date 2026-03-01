@@ -73,11 +73,11 @@
             z-index: 999; 
             display: none; 
             opacity: 0; 
-            transition: opacity 0.3s ease;
+            transition: opacity 0.2s ease;
         }
         .sidebar-overlay.active { display: block; opacity: 1; }
         
-        /* 🌟 側邊欄主體 (精準貼齊 500px App 容器左側) */
+        /* 🌟 側邊欄主體 (改為原地出現與消失，不再滑動) */
         .sidebar-menu {
             position: fixed; 
             top: 0; 
@@ -88,16 +88,22 @@
             height: 100vh; 
             background: #28292A; 
             z-index: 1000; 
-            /* 隱藏時往左推，並多推 20px 隱藏陰影 */
-            transform: translateX(calc(-100% - 20px)); 
-            transition: transform 0.3s ease; 
+            
+            /* 使用透明度控制出現/消失 */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease, visibility 0.2s ease; 
+            
             overflow-y: auto; 
             display: flex; 
             flex-direction: column; 
             padding-top: 10px; 
             box-shadow: 4px 0 15px rgba(0,0,0,0.5);
         }
-        .sidebar-menu.active { transform: translateX(0); } /* 顯示時回到原位 */
+        .sidebar-menu.active { 
+            opacity: 1; 
+            visibility: visible; 
+        }
         
         .sidebar-header { padding: 10px 20px; display: flex; align-items: center; margin-bottom: 10px; }
         .close-btn {
@@ -345,7 +351,7 @@
 
     <script>
         // ==========================================
-        // 🌟 側邊選單控制邏輯
+        // 🌟 側邊選單控制邏輯 (改為直接出現/消失)
         // ==========================================
         function toggleMenu() {
             const menu = document.getElementById('sidebar-menu');
@@ -353,7 +359,8 @@
             if (menu.classList.contains('active')) {
                 menu.classList.remove('active');
                 overlay.style.opacity = '0';
-                setTimeout(() => overlay.style.display = 'none', 300);
+                // 等待淡出動畫結束後再隱藏
+                setTimeout(() => overlay.style.display = 'none', 200); 
             } else {
                 overlay.style.display = 'block';
                 setTimeout(() => {
