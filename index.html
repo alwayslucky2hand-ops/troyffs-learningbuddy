@@ -41,7 +41,7 @@
             overflow-x: hidden;
         }
 
-        /* 🌟 新增：App 頂部導覽列與側邊欄 UI */
+        /* 🌟 App 頂部導覽列 */
         .app-header {
             display: flex;
             align-items: center;
@@ -60,19 +60,46 @@
         }
         .hamburger-btn:hover { background: transparent; transform: scale(1.1); }
         
-        /* 側邊欄遮罩 */
+        /* 🌟 側邊欄遮罩 (精準鎖定在 500px App 寬度內) */
         .sidebar-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); z-index: 999; display: none; opacity: 0; transition: opacity 0.3s ease;
+            position: fixed; 
+            top: 0; 
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 500px;
+            height: 100vh; 
+            background: rgba(0,0,0,0.6); 
+            z-index: 999; 
+            display: none; 
+            opacity: 0; 
+            transition: opacity 0.3s ease;
         }
         .sidebar-overlay.active { display: block; opacity: 1; }
         
-        /* 側邊欄主體 (還原截圖設計) */
+        /* 🌟 側邊欄主體 (精準貼齊 500px App 容器左側) */
         .sidebar-menu {
-            position: fixed; top: 0; left: -280px; width: 260px; height: 100vh; background: #28292A; z-index: 1000; transition: left 0.3s ease; overflow-y: auto; display: flex; flex-direction: column; padding-top: 10px; box-shadow: 4px 0 15px rgba(0,0,0,0.5);
+            position: fixed; 
+            top: 0; 
+            left: 50%;
+            /* 讓左邊緣對齊 500px 容器的左邊緣 */
+            margin-left: calc(min(100vw, 500px) / -2); 
+            width: 260px; 
+            height: 100vh; 
+            background: #28292A; 
+            z-index: 1000; 
+            /* 隱藏時往左推，並多推 20px 隱藏陰影 */
+            transform: translateX(calc(-100% - 20px)); 
+            transition: transform 0.3s ease; 
+            overflow-y: auto; 
+            display: flex; 
+            flex-direction: column; 
+            padding-top: 10px; 
+            box-shadow: 4px 0 15px rgba(0,0,0,0.5);
         }
-        .sidebar-menu.active { left: 0; }
-        .sidebar-header { padding: 10px 20px; display: flex; align-items: center; margin-bottom: 10px; }
+        .sidebar-menu.active { transform: translateX(0); } /* 顯示時回到原位 */
         
+        .sidebar-header { padding: 10px 20px; display: flex; align-items: center; margin-bottom: 10px; }
         .close-btn {
             background: rgba(255,255,255,0.1); border: none; color: #E8EAED; font-size: 20px; cursor: pointer; width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; box-shadow: none; padding: 0; margin: 0; transition: background 0.2s;
         }
@@ -82,7 +109,7 @@
             display: block; padding: 16px 24px; color: #E8EAED; text-decoration: none; font-size: 1.1rem; transition: background 0.2s, color 0.2s; font-weight: normal;
         }
         .sidebar-link:hover { background: rgba(255,255,255,0.05); }
-        .sidebar-link.active { color: #8AB4F8; font-weight: bold; } /* 截圖中的亮藍色高亮 */
+        .sidebar-link.active { color: #8AB4F8; font-weight: bold; }
         
         h2, h3 { color: var(--slate-blue); font-weight: bold; margin-bottom: 16px; }
         
