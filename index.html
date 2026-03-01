@@ -5,86 +5,131 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover">
     <title>賦能陪跑日誌</title>
     <style>
+        /* =========================================
+           特洛伊 AI 賦能陪跑日誌 - App 級別舒適閱讀版
+           ========================================= */
         :root {
             --primary-yellow: #F59E0B; 
             --primary-hover: #D97706;      
             --slate-blue: #1F2937;     
             --accent-green: #10B981;        
-            --bg-pure: #FFFFFF;          
+            --bg-pure: #F3F4F6; /* 外層背景改為微灰，凸顯 App 主體 */          
             --panel-bg: #FFFFFF;       
             --input-bg: #F8FAFC;       
             --text-dark: #111827;          
             --text-muted: #6B7280;     
-            --glass-border: #CBD5E1;       
-            --radius-soft: 12px; 
+            --glass-border: #E2E8F0;       
+            --radius-soft: 16px; /* 加大圓角提升現代感 */
             --danger-color: #EF4444;   
         }
-        *, *::before, *::after { box-sizing: border-box; }
-        body { font-family: 'Microsoft JhengHei', sans-serif; line-height: 1.8; max-width: 800px; margin: 0 auto; padding: 40px 20px; background: var(--bg-pure); color: var(--text-dark); min-height: 100vh; }
-        h1, h2, h3 { color: var(--slate-blue); font-weight: bold; margin-bottom: 20px; }
-        h1 { font-size: 1.8rem; text-align: center; margin-bottom: 30px;}
         
-        .section { background: var(--panel-bg); padding: 35px; margin-bottom: 25px; border-radius: var(--radius-soft); border: 1px solid var(--glass-border); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }
-        .input-box, textarea, select { padding: 14px 18px; border: 1px solid var(--glass-border); border-radius: 8px; font-size: 16px !important; width: 100%; margin-bottom: 15px; background: var(--input-bg); color: var(--text-dark); font-family: inherit; transition: all 0.3s ease; }
-        .input-box:focus, textarea:focus { outline: none; border-color: var(--primary-yellow); background: var(--bg-pure); box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2); }
+        *, *::before, *::after { box-sizing: border-box; }
+        
+        /* 鎖定 500px 呈現手機 App 視覺 */
+        html { background: var(--bg-pure); }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Microsoft JhengHei', sans-serif; 
+            line-height: 1.6; 
+            max-width: 500px; 
+            margin: 0 auto; 
+            padding: 20px 15px; 
+            background: var(--panel-bg); 
+            color: var(--text-dark); 
+            min-height: 100vh; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.05); /* 電腦版立體陰影 */
+            -webkit-font-smoothing: antialiased; 
+        }
+        
+        h1, h2, h3 { color: var(--slate-blue); font-weight: bold; margin-bottom: 16px; }
+        h1 { font-size: 1.6rem; text-align: center; margin-bottom: 24px;}
+        
+        .section { background: var(--panel-bg); padding: 24px 20px; margin-bottom: 24px; border-radius: var(--radius-soft); border: 1px solid var(--glass-border); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); }
+        
+        /* 表單與輸入框全寬堆疊防擠壓 */
+        .input-box, textarea, select { 
+            padding: 14px 16px; border: 1px solid var(--glass-border); border-radius: 10px; 
+            font-size: 16px !important; width: 100%; margin-bottom: 12px; 
+            background: var(--input-bg); color: var(--text-dark); font-family: inherit; transition: all 0.3s ease; 
+        }
+        .input-box:focus, textarea:focus { outline: none; border-color: var(--primary-yellow); background: var(--panel-bg); box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2); }
         textarea { min-height: 120px; resize: vertical; }
         
-        button { background: var(--primary-yellow); color: #ffffff; border: none; padding: 14px 28px; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; width: 100%; transition: background 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 10px; display: flex; justify-content: center; align-items: center; gap: 8px;}
-        button:hover { background: var(--primary-hover); } 
-        button:disabled { background: #E5E7EB; color: var(--text-muted); cursor: not-allowed; box-shadow: none; }
-        .btn-outline { background: var(--input-bg); color: var(--slate-blue); border: 1px solid var(--glass-border); box-shadow: none; }
+        /* 滿版按鈕設計 */
+        button { 
+            background: var(--primary-yellow); color: #ffffff; border: none; 
+            padding: 16px 20px; border-radius: 10px; font-weight: bold; font-size: 1.05rem; 
+            cursor: pointer; width: 100%; transition: background 0.2s; box-shadow: 0 4px 10px rgba(245, 158, 11, 0.25); 
+            margin-bottom: 12px; display: flex; justify-content: center; align-items: center; gap: 8px;
+        }
+        button:hover { background: var(--primary-hover); transform: translateY(-2px);} 
+        button:disabled { background: #E5E7EB; color: var(--text-muted); cursor: not-allowed; box-shadow: none; transform: none;}
+        .btn-outline { background: var(--input-bg); color: var(--slate-blue); border: 2px solid var(--glass-border); box-shadow: none; }
+        .btn-outline:hover { background: var(--glass-border); }
         .btn-danger { background: var(--danger-color); box-shadow: 0 4px 6px rgba(239, 68, 68, 0.2); } 
         
-        .search-box { width: 100%; padding: 14px 18px; border: 1px solid var(--glass-border); border-radius: 8px; font-size: 1rem; background: var(--input-bg); margin-bottom: 20px; }
-        .filter-section { background: var(--panel-bg); margin-bottom: 25px; padding: 20px; border-radius: var(--radius-soft); border: 1px solid var(--glass-border); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }
-        .filter-title { margin-bottom: 10px; font-weight: bold; color: var(--slate-blue); font-size: 0.9em; }
-        .category-nav { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
-        .cat-btn { background: var(--input-bg); color: var(--text-muted); padding: 8px 18px; border-radius: 30px; border: 1px solid var(--glass-border); font-size: 0.9em; font-weight: bold; cursor: pointer; width: auto; margin-bottom: 0; box-shadow: none; }
-        .cat-btn.active, .cat-btn:hover { background: var(--primary-yellow); color: #ffffff; border-color: var(--primary-yellow); }
+        .search-box { width: 100%; padding: 14px 16px; border: 1px solid var(--glass-border); border-radius: 10px; font-size: 1rem; background: var(--input-bg); margin-bottom: 24px; }
+        
+        /* 篩選區塊 */
+        .filter-section { background: var(--panel-bg); margin-bottom: 24px; padding: 20px; border-radius: var(--radius-soft); border: 1px solid var(--glass-border); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); }
+        .filter-title { margin-bottom: 10px; font-weight: bold; color: var(--slate-blue); font-size: 0.95em; }
+        .category-nav { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 5px;}
+        .category-nav::-webkit-scrollbar { display: none; }
+        .cat-btn { background: var(--input-bg); color: var(--text-muted); padding: 10px 18px; border-radius: 30px; border: 1px solid var(--glass-border); font-size: 0.9em; font-weight: bold; cursor: pointer; width: auto; margin-bottom: 0; box-shadow: none; flex-shrink: 0;}
+        .cat-btn.active, .cat-btn:hover { background: var(--primary-yellow); color: #ffffff; border-color: var(--primary-yellow); transform: none;}
 
-        .post-card { background: var(--panel-bg); border: 1px solid var(--glass-border); padding: 30px; margin-bottom: 25px; border-radius: var(--radius-soft); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }
-        .post-title-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; gap: 10px; }
-        .post-title { font-size: 1.4em; margin: 0; font-weight: bold; color: var(--text-dark); }
-        .tag-badge { padding: 4px 10px; border-radius: 6px; font-size: 0.8em; font-weight: bold; color: white; display: inline-block; white-space: nowrap; }
+        /* 日誌卡片 */
+        .post-card { background: var(--panel-bg); border: 1px solid var(--glass-border); padding: 24px 20px; margin-bottom: 20px; border-radius: var(--radius-soft); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); }
+        .post-title-row { display: flex; flex-direction: column; align-items: flex-start; margin-bottom: 16px; gap: 10px; }
+        .post-title { font-size: 1.35em; margin: 0; font-weight: bold; color: var(--text-dark); line-height: 1.4; }
+        
+        .tag-badge { padding: 4px 12px; border-radius: 6px; font-size: 0.85em; font-weight: bold; color: white; display: inline-block; white-space: nowrap; }
         .tag-pending { background: #EF4444; animation: pulse 2s infinite; }
         .tag-replied { background: var(--accent-green); }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 1; } }
 
-        .post-meta { font-size: 0.85em; color: var(--text-muted); margin-bottom: 15px; display: flex; gap: 15px; flex-wrap: wrap; }
+        .post-meta { font-size: 0.85em; color: var(--text-muted); margin-bottom: 16px; display: flex; gap: 8px; flex-wrap: wrap; }
         .post-meta span { background: var(--input-bg); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--glass-border); color: var(--slate-blue); font-weight: bold;}
-        .post-excerpt { color: var(--text-dark); margin-bottom: 20px; white-space: pre-wrap; font-size: 1.05rem; line-height: 1.6;}
+        .post-excerpt { color: var(--text-dark); margin-bottom: 20px; white-space: pre-wrap; font-size: 0.95rem; line-height: 1.6;}
         
-        .cta-container { display: none; padding: 50px 20px; text-align: center; background: #f8fafc; flex-direction: column; justify-content: center; align-items: center; border-radius: var(--radius-soft); border: 1px dashed var(--glass-border); margin-top: 20px; }
+        .cta-container { display: none; padding: 40px 20px; text-align: center; background: #f8fafc; flex-direction: column; justify-content: center; align-items: center; border-radius: var(--radius-soft); border: 1px dashed var(--glass-border); margin-top: 20px; }
 
+        /* 對話紀錄卡片防擠壓設計 */
         .thread-item { background: var(--input-bg); padding: 20px; border-radius: 12px; margin-bottom: 20px; border-left: 5px solid var(--glass-border); position: relative;}
         .thread-item.coach { border-left-color: var(--accent-green); background: #F0FDF4; }
         .thread-item.student { border-left-color: var(--primary-yellow); }
-        .thread-header { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.9em; border-bottom: 1px dashed #ccc; padding-bottom: 8px;}
-        .thread-role { font-weight: bold; color: var(--slate-blue); }
+        .thread-header { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; margin-bottom: 12px; font-size: 0.9em; border-bottom: 1px dashed #ccc; padding-bottom: 12px;}
+        .thread-role { font-weight: bold; color: var(--slate-blue); font-size: 0.95rem;}
         .thread-time { color: var(--text-muted); }
 
         .video-wrapper { margin-top: 15px; border-radius: 8px; overflow: hidden; background: #000; border: 1px solid var(--glass-border); box-shadow: 0 2px 8px rgba(0,0,0,0.1);}
         .video-container { position: relative; padding-bottom: 56.25%; height: 0; }
         .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
 
-        .pagination { display: flex; justify-content: center; gap: 8px; margin-top: 20px; }
-        .page-btn { background: var(--panel-bg); color: var(--slate-blue); border: 1px solid var(--glass-border); padding: 8px 16px; border-radius: 6px; cursor: pointer; width: auto; margin-bottom: 0; box-shadow: none; }
+        .pagination { display: flex; justify-content: center; gap: 8px; margin-top: 24px; flex-wrap: wrap;}
+        .page-btn { background: var(--panel-bg); color: var(--slate-blue); border: 1px solid var(--glass-border); padding: 10px 16px; border-radius: 8px; cursor: pointer; width: auto; margin-bottom: 0; box-shadow: none; font-weight: bold;}
         .page-btn.active { background: var(--primary-yellow); color: #ffffff; border-color: var(--primary-yellow); }
         
-        .inline-msg { font-weight: bold; display: block; margin-top: 5px; min-height: 24px; color: var(--danger-color); }
+        .inline-msg { font-weight: bold; display: block; margin-top: 8px; min-height: 20px; color: var(--danger-color); text-align: center; font-size: 0.95rem;}
         .inline-msg.success { color: var(--accent-green); }
-        .system-msg { text-align: center; color: var(--slate-blue); padding: 30px; font-weight: bold; }
+        .system-msg { text-align: center; color: var(--slate-blue); padding: 30px 20px; font-weight: bold; }
 
-        .recorder-box { background: #f1f5f9; border: 2px dashed var(--slate-blue); border-radius: 12px; padding: 20px; margin-bottom: 20px; text-align: center; transition: all 0.3s ease;}
+        /* 錄影神器 UI */
+        .recorder-box { background: #f1f5f9; border: 2px dashed var(--slate-blue); border-radius: 12px; padding: 20px; margin-bottom: 24px; text-align: center; transition: all 0.3s ease;}
         .recorder-box.recording { border-color: var(--danger-color); background: #fef2f2; animation: borderPulse 2s infinite; }
         @keyframes borderPulse { 0% { border-color: var(--danger-color); } 50% { border-color: #fca5a5; } 100% { border-color: var(--danger-color); } }
-        .preview-video-el { width: 100%; max-width: 600px; border-radius: 8px; background: #000; margin-top: 15px; display: none; aspect-ratio: 16/9; }
-        .controls-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 15px; }
-        .record-hint { font-size: 0.85rem; color: var(--danger-color); margin-bottom: 10px; font-weight: bold; display: inline-block; padding: 6px 12px; background: #fef2f2; border-radius: 6px; line-height: 1.5; }
+        .preview-video-el { width: 100%; border-radius: 10px; background: #000; margin-top: 15px; display: none; aspect-ratio: 16/9; }
+        .controls-row { display: flex; flex-direction: column; gap: 10px; justify-content: center; margin-top: 15px; width: 100%;}
+        .record-hint { font-size: 0.85rem; color: var(--danger-color); margin-bottom: 10px; font-weight: bold; display: inline-block; padding: 8px 12px; background: #fef2f2; border-radius: 8px; line-height: 1.5; text-align: left; width: 100%;}
         
-        .sop-box { background: #FFFBEB; border-left: 4px solid var(--primary-yellow); padding: 15px; margin-bottom: 20px; border-radius: 4px; text-align: left;}
+        .sop-box { background: #FFFBEB; border-left: 4px solid var(--primary-yellow); padding: 16px; margin-bottom: 20px; border-radius: 8px; text-align: left;}
         .sop-box strong { color: var(--slate-blue); font-size: 1.05rem; }
         .sop-box ol { margin-top: 8px; margin-bottom: 0; padding-left: 20px; color: var(--text-dark); font-size: 0.95rem; line-height: 1.6;}
+
+        /* 通用堆疊群組工具 */
+        .stack-group { display: flex; flex-direction: column; gap: 12px; width: 100%; }
+        .stack-group input, .stack-group button { margin-bottom: 0; }
+
+        hr { border: 0; border-top: 1px dashed var(--glass-border); margin: 24px 0; }
     </style>
 </head>
 <body>
@@ -103,31 +148,31 @@
             </ol>
         </div>
         <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">為保障學員隱私，請先驗證身分登入，即可發起提問並查看您的專屬陪跑日誌。</p>
-        <p id="login-status" style="color: var(--primary-yellow); font-weight: bold; margin-bottom: 15px;">目前狀態：未登入 (訪客)</p>
+        <p id="login-status" style="color: var(--primary-yellow); font-weight: bold; margin-bottom: 15px; text-align: center;">目前狀態：未登入 (訪客)</p>
         
-        <div id="step-1" style="display: flex; gap: 10px; flex-wrap: wrap;">
-            <input type="email" id="email" class="input-box" placeholder="輸入會員 Email" style="flex: 2; margin-bottom: 0;">
-            <button onclick="requestOTP()" id="btn-otp" style="flex: 1; margin-bottom: 0; width: auto;">寄送驗證碼</button>
-            <span id="otp-msg" class="inline-msg" style="width: 100%;"></span>
+        <div id="step-1" class="stack-group">
+            <input type="email" id="email" class="input-box" placeholder="輸入會員 Email">
+            <button onclick="requestOTP()" id="btn-otp">寄送驗證碼</button>
+            <span id="otp-msg" class="inline-msg"></span>
         </div>
         
         <div id="step-2" style="display: none; margin-top: 10px;">
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <input type="text" id="otp-code" class="input-box" placeholder="輸入 6 位數驗證碼" style="flex: 2; margin-bottom: 0;">
-                <button onclick="verifyLogin()" id="btn-login" style="flex: 1; margin-bottom: 0; width: auto;">登入通行</button>
-                <button onclick="cancelLogin()" class="btn-outline" style="flex: 1; margin-bottom: 0; width: auto;">返回</button>
+            <div class="stack-group">
+                <input type="text" id="otp-code" class="input-box" placeholder="輸入 6 位數驗證碼">
+                <button onclick="verifyLogin()" id="btn-login">登入通行</button>
+                <button onclick="cancelLogin()" class="btn-outline">返回上一步</button>
             </div>
-            <span id="login-msg" class="inline-msg" style="width: 100%;"></span>
+            <span id="login-msg" class="inline-msg"></span>
         </div>
-        <button id="btn-logout" onclick="logout()" style="display: none; background: var(--danger-color); width: auto; margin-top: 20px;">登出帳號</button>
+        <button id="btn-logout" onclick="logout()" style="display: none; background: var(--danger-color); margin-top: 20px; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.25);">登出帳號</button>
     </div>
 
     <div class="section" id="publish-section" style="display: none; border-left: 5px solid var(--primary-yellow);">
         <h3 style="margin-top:0;">發起新提問</h3>
         <div id="post-recorder-container" class="recorder-box">
             <h4 style="margin: 0 0 10px 0; color: var(--slate-blue);">🎥 網頁內建錄影神器 (無限制時長版)</h4>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">系統將同時擷取「麥克風」與「電腦畫面聲音」，若未勾選系統音訊將無法啟動錄影。</p>
-            <label style="cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; font-weight: bold; color: var(--slate-blue);">
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">系統將同時擷取「麥克風」與「電腦畫面聲音」，若未勾選系統音訊將無法啟動錄影。</p>
+            <label style="cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px; font-weight: bold; color: var(--slate-blue);">
                 <input type="checkbox" id="post-use-camera-cb" checked style="width: 18px; height: 18px;"> 📷 同時開啟視訊鏡頭 (露臉)
             </label><br>
             <span class="record-hint">💡 選擇分享畫面時：強烈建議選擇「整個螢幕畫面」，並務必勾選「一併分享系統音訊」。</span>
@@ -135,10 +180,10 @@
             <video id="post-preview-video" class="preview-video-el" autoplay playsinline></video>
             
             <div class="controls-row">
-                <button id="post-btn-setup-record" onclick="setupRecording('post')" class="btn-outline" style="width: auto;">1. 啟動影音錄製權限</button>
-                <button id="post-btn-start-record" onclick="startRecording('post')" class="btn-danger" style="display:none; width: auto;">🔴 開始錄製 (支援 10+ 分鐘長影片)</button>
-                <button id="post-btn-stop-record" onclick="stopRecording('post')" style="display:none; background: var(--slate-blue); width: auto;">⏹️ 結束錄製並自動上傳</button>
-                <button id="post-btn-cancel-record" onclick="cancelRecording('post')" style="display:none; background: #fff; color: var(--slate-blue); border: 1px solid var(--glass-border); width: auto;">❌ 取消錄影</button>
+                <button id="post-btn-setup-record" onclick="setupRecording('post')" class="btn-outline">1. 啟動影音錄製權限</button>
+                <button id="post-btn-start-record" onclick="startRecording('post')" class="btn-danger" style="display:none;">🔴 開始錄製 (支援 10+ 分鐘長影片)</button>
+                <button id="post-btn-stop-record" onclick="stopRecording('post')" style="display:none; background: var(--slate-blue);">⏹️ 結束錄製並自動上傳</button>
+                <button id="post-btn-cancel-record" onclick="cancelRecording('post')" class="btn-outline" style="display:none;">❌ 取消錄影</button>
             </div>
             <p id="post-record-status-msg" style="font-size: 0.95rem; margin-top: 15px; font-weight: bold; display: none;"></p>
         </div>
@@ -157,9 +202,9 @@
             <div class="filter-title">處理狀態</div>
             <div class="category-nav" id="type-container"></div>
             <div class="filter-title" style="margin-top: 10px;">發佈日期</div>
-            <div style="display: flex; gap: 10px; align-items: center;">
-                <input type="date" id="datePicker" class="input-box" style="width: auto; margin: 0;" onchange="filterPosts()">
-                <button onclick="clearDateFilter()" class="cat-btn" style="background: var(--bg-pure);">清除</button>
+            <div class="stack-group">
+                <input type="date" id="datePicker" class="input-box" onchange="filterPosts()">
+                <button onclick="clearDateFilter()" class="btn-outline">清除日期條件</button>
             </div>
         </div>
         <div id="loading-list" class="system-msg">正在為您準備陪跑紀錄...</div>
@@ -167,35 +212,35 @@
         <div id="pagination-container" class="pagination"></div>
     </div>
 
-    <div class="section" id="detail-section" style="display: none; padding-top: 30px;">
-        <button onclick="backToList()" class="btn-outline" style="width: auto; margin-bottom: 20px;">返回列表</button>
-        <div class="post-meta" id="detail-meta" style="margin-top: 15px;"></div>
-        <h2 id="detail-title" style="margin-top: 5px; font-size: 2em; color: var(--text-dark);"></h2>
-        <hr style="border: 0; border-top: 1px solid var(--glass-border); margin: 25px 0;">
+    <div class="section" id="detail-section" style="display: none; padding-top: 24px;">
+        <button onclick="backToList()" class="btn-outline" style="margin-bottom: 20px;">返回列表</button>
+        <div class="post-meta" id="detail-meta" style="margin-top: 16px;"></div>
+        <h2 id="detail-title" style="margin-top: 5px; font-size: 1.6em; color: var(--text-dark); line-height: 1.4;"></h2>
+        <hr>
         
         <div id="auth-warning-container" class="cta-container">
-            <h3 id="auth-warning-message" style="color: var(--slate-blue); margin-bottom: 20px; line-height: 1.6; font-size: 1.4rem;"></h3>
-            <button id="auth-warning-btn" onclick="scrollToLogin()" style="width: auto; padding: 16px 32px; box-shadow: 0 4px 6px rgba(245, 158, 11, 0.2);">👉 立即登入解鎖</button>
+            <h3 id="auth-warning-message" style="color: var(--slate-blue); margin-bottom: 20px; line-height: 1.6; font-size: 1.2rem;"></h3>
+            <button id="auth-warning-btn" onclick="scrollToLogin()">👉 立即登入解鎖</button>
         </div>
 
         <div id="thread-content-wrapper" style="display: none;">
             <div id="thread-container"></div>
             
-            <div style="margin-top:30px; border-top: 2px solid var(--glass-border); padding-top: 25px;">
+            <div style="margin-top:32px; border-top: 2px dashed var(--glass-border); padding-top: 24px;">
                 <h3 style="margin-top:0;">新增影音回覆 / 追問</h3>
                 <div id="reply-recorder-container" class="recorder-box">
                     <h4 style="margin: 0 0 10px 0; color: var(--slate-blue);">🎥 網頁內建錄影神器 (回覆專用)</h4>
-                    <label style="cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; font-weight: bold; color: var(--slate-blue);">
+                    <label style="cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px; font-weight: bold; color: var(--slate-blue);">
                         <input type="checkbox" id="reply-use-camera-cb" checked style="width: 18px; height: 18px;"> 📷 同時開啟視訊鏡頭 (露臉)
                     </label><br>
                     <span class="record-hint">⚠️ 提示：請選擇「整個螢幕畫面」，並務必勾選「一併分享系統音訊」。</span>
                     <video id="reply-preview-video" class="preview-video-el" autoplay playsinline></video>
                     
                     <div class="controls-row">
-                        <button id="reply-btn-setup-record" onclick="setupRecording('reply')" class="btn-outline" style="width: auto;">1. 啟動影音錄製權限</button>
-                        <button id="reply-btn-start-record" onclick="startRecording('reply')" class="btn-danger" style="display:none; width: auto;">🔴 開始錄製 (支援 10+ 分鐘長影片)</button>
-                        <button id="reply-btn-stop-record" onclick="stopRecording('reply')" style="display:none; background: var(--slate-blue); width: auto;">⏹️ 結束錄製並自動上傳</button>
-                        <button id="reply-btn-cancel-record" onclick="cancelRecording('reply')" style="display:none; background: #fff; color: var(--slate-blue); border: 1px solid var(--glass-border); width: auto;">❌ 取消錄影</button>
+                        <button id="reply-btn-setup-record" onclick="setupRecording('reply')" class="btn-outline">1. 啟動影音錄製權限</button>
+                        <button id="reply-btn-start-record" onclick="startRecording('reply')" class="btn-danger" style="display:none;">🔴 開始錄製 (支援 10+ 分鐘長影片)</button>
+                        <button id="reply-btn-stop-record" onclick="stopRecording('reply')" style="display:none; background: var(--slate-blue);">⏹️ 結束錄製並自動上傳</button>
+                        <button id="reply-btn-cancel-record" onclick="cancelRecording('reply')" class="btn-outline" style="display:none;">❌ 取消錄影</button>
                     </div>
                     <p id="reply-record-status-msg" style="font-size: 0.95rem; margin-top: 15px; font-weight: bold; display: none;"></p>
                 </div>
@@ -302,8 +347,8 @@
                 previewVideo.muted = true; 
 
                 document.getElementById(`${type}-btn-setup-record`).style.display = 'none';
-                document.getElementById(`${type}-btn-start-record`).style.display = 'block';
-                document.getElementById(`${type}-btn-cancel-record`).style.display = 'block';
+                document.getElementById(`${type}-btn-start-record`).style.display = 'flex';
+                document.getElementById(`${type}-btn-cancel-record`).style.display = 'flex';
                 showRecorderMsg(type, "✅ 授權成功且系統音已連接！請點擊下方紅色按鈕開始錄製。", false, true);
 
                 screenStream.getVideoTracks()[0].onended = () => {
@@ -397,18 +442,18 @@
                     showRecorderMsg(type, "✅ 影片上傳成功！網址已自動填入。(💡 剛上傳的影片雲端需 3~5 分鐘處理預覽)", false, true);
                     document.getElementById(`${type}-record-status-msg`).style.color = "var(--accent-green)";
                     document.getElementById(`${type}-btn-setup-record`).innerText = "重新錄製 (將覆蓋前一次)";
-                    document.getElementById(`${type}-btn-setup-record`).style.display = 'block';
+                    document.getElementById(`${type}-btn-setup-record`).style.display = 'flex';
 
                 } catch(e) {
                     showRecorderMsg(type, "❌ 上傳發生錯誤：" + e.message, true, true);
                     document.getElementById(`${type}-btn-setup-record`).innerText = "重新錄製";
-                    document.getElementById(`${type}-btn-setup-record`).style.display = 'block';
+                    document.getElementById(`${type}-btn-setup-record`).style.display = 'flex';
                 }
             };
 
             mediaRecorder.start(1000); 
             document.getElementById(`${type}-btn-start-record`).style.display = 'none';
-            document.getElementById(`${type}-btn-stop-record`).style.display = 'block';
+            document.getElementById(`${type}-btn-stop-record`).style.display = 'flex';
             document.getElementById(`${type}-recorder-container`).classList.add('recording');
             showRecorderMsg(type, "🔴 正在錄製中... (您與電腦的聲音皆會被嚴格錄下)", true, true);
         }
@@ -426,8 +471,8 @@
         }
 
         function resetRecordingUI(type) {
-            document.getElementById(`${type}-btn-setup-record`).innerText = "1. 啟怒影音錄製權限";
-            document.getElementById(`${type}-btn-setup-record`).style.display = 'block';
+            document.getElementById(`${type}-btn-setup-record`).innerText = "1. 啟動影音錄製權限";
+            document.getElementById(`${type}-btn-setup-record`).style.display = 'flex';
             document.getElementById(`${type}-btn-start-record`).style.display = 'none';
             document.getElementById(`${type}-btn-stop-record`).style.display = 'none';
             document.getElementById(`${type}-btn-cancel-record`).style.display = 'none';
@@ -451,7 +496,6 @@
         // 🎯 網站基礎邏輯與通行證機制
         // ==========================================
         
-        // 🎯 新增：檢查是否已經登入過，且未超過 1 小時
         function checkAutoLogin() {
             const savedEmail = localStorage.getItem('troy_user_email');
             const loginTime = localStorage.getItem('troy_login_time');
@@ -459,21 +503,18 @@
             if (savedEmail && loginTime) {
                 const now = new Date().getTime();
                 const timeDiff = now - parseInt(loginTime);
-                const oneHour = 60 * 60 * 1000; // 1小時的毫秒數
+                const oneHour = 60 * 60 * 1000; 
 
                 if (timeDiff < oneHour) {
-                    // 尚未過期，自動執行登入畫面切換
                     currentUserEmail = savedEmail;
                     document.getElementById('login-status').innerText = `已登入：${currentUserEmail}`;
                     document.getElementById('step-1').style.display = 'none';
                     document.getElementById('step-2').style.display = 'none';
-                    document.getElementById('btn-logout').style.display = 'block';
+                    document.getElementById('btn-logout').style.display = 'flex';
                     document.getElementById('publish-section').style.display = 'block';
                     
-                    // 刷新一下儲存的時間，讓 1 小時重新計算 (可選)
                     localStorage.setItem('troy_login_time', now);
                 } else {
-                    // 已經超過 1 小時，清除過期的紀錄
                     localStorage.removeItem('troy_user_email');
                     localStorage.removeItem('troy_login_time');
                 }
@@ -484,7 +525,6 @@
             document.getElementById('list-section').style.display = 'block';
             renderTypeFilter();
             
-            // 🎯 新增：網頁一載入就先檢查有沒有通行證
             checkAutoLogin(); 
             
             fetchLiveData();
@@ -508,7 +548,7 @@
                 document.getElementById('btn-otp').innerText = "寄送驗證碼";
                 if (data.status === "error") return showAppMsg('otp-msg', data.message, true);
                 document.getElementById('step-1').style.display = 'none';
-                document.getElementById('step-2').style.display = 'block';
+                document.getElementById('step-2').style.display = 'flex';
             }).catch(() => { showAppMsg('otp-msg', '連線失敗', true); document.getElementById('btn-otp').innerText = "寄送驗證碼"; });
         }
 
@@ -527,10 +567,9 @@
                 document.getElementById('login-status').innerText = `已登入：${email}`;
                 document.getElementById('step-1').style.display = 'none';
                 document.getElementById('step-2').style.display = 'none';
-                document.getElementById('btn-logout').style.display = 'block';
+                document.getElementById('btn-logout').style.display = 'flex';
                 document.getElementById('publish-section').style.display = 'block';
                 
-                // 🎯 新增：登入成功時，把 Email 和當下時間存入瀏覽器
                 localStorage.setItem('troy_user_email', currentUserEmail);
                 localStorage.setItem('troy_login_time', new Date().getTime());
 
@@ -549,7 +588,6 @@
             document.getElementById('detail-section').style.display = 'none';
             document.getElementById('list-section').style.display = 'block';
             
-            // 🎯 新增：登出時清除瀏覽器紀錄
             localStorage.removeItem('troy_user_email');
             localStorage.removeItem('troy_login_time');
 
@@ -620,7 +658,7 @@
                             <span>發佈於：${post.date} ${post.time}</span>
                         </div>
                         <div class="post-excerpt">${post.desc}</div>
-                        <button onclick="enterClass('${post.courseId}')" class="btn-outline" style="width: auto;">進入日誌</button>
+                        <button onclick="enterClass('${post.courseId}')" class="btn-outline" style="margin-bottom: 0;">進入日誌</button>
                     </div>`;
             });
 
@@ -644,7 +682,7 @@
                     </div>
                 </div>`;
             }
-            return `<a href="${url}" target="_blank" class="thread-video-link">🎥 觀看外部影片</a>`;
+            return `<a href="${url}" target="_blank" class="btn-outline" style="display:inline-block; text-align:center; padding:10px; border-radius:8px; text-decoration:none; margin-top:10px; width:100%;">🎥 點擊觀看外部影片</a>`;
         }
 
         function renderThread(post) {
@@ -702,7 +740,7 @@
                 authWarningContainer.style.display = 'flex';
                 threadContentWrapper.style.display = 'none';
                 authWarningMessage.innerHTML = "🔒 這是專屬陪跑日誌<br>請先登入或加入會員以解鎖您的權限！";
-                authWarningBtn.style.display = 'inline-block';
+                authWarningBtn.style.display = 'flex';
             } else if (currentUserEmail.toLowerCase() !== currentPost.email.toLowerCase() && currentUserEmail.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
                 authWarningContainer.style.display = 'flex';
                 threadContentWrapper.style.display = 'none';
