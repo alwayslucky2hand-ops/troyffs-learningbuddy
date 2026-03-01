@@ -32,16 +32,59 @@
             line-height: 1.6; 
             max-width: 500px; 
             margin: 0 auto; 
-            padding: 20px 15px; 
+            padding: 0 15px 20px 15px; 
             background: var(--panel-bg); 
             color: var(--text-dark); 
             min-height: 100vh; 
             box-shadow: 0 0 20px rgba(0,0,0,0.05); /* 電腦版立體陰影 */
             -webkit-font-smoothing: antialiased; 
+            overflow-x: hidden;
         }
+
+        /* 🌟 新增：App 頂部導覽列與側邊欄 UI */
+        .app-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 0;
+            margin-bottom: 24px;
+            border-bottom: 1px dashed var(--glass-border);
+            background: var(--panel-bg);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .app-title { font-size: 1.5rem; margin: 0; text-align: center; color: var(--slate-blue); font-weight: bold; flex-grow: 1; }
+        .hamburger-btn {
+            background: transparent; border: none; padding: 5px; cursor: pointer; box-shadow: none; width: auto; margin: 0; color: var(--slate-blue); font-size: 28px; display: flex; align-items: center; justify-content: center;
+        }
+        .hamburger-btn:hover { background: transparent; transform: scale(1.1); }
         
-        h1, h2, h3 { color: var(--slate-blue); font-weight: bold; margin-bottom: 16px; }
-        h1 { font-size: 1.6rem; text-align: center; margin-bottom: 24px;}
+        /* 側邊欄遮罩 */
+        .sidebar-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); z-index: 999; display: none; opacity: 0; transition: opacity 0.3s ease;
+        }
+        .sidebar-overlay.active { display: block; opacity: 1; }
+        
+        /* 側邊欄主體 (還原截圖設計) */
+        .sidebar-menu {
+            position: fixed; top: 0; left: -280px; width: 260px; height: 100vh; background: #28292A; z-index: 1000; transition: left 0.3s ease; overflow-y: auto; display: flex; flex-direction: column; padding-top: 10px; box-shadow: 4px 0 15px rgba(0,0,0,0.5);
+        }
+        .sidebar-menu.active { left: 0; }
+        .sidebar-header { padding: 10px 20px; display: flex; align-items: center; margin-bottom: 10px; }
+        
+        .close-btn {
+            background: rgba(255,255,255,0.1); border: none; color: #E8EAED; font-size: 20px; cursor: pointer; width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; box-shadow: none; padding: 0; margin: 0; transition: background 0.2s;
+        }
+        .close-btn:hover { background: rgba(255,255,255,0.2); transform: none; }
+        
+        .sidebar-link {
+            display: block; padding: 16px 24px; color: #E8EAED; text-decoration: none; font-size: 1.1rem; transition: background 0.2s, color 0.2s; font-weight: normal;
+        }
+        .sidebar-link:hover { background: rgba(255,255,255,0.05); }
+        .sidebar-link.active { color: #8AB4F8; font-weight: bold; } /* 截圖中的亮藍色高亮 */
+        
+        h2, h3 { color: var(--slate-blue); font-weight: bold; margin-bottom: 16px; }
         
         .section { background: var(--panel-bg); padding: 24px 20px; margin-bottom: 24px; border-radius: var(--radius-soft); border: 1px solid var(--glass-border); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); }
         
@@ -134,7 +177,26 @@
 </head>
 <body>
 
-    <h1>特洛伊賦能陪跑日誌</h1>
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleMenu()"></div>
+
+    <div class="sidebar-menu" id="sidebar-menu">
+        <div class="sidebar-header">
+            <button class="close-btn" onclick="toggleMenu()">✕</button>
+        </div>
+        <a href="https://sites.google.com/view/troyaifreeflow/ai-courses" class="sidebar-link">實體開課</a>
+        <a href="https://sites.google.com/view/troyaifreeflow/why-ai-ffs" class="sidebar-link">學院初心</a>
+        <a href="https://sites.google.com/view/troyaifreeflow/ai-vibe-coding-app-blog" class="sidebar-link">AI筆記</a>
+        <a href="https://sites.google.com/view/troyaifreeflow/vibe-coding-qa" class="sidebar-link">論壇交流</a>
+        <a href="https://sites.google.com/view/troyaifreeflow/ai-vibe-coding-live-streaming" class="sidebar-link">影音直播</a>
+        <a href="https://alwayslucky2hand-ops.github.io/troyffs-learningbuddy/" class="sidebar-link active">陪跑日誌</a>
+        <a href="https://sites.google.com/view/troyaifreeflow/ai-ffs-join" class="sidebar-link">加入會員</a>
+        <a href="https://sites.google.com/view/troyaifreeflow/ai-ffs-membership" class="sidebar-link">會員專區</a>
+    </div>
+
+    <div class="app-header">
+        <button class="hamburger-btn" onclick="toggleMenu()">☰</button>
+        <h1 class="app-title">特洛伊賦能陪跑日誌</h1>
+        <div style="width: 28px;"></div> </div>
 
     <div class="section" id="login-section">
         <h3 style="margin-top:0;">會員通行證與錄影權限指南</h3>
@@ -255,6 +317,25 @@
     </div>
 
     <script>
+        // ==========================================
+        // 🌟 側邊選單控制邏輯
+        // ==========================================
+        function toggleMenu() {
+            const menu = document.getElementById('sidebar-menu');
+            const overlay = document.getElementById('sidebar-overlay');
+            if (menu.classList.contains('active')) {
+                menu.classList.remove('active');
+                overlay.style.opacity = '0';
+                setTimeout(() => overlay.style.display = 'none', 300);
+            } else {
+                overlay.style.display = 'block';
+                setTimeout(() => {
+                    menu.classList.add('active');
+                    overlay.style.opacity = '1';
+                }, 10);
+            }
+        }
+
         // 🚨 替換成你的最新 GAS 網址！
         const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbznNnl4RQLQH9vr_ms6L0xWj5yqDiVgPETskuhYu_gF6PFyiVXvT9636-nLJtLd244e/exec';
         const ADMIN_EMAIL = 'alwayslucky2hand@gmail.com';
@@ -524,9 +605,7 @@
         window.onload = function() {
             document.getElementById('list-section').style.display = 'block';
             renderTypeFilter();
-            
             checkAutoLogin(); 
-            
             fetchLiveData();
         };
 
