@@ -21,6 +21,8 @@
             --glass-border: #E2E8F0;       
             --radius-soft: 16px; 
             --danger-color: #EF4444;   
+            --pill-bg: #E0F2FE; /* 標籤背景色 */
+            --pill-text: #0369A1; /* 標籤文字色 */
         }
         
         *, *::before, *::after { box-sizing: border-box; }
@@ -89,7 +91,7 @@
         .cat-btn.active, .cat-btn:hover { background: var(--primary-yellow); color: #ffffff; border-color: var(--primary-yellow); transform: none;}
 
         /* 日誌卡片 */
-        .post-card { background: var(--panel-bg); border: 1px solid var(--glass-border); padding: 24px 20px; margin-bottom: 20px; border-radius: var(--radius-soft); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); }
+        .post-card { background: var(--panel-bg); border: 1px solid var(--glass-border); padding: 24px 20px; margin-bottom: 20px; border-radius: var(--radius-soft); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); transition: transform 0.2s;}
         .post-title-row { display: flex; flex-direction: column; align-items: flex-start; margin-bottom: 16px; gap: 10px; }
         .post-title { font-size: 1.35em; margin: 0; font-weight: bold; color: var(--text-dark); line-height: 1.4; }
         
@@ -101,29 +103,52 @@
         .post-meta { font-size: 0.85em; color: var(--text-muted); margin-bottom: 16px; display: flex; gap: 8px; flex-wrap: wrap; }
         .post-meta span { background: var(--input-bg); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--glass-border); color: var(--slate-blue); font-weight: bold;}
         
-        /* 🌟 優化：內文閱讀舒適化 (Markdown 渲染後的文字區塊) */
-        .post-excerpt { 
-            color: var(--text-dark); margin-bottom: 20px; font-size: 0.98rem; line-height: 1.8; 
-            background: #ffffff; padding: 18px; border-radius: 12px; border: 1px solid var(--glass-border);
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
-            word-wrap: break-word; overflow-wrap: break-word;
-        }
-        .post-excerpt strong { color: var(--slate-blue); font-weight: 900; }
-        
         .cta-container { display: none; padding: 40px 20px; text-align: center; background: #f8fafc; flex-direction: column; justify-content: center; align-items: center; border-radius: var(--radius-soft); border: 1px dashed var(--glass-border); margin-top: 20px; }
 
-        /* 對話紀錄卡片 */
-        .thread-item { background: var(--input-bg); padding: 20px; border-radius: 12px; margin-bottom: 20px; border-left: 5px solid var(--glass-border); position: relative;}
-        .thread-item.coach { border-left-color: var(--accent-green); background: #F0FDF4; }
-        .thread-item.student { border-left-color: var(--primary-yellow); }
-        .thread-header { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; margin-bottom: 12px; font-size: 0.9em; border-bottom: 1px dashed #ccc; padding-bottom: 12px;}
-        .thread-role { font-weight: bold; color: var(--slate-blue); font-size: 0.95rem;}
-        .thread-time { color: var(--text-muted); }
+        /* =========================================
+           ✨ AI 區塊與文字排版美化 (搬家小岳風格)
+           ========================================= */
+        .post-excerpt { color: var(--text-dark); margin-bottom: 20px; word-wrap: break-word; overflow-wrap: break-word; }
         
-        /* 讓 Thread 裡面的文字區塊底色稍微融入 */
-        .thread-item .post-excerpt { background: rgba(255,255,255,0.7); border: none; padding: 12px 16px; margin-bottom: 10px;}
+        .ai-analysis-container { display: flex; flex-direction: column; gap: 16px; margin-top: 10px; }
+        .ai-section-block { background: #FFFFFF; border: 1px solid var(--glass-border); border-radius: 12px; padding: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); position: relative; overflow: hidden; }
+        /* 為每個區塊加上頂部微色條 */
+        .ai-section-block::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--primary-yellow); opacity: 0.8; }
+        .ai-section-block:nth-child(even)::before { background: var(--accent-green); }
+        
+        .ai-section-header { font-weight: 900; color: var(--slate-blue); font-size: 1.1rem; display: flex; align-items: center; gap: 8px; margin-bottom: 12px; border-bottom: 1px dashed var(--glass-border); padding-bottom: 10px; }
+        .ai-section-body { color: #374151; font-size: 0.98rem; line-height: 1.8; }
+        .ai-section-body p { margin: 0 0 10px 0; }
+        .ai-section-body p:last-child { margin-bottom: 0; }
+        
+        /* 亮點標籤 (Pill) 風格 */
+        .highlight-pill { 
+            background-color: var(--pill-bg); color: var(--pill-text); 
+            padding: 2px 10px; border-radius: 20px; font-weight: bold; 
+            display: inline-block; margin: 2px 0; border: 1px solid #BAE6FD;
+        }
+        
+        /* 列表風格優化 */
+        .ai-list { margin: 0 0 12px 0; padding-left: 24px; }
+        .ai-list li { margin-bottom: 8px; position: relative; list-style-type: disc; }
+        .ai-list li::marker { color: var(--primary-yellow); }
+        
+        /* 列表預覽提要風格 */
+        .summary-block { background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 12px; padding: 18px; margin-top: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+        .summary-label { color: #166534; font-weight: 900; margin-bottom: 10px; font-size: 1rem; display: flex; align-items: center; gap: 6px; border-bottom: 1px solid #BBF7D0; padding-bottom: 8px; }
+        .summary-body { color: #374151; font-size: 0.95rem; line-height: 1.7; }
+        
+        .processing-msg { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 30px; background: #FEF3C7; border: 1px solid #FDE68A; color: #B45309; font-weight: bold; font-size: 0.95rem; animation: pulse 2s infinite; }
 
-        .video-wrapper { margin-top: 15px; border-radius: 8px; overflow: hidden; background: #000; border: 1px solid var(--glass-border); box-shadow: 0 2px 8px rgba(0,0,0,0.1);}
+        /* 對話紀錄卡片防擠壓設計 */
+        .thread-item { background: var(--input-bg); padding: 20px; border-radius: 16px; margin-bottom: 24px; position: relative;}
+        .thread-item.coach { border-top: 5px solid var(--accent-green); background: #F0FDF4; }
+        .thread-item.student { border-top: 5px solid var(--primary-yellow); }
+        .thread-header { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; margin-bottom: 16px; font-size: 0.9em; border-bottom: 1px dashed var(--glass-border); padding-bottom: 12px;}
+        .thread-role { font-weight: 900; color: var(--slate-blue); font-size: 1.05rem;}
+        .thread-time { color: var(--text-muted); }
+
+        .video-wrapper { margin-top: 15px; border-radius: 12px; overflow: hidden; background: #000; border: 1px solid var(--glass-border); box-shadow: 0 4px 12px rgba(0,0,0,0.1);}
         .video-container { position: relative; padding-bottom: 56.25%; height: 0; }
         .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
 
@@ -300,30 +325,109 @@
 
     <script>
         // ==========================================
-        // 🌟 文字渲染引擎 (UI 美化與 Markdown 解析)
+        // ✨ AI 排版與渲染引擎 (搬家小岳美化風格)
         // ==========================================
-        function formatText(text) {
-            if (!text) return '';
-            // 1. 基礎防 XSS
-            let html = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-            // 2. 解析 Markdown 粗體 **文字** -> 轉換為高質感深藍加粗
-            html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-            // 3. 換行轉換為 <br>
-            html = html.replace(/\n/g, '<br>');
+        
+        // 轉換 Markdown (清單與重點標籤)
+        function processMarkdown(text) {
+            if (!text) return "";
+            let lines = text.split('\n');
+            let htmlLines = [];
+            let inList = false;
+
+            for (let line of lines) {
+                line = line.trim();
+                // 處理無序清單
+                if (line.startsWith('* ') || line.startsWith('- ')) {
+                    if (!inList) { htmlLines.push('<ul class="ai-list">'); inList = true; }
+                    htmlLines.push(`<li>${line.substring(2)}</li>`);
+                } else {
+                    if (inList) { htmlLines.push('</ul>'); inList = false; }
+                    if (line) htmlLines.push(`<p>${line}</p>`);
+                }
+            }
+            if (inList) htmlLines.push('</ul>');
+            
+            let html = htmlLines.join('');
+            
+            // 轉換 **粗體** 為高質感亮點標籤 (Pill)
+            html = html.replace(/\*\*(.*?)\*\*/g, '<span class="highlight-pill">$1</span>');
             return html;
         }
 
-        function getSummary(text) {
-            if(!text) return '⏳ AI 解析中...';
-            // 精準抓取 "1. 此篇重點：" 與 "2. 需求提問" 中間的文字做為摘要
-            const match = text.match(/1\.\s*此篇重點：([\s\S]*?)(?=2\.\s*需求提問|$)/);
-            if (match && match[1] && match[1].trim() !== '') {
-                return formatText("💡 **核心重點：**\n" + match[1].trim());
+        // 內頁完整版 UI 渲染
+        function formatText(text) {
+            if (!text) return '';
+            
+            // 隱藏系統運作用的標籤 [SYS:UPLOADED...]
+            let cleanText = text.replace(/\[SYS:[^\]]+\]/g, '').trim();
+            
+            if (cleanText.includes("⏳")) return `<div class="processing-msg">⏳ ${cleanText}</div>`;
+
+            // 基礎防 XSS
+            cleanText = cleanText.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+            // 智能偵測 5 大區塊
+            const sections = [
+                { id: 1, name: "此篇重點", icon: "🎯", regex: /1\.\s*此篇重點：([\s\S]*?)(?=2\.\s*需求提問|$)/ },
+                { id: 2, name: "需求提問與回應", icon: "💬", regex: /2\.\s*需求提問\/回應或再提問：([\s\S]*?)(?=3\.\s*影片描述|$)/ },
+                { id: 3, name: "影片描述", icon: "🎬", regex: /3\.\s*影片描述：([\s\S]*?)(?=4\.\s*影音逐字稿紀錄|$)/ },
+                { id: 4, name: "影音逐字稿", icon: "📝", regex: /4\.\s*影音逐字稿紀錄：([\s\S]*?)(?=5\.\s*總結|$)/ },
+                { id: 5, name: "總結與建議", icon: "💡", regex: /5\.\s*總結：([\s\S]*?)$/ }
+            ];
+
+            let hasSections = sections.some(s => s.regex.test(cleanText));
+
+            // 如果有符合 5 大區塊結構，渲染為美化卡片群
+            if (hasSections) {
+                let html = '<div class="ai-analysis-container">';
+                sections.forEach(sec => {
+                    let match = cleanText.match(sec.regex);
+                    if (match && match[1].trim() && match[1].trim() !== "無") {
+                        let content = processMarkdown(match[1].trim());
+                        html += `
+                            <div class="ai-section-block">
+                                <div class="ai-section-header"><span>${sec.icon}</span> ${sec.name}</div>
+                                <div class="ai-section-body">${content}</div>
+                            </div>
+                        `;
+                    }
+                });
+                html += '</div>';
+                return html;
+            } else {
+                // 若沒有結構 (例如舊資料)，也套用基本排版與標籤渲染
+                return `<div class="ai-analysis-container"><div class="ai-section-block"><div class="ai-section-body">${processMarkdown(cleanText)}</div></div></div>`;
             }
-            // 防呆機制：若 AI 還沒吐出標準格式，或格式異常，顯示前 80 個字
-            let summary = text.substring(0, 80);
-            if(text.length > 80) summary += '...';
-            return formatText(summary);
+        }
+
+        // 首頁列表「內容提要」渲染
+        function getSummary(text) {
+            if(!text) return '<span style="color:var(--text-muted);">⏳ 準備中...</span>';
+            
+            let cleanText = text.replace(/\[SYS:[^\]]+\]/g, '').trim();
+            if (cleanText.includes("⏳")) return `<div class="processing-msg">⏳ AI 正在深度解析中...</div>`;
+
+            let safeText = cleanText.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            
+            // 精準抓取 "1. 此篇重點：" 的內容作為摘要
+            const match = safeText.match(/1\.\s*此篇重點：([\s\S]*?)(?=2\.\s*需求提問|$)/);
+            
+            let summaryHTML = "";
+            if (match && match[1].trim() && match[1].trim() !== "無") {
+                summaryHTML = processMarkdown(match[1].trim());
+            } else {
+                // 防呆：若無標準格式，截取前段文字
+                let plainText = safeText.substring(0, 80);
+                if(safeText.length > 80) plainText += '...';
+                summaryHTML = processMarkdown(plainText);
+            }
+            
+            return `
+                <div class="summary-block">
+                    <div class="summary-label">🎯 核心重點提要</div>
+                    <div class="summary-body">${summaryHTML}</div>
+                </div>`;
         }
 
         // ==========================================
@@ -352,7 +456,7 @@
         let currentStatus = '全部';
         let currentPage = 1;
         const itemsPerPage = 5;
-        let pollingInterval = null; // 自動靜默更新的計時器
+        let pollingInterval = null; // 靜默輪詢計時器
 
         // ==========================================
         // 🎥 GAS 中繼站接力上傳引擎 (免疫 CORS)
@@ -486,7 +590,7 @@
         function blobToBase64(blob) { return new Promise((resolve, _) => { const reader = new FileReader(); reader.onloadend = () => resolve(reader.result.split(',')[1]); reader.readAsDataURL(blob); }); }
 
         // ==========================================
-        // 🎯 網站基礎邏輯與通行證機制
+        // 🎯 網站基礎邏輯與輪詢更新機制
         // ==========================================
         function checkAutoLogin() {
             const savedEmail = localStorage.getItem('troy_user_email');
@@ -510,36 +614,36 @@
             startPolling(); // 啟動靜默無感輪詢
         };
 
-        // 🌟 新增：每 15 秒靜默比對資料 (不干擾使用者、不用重整網頁)
+        // 🌟 背景靜默更新 (不干擾使用者操作)
         function startPolling() {
             if(pollingInterval) clearInterval(pollingInterval);
-            pollingInterval = setInterval(silentFetchLiveData, 15000);
+            pollingInterval = setInterval(silentFetchLiveData, 15000); // 每 15 秒對一次答案
         }
 
         function silentFetchLiveData() {
             fetch(GAS_LIVE_URL).then(res => res.json()).then(data => {
                 const newData = data.reverse();
-                // 只有當遠端資料跟本地紀錄不一樣時，才進行局部更新渲染
+                // 若雲端資料與本地畫面資料不同，才觸發重繪
                 if (JSON.stringify(newData) !== JSON.stringify(allLiveData)) {
                     allLiveData = newData;
                     
-                    // 若在列表頁，重新過濾與渲染列表
+                    // 若使用者在首頁，靜默更新列表
                     if (document.getElementById('list-section').style.display === 'block') {
                         filterPosts();
                     }
                     
-                    // 若在內頁，且正在看的文章有被更新
+                    // 若使用者在日誌內頁，靜默更新內文排版 (完全不影響最下方的錄影)
                     if (document.getElementById('detail-section').style.display === 'block' && currentPost) {
                         const updatedPost = allLiveData.find(p => p.courseId === currentPost.courseId);
                         if (updatedPost && JSON.stringify(updatedPost) !== JSON.stringify(currentPost)) {
                             currentPost = updatedPost;
                             document.getElementById('detail-title').innerText = currentPost.title;
                             document.getElementById('detail-meta').innerHTML = `<span>編號: ${currentPost.courseId}</span> <span>狀態: ${currentPost.status}</span>`;
-                            renderThread(currentPost); // 僅抽換對話串內容，完全不會中斷下面正在錄影的操作
+                            renderThread(currentPost); 
                         }
                     }
                 }
-            }).catch(err => console.log("靜默更新失敗", err));
+            }).catch(err => console.log("靜默更新暫時失敗，等待下一次"));
         }
 
         function showAppMsg(id, text, isError=false) {
@@ -629,7 +733,7 @@
 
             postsToShow.forEach(post => {
                 let badgeClass = post.status.includes('已回覆') ? 'tag-replied' : 'tag-pending';
-                // 🌟 使用 getSummary 取代直接顯示完整內文
+                // 🌟 首頁：只顯示透過 getSummary 解析出來的「內容提要」
                 listContainer.innerHTML += `
                     <div class="post-card">
                         <div class="post-title-row">
@@ -642,7 +746,7 @@
                             <span>發佈於：${post.date} ${post.time}</span>
                         </div>
                         <div class="post-excerpt">${getSummary(post.desc)}</div>
-                        <button onclick="enterClass('${post.courseId}')" class="btn-outline" style="margin-bottom: 0;">進入日誌</button>
+                        <button onclick="enterClass('${post.courseId}')" class="btn-outline" style="margin-bottom: 0;">進入日誌查看完整內容</button>
                     </div>`;
             });
 
@@ -672,7 +776,7 @@
 
         function renderThread(post) {
             let html = ''; let vidHtml = getDriveIframe(post.videoUrl);
-            // 🌟 內文改用 formatText 去渲染粗體與換行
+            // 🌟 內頁：透過 formatText 渲染出 5 大漂亮區塊
             html += `
                 <div class="thread-item student">
                     <div class="thread-header">
@@ -688,7 +792,7 @@
                 if(parts.length >= 5) {
                     let rDate = parts[0], rTime = parts[1], rRole = parts[2], rEmail = parts[3], rContent = parts[4], rVid = parts[5] || '';
                     let itemClass = rRole === '陪跑教練' ? 'coach' : 'student'; let rVidHtml = getDriveIframe(rVid);
-                    // 🌟 內文改用 formatText 去渲染粗體與換行
+                    
                     html += `
                     <div class="thread-item ${itemClass}">
                         <div class="thread-header">
