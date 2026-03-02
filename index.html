@@ -106,7 +106,7 @@
         .cta-container { display: none; padding: 40px 20px; text-align: center; background: #f8fafc; flex-direction: column; justify-content: center; align-items: center; border-radius: var(--radius-soft); border: 1px dashed var(--glass-border); margin-top: 20px; }
 
         /* =========================================
-           ✨ AI 區塊與文字排版美化 (搬家小岳風格)
+           ✨ AI 區塊與文字排版美化 (搬家小岳風格 + 時間軸優化)
            ========================================= */
         .post-excerpt { color: var(--text-dark); margin-bottom: 20px; word-wrap: break-word; overflow-wrap: break-word; }
         
@@ -116,8 +116,13 @@
         .ai-section-block::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--primary-yellow); opacity: 0.8; }
         .ai-section-block:nth-child(even)::before { background: var(--accent-green); }
         
-        .ai-section-header { font-weight: 900; color: var(--slate-blue); font-size: 1.1rem; display: flex; align-items: center; gap: 8px; margin-bottom: 12px; border-bottom: 1px dashed var(--glass-border); padding-bottom: 10px; }
-        .ai-section-body { color: #374151; font-size: 0.98rem; line-height: 1.8; }
+        /* 🚀 新增：摺疊展開專屬 CSS */
+        .ai-section-header.collapsible { cursor: pointer; transition: background 0.2s ease; display: flex; align-items: center; justify-content: space-between; }
+        .ai-section-header.collapsible:hover { background: #F9FAFB; }
+        .toggle-btn { font-size: 0.85rem; color: #3B82F6; background: #EFF6FF; padding: 4px 8px; border-radius: 6px; font-weight: normal; border: 1px solid #BFDBFE; display: flex; align-items: center; gap: 4px;}
+        .ai-section-body { color: #374151; font-size: 0.98rem; line-height: 1.8; margin-top: 12px; transition: all 0.3s ease;}
+        
+        .ai-section-header { font-weight: 900; color: var(--slate-blue); font-size: 1.1rem; display: flex; align-items: center; gap: 8px; margin-bottom: 0px; border-bottom: 1px dashed var(--glass-border); padding-bottom: 10px; }
         .ai-section-body p { margin: 0 0 10px 0; }
         .ai-section-body p:last-child { margin-bottom: 0; }
         
@@ -128,6 +133,13 @@
             display: inline-block; margin: 2px 0; border: 1px solid #BAE6FD;
         }
         
+        /* 🚀 新增：時間軸高亮徽章 (引導由上往下閱讀) */
+        .timecode-badge {
+            background-color: #DBEAFE; color: #1D4ED8; font-family: monospace;
+            padding: 2px 8px; border-radius: 6px; font-weight: bold; border: 1px solid #BFDBFE;
+            margin-right: 6px; display: inline-flex; align-items: center;
+        }
+
         /* 列表風格優化 */
         .ai-list { margin: 0 0 12px 0; padding-left: 24px; }
         .ai-list li { margin-bottom: 8px; position: relative; list-style-type: disc; }
@@ -325,9 +337,23 @@
 
     <script>
         // ==========================================
-        // ✨ AI 排版與渲染引擎 (搬家小岳美化風格)
+        // ✨ AI 排版與渲染引擎 (搬家小岳美化風格 + 折疊與時間軸)
         // ==========================================
         
+        // 🚀 新增：處理摺疊與展開的互動邏輯
+        function toggleAiSection(headerEl) {
+            const bodyEl = headerEl.nextElementSibling;
+            const toggleBtn = headerEl.querySelector('.toggle-btn');
+            
+            if (bodyEl.style.display === 'none') {
+                bodyEl.style.display = 'block';
+                toggleBtn.innerHTML = '🔼 點擊收合';
+            } else {
+                bodyEl.style.display = 'none';
+                toggleBtn.innerHTML = '🔽 點擊展開';
+            }
+        }
+
         // 轉換 Markdown (清單與重點標籤)
         function processMarkdown(text) {
             if (!text) return "";
@@ -352,6 +378,11 @@
             
             // 轉換 **粗體** 為高質感亮點標籤 (Pill)
             html = html.replace(/\*\*(.*?)\*\*/g, '<span class="highlight-pill">$1</span>');
+            
+            // 🚀 新增：轉換時間軸 [MM:SS] 或 (MM:SS) 或 [HH:MM:SS] 為漂亮的 Badge
+            // 這能引導閱讀者的眼睛「從上到下」舒適地對應影片時間
+            html = html.replace(/(?:\[|\()(\d{1,2}:\d{2}(?::\d{2})?)(?:\]|\))/g, '<span class="timecode-badge">⏱️ $1</span>');
+            
             return html;
         }
 
@@ -385,10 +416,19 @@
                     let match = cleanText.match(sec.regex);
                     if (match && match[1].trim() && match[1].trim() !== "無") {
                         let content = processMarkdown(match[1].trim());
+                        
+                        // 🚀 核心更新：判斷第 3 與 4 區塊，賦予「預設收合」與「點擊展開」特性
+                        let isCollapsible = (sec.id === 3 || sec.id === 4);
+                        
                         html += `
                             <div class="ai-section-block">
-                                <div class="ai-section-header"><span>${sec.icon}</span> ${sec.name}</div>
-                                <div class="ai-section-body">${content}</div>
+                                <div class="ai-section-header ${isCollapsible ? 'collapsible' : ''}" ${isCollapsible ? 'onclick="toggleAiSection(this)"' : ''}>
+                                    <div style="display:flex; align-items:center; gap:8px;"><span>${sec.icon}</span> ${sec.name}</div>
+                                    ${isCollapsible ? '<span class="toggle-btn">🔽 點擊展開</span>' : ''}
+                                </div>
+                                <div class="ai-section-body" ${isCollapsible ? 'style="display:none;"' : ''}>
+                                    ${content}
+                                </div>
                             </div>
                         `;
                     }
@@ -446,7 +486,7 @@
             }
         }
 
-        const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbyX9HlzTAB1lFt_fquJW4NdCCEoBQkuyQoLCCife3FqE0a_BoNNIQBdmj8mb4Flbjrb/exec';
+        const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbwbzkEZKPt8l2lmh0d9Z2_L_7LFmuIefJja3i1QiXIJaIejXEa81HXbh3zhgDNtqETI/exec';
         const ADMIN_EMAIL = 'alwayslucky2hand@gmail.com';
 
         let currentUserEmail = ''; 
@@ -716,7 +756,15 @@
             currentSearchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
             let dateQuery = document.getElementById('datePicker').value.replace(/-/g, '/'); 
             let filtered = allLiveData;
-            if (currentSearchQuery) { filtered = filtered.filter(p => (p.title && p.title.toLowerCase().includes(currentSearchQuery)) || (p.desc && p.desc.toLowerCase().includes(currentSearchQuery)) || (p.courseId && p.courseId.toLowerCase().includes(currentSearchQuery)) ); }
+            if (currentSearchQuery) { 
+                filtered = filtered.filter(p => 
+                    (p.title && p.title.toLowerCase().includes(currentSearchQuery)) || 
+                    (p.desc && p.desc.toLowerCase().includes(currentSearchQuery)) || 
+                    (p.courseId && p.courseId.toLowerCase().includes(currentSearchQuery)) ||
+                    (p.email && p.email.toLowerCase().includes(currentSearchQuery)) ||
+                    (p.date && p.date.toLowerCase().includes(currentSearchQuery))
+                ); 
+            }
             if (currentStatus !== '全部') filtered = filtered.filter(p => p.status === currentStatus);
             if (dateQuery) filtered = filtered.filter(p => p.date === dateQuery);
             renderList(filtered);
@@ -746,7 +794,7 @@
                             <span>發佈於：${post.date} ${post.time}</span>
                         </div>
                         <div class="post-excerpt">${getSummary(post.desc)}</div>
-                        <button onclick="enterClass('${post.courseId}')" class="btn-outline" style="margin-bottom: 0;">進入日誌查看完整內容</button>
+                        <button onclick="enterClass('${post.courseId}')" class="btn-outline" style="margin-bottom: 0;">進入日誌</button>
                     </div>`;
             });
 
@@ -763,13 +811,13 @@
             if (!url) return '';
             const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/\/d\/([a-zA-Z0-9_-]+)/);
             if (match && match[1]) {
+                // 已依照需求拿掉底部的 <a> 外部觀看按鈕
                 return `
                 <div class="video-wrapper">
                     <div class="video-container">
                         <iframe src="https://drive.google.com/file/d/${match[1]}/preview" allowfullscreen></iframe>
                     </div>
-                </div>
-                <a href="${url}" target="_blank" class="btn-outline" style="display:inline-block; text-align:center; padding:10px; border-radius:8px; text-decoration:none; margin-top:10px; width:100%;">🔗 若無法預覽，點擊於新分頁觀看</a>`;
+                </div>`;
             }
             return `<a href="${url}" target="_blank" class="btn-outline" style="display:inline-block; text-align:center; padding:10px; border-radius:8px; text-decoration:none; margin-top:10px; width:100%;">🎥 點擊觀看外部影片</a>`;
         }
