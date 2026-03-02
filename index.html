@@ -13,19 +13,18 @@
             --primary-hover: #D97706;      
             --slate-blue: #1F2937;     
             --accent-green: #10B981;        
-            --bg-pure: #F3F4F6; /* 外層背景改為微灰，凸顯 App 主體 */          
+            --bg-pure: #F3F4F6;          
             --panel-bg: #FFFFFF;       
             --input-bg: #F8FAFC;       
             --text-dark: #111827;          
             --text-muted: #6B7280;     
             --glass-border: #E2E8F0;       
-            --radius-soft: 16px; /* 加大圓角提升現代感 */
+            --radius-soft: 16px; 
             --danger-color: #EF4444;   
         }
         
         *, *::before, *::after { box-sizing: border-box; }
         
-        /* 鎖定 500px 呈現手機 App 視覺 */
         html { background: var(--bg-pure); }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Microsoft JhengHei', sans-serif; 
@@ -36,107 +35,43 @@
             background: var(--panel-bg); 
             color: var(--text-dark); 
             min-height: 100vh; 
-            box-shadow: 0 0 20px rgba(0,0,0,0.05); /* 電腦版立體陰影 */
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
             -webkit-font-smoothing: antialiased; 
             overflow-x: hidden;
         }
 
         /* 🌟 App 頂部導覽列 */
         .app-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 15px 0;
-            margin-bottom: 24px;
-            border-bottom: 1px dashed var(--glass-border);
-            background: var(--panel-bg);
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 15px 0; margin-bottom: 24px; border-bottom: 1px dashed var(--glass-border);
+            background: var(--panel-bg); position: sticky; top: 0; z-index: 100;
         }
         .app-title { font-size: 1.5rem; margin: 0; text-align: center; color: var(--slate-blue); font-weight: bold; flex-grow: 1; }
-        .hamburger-btn {
-            background: transparent; border: none; padding: 5px; cursor: pointer; box-shadow: none; width: auto; margin: 0; color: var(--slate-blue); font-size: 28px; display: flex; align-items: center; justify-content: center;
-        }
+        .hamburger-btn { background: transparent; border: none; padding: 5px; cursor: pointer; box-shadow: none; width: auto; margin: 0; color: var(--slate-blue); font-size: 28px; display: flex; align-items: center; justify-content: center; }
         .hamburger-btn:hover { background: transparent; transform: scale(1.1); }
         
-        /* 🌟 側邊欄遮罩 (精準鎖定在 500px App 寬度內) */
-        .sidebar-overlay {
-            position: fixed; 
-            top: 0; 
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100%;
-            max-width: 500px;
-            height: 100vh; 
-            background: rgba(0,0,0,0.6); 
-            z-index: 999; 
-            display: none; 
-            opacity: 0; 
-            transition: opacity 0.2s ease;
-        }
+        /* 🌟 側邊欄遮罩 */
+        .sidebar-overlay { position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 500px; height: 100vh; background: rgba(0,0,0,0.6); z-index: 999; display: none; opacity: 0; transition: opacity 0.2s ease; }
         .sidebar-overlay.active { display: block; opacity: 1; }
         
-        /* 🌟 側邊欄主體 (改為原地出現與消失，不再滑動) */
-        .sidebar-menu {
-            position: fixed; 
-            top: 0; 
-            left: 50%;
-            /* 讓左邊緣對齊 500px 容器的左邊緣 */
-            margin-left: calc(min(100vw, 500px) / -2); 
-            width: 260px; 
-            height: 100vh; 
-            background: #28292A; 
-            z-index: 1000; 
-            
-            /* 使用透明度控制出現/消失 */
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.2s ease, visibility 0.2s ease; 
-            
-            overflow-y: auto; 
-            display: flex; 
-            flex-direction: column; 
-            padding-top: 10px; 
-            box-shadow: 4px 0 15px rgba(0,0,0,0.5);
-        }
-        .sidebar-menu.active { 
-            opacity: 1; 
-            visibility: visible; 
-        }
-        
+        /* 🌟 側邊欄主體 */
+        .sidebar-menu { position: fixed; top: 0; left: 50%; margin-left: calc(min(100vw, 500px) / -2); width: 260px; height: 100vh; background: #28292A; z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.2s ease, visibility 0.2s ease; overflow-y: auto; display: flex; flex-direction: column; padding-top: 10px; box-shadow: 4px 0 15px rgba(0,0,0,0.5); }
+        .sidebar-menu.active { opacity: 1; visibility: visible; }
         .sidebar-header { padding: 10px 20px; display: flex; align-items: center; margin-bottom: 10px; }
-        .close-btn {
-            background: rgba(255,255,255,0.1); border: none; color: #E8EAED; font-size: 20px; cursor: pointer; width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; box-shadow: none; padding: 0; margin: 0; transition: background 0.2s;
-        }
+        .close-btn { background: rgba(255,255,255,0.1); border: none; color: #E8EAED; font-size: 20px; cursor: pointer; width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; box-shadow: none; padding: 0; margin: 0; transition: background 0.2s; }
         .close-btn:hover { background: rgba(255,255,255,0.2); transform: none; }
-        
-        .sidebar-link {
-            display: block; padding: 16px 24px; color: #E8EAED; text-decoration: none; font-size: 1.1rem; transition: background 0.2s, color 0.2s; font-weight: normal;
-        }
+        .sidebar-link { display: block; padding: 16px 24px; color: #E8EAED; text-decoration: none; font-size: 1.1rem; transition: background 0.2s, color 0.2s; font-weight: normal; }
         .sidebar-link:hover { background: rgba(255,255,255,0.05); }
         .sidebar-link.active { color: #8AB4F8; font-weight: bold; }
         
         h2, h3 { color: var(--slate-blue); font-weight: bold; margin-bottom: 16px; }
-        
         .section { background: var(--panel-bg); padding: 24px 20px; margin-bottom: 24px; border-radius: var(--radius-soft); border: 1px solid var(--glass-border); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); }
         
-        /* 表單與輸入框全寬堆疊防擠壓 */
-        .input-box, textarea, select { 
-            padding: 14px 16px; border: 1px solid var(--glass-border); border-radius: 10px; 
-            font-size: 16px !important; width: 100%; margin-bottom: 12px; 
-            background: var(--input-bg); color: var(--text-dark); font-family: inherit; transition: all 0.3s ease; 
-        }
+        .input-box, textarea, select { padding: 14px 16px; border: 1px solid var(--glass-border); border-radius: 10px; font-size: 16px !important; width: 100%; margin-bottom: 12px; background: var(--input-bg); color: var(--text-dark); font-family: inherit; transition: all 0.3s ease; }
         .input-box:focus, textarea:focus { outline: none; border-color: var(--primary-yellow); background: var(--panel-bg); box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2); }
         textarea { min-height: 120px; resize: vertical; }
         
-        /* 滿版按鈕設計 */
-        button { 
-            background: var(--primary-yellow); color: #ffffff; border: none; 
-            padding: 16px 20px; border-radius: 10px; font-weight: bold; font-size: 1.05rem; 
-            cursor: pointer; width: 100%; transition: background 0.2s; box-shadow: 0 4px 10px rgba(245, 158, 11, 0.25); 
-            margin-bottom: 12px; display: flex; justify-content: center; align-items: center; gap: 8px;
-        }
+        button { background: var(--primary-yellow); color: #ffffff; border: none; padding: 16px 20px; border-radius: 10px; font-weight: bold; font-size: 1.05rem; cursor: pointer; width: 100%; transition: background 0.2s; box-shadow: 0 4px 10px rgba(245, 158, 11, 0.25); margin-bottom: 12px; display: flex; justify-content: center; align-items: center; gap: 8px; }
         button:hover { background: var(--primary-hover); transform: translateY(-2px);} 
         button:disabled { background: #E5E7EB; color: var(--text-muted); cursor: not-allowed; box-shadow: none; transform: none;}
         .btn-outline { background: var(--input-bg); color: var(--slate-blue); border: 2px solid var(--glass-border); box-shadow: none; }
@@ -165,17 +100,28 @@
 
         .post-meta { font-size: 0.85em; color: var(--text-muted); margin-bottom: 16px; display: flex; gap: 8px; flex-wrap: wrap; }
         .post-meta span { background: var(--input-bg); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--glass-border); color: var(--slate-blue); font-weight: bold;}
-        .post-excerpt { color: var(--text-dark); margin-bottom: 20px; white-space: pre-wrap; font-size: 0.95rem; line-height: 1.6;}
+        
+        /* 🌟 優化：內文閱讀舒適化 (Markdown 渲染後的文字區塊) */
+        .post-excerpt { 
+            color: var(--text-dark); margin-bottom: 20px; font-size: 0.98rem; line-height: 1.8; 
+            background: #ffffff; padding: 18px; border-radius: 12px; border: 1px solid var(--glass-border);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+            word-wrap: break-word; overflow-wrap: break-word;
+        }
+        .post-excerpt strong { color: var(--slate-blue); font-weight: 900; }
         
         .cta-container { display: none; padding: 40px 20px; text-align: center; background: #f8fafc; flex-direction: column; justify-content: center; align-items: center; border-radius: var(--radius-soft); border: 1px dashed var(--glass-border); margin-top: 20px; }
 
-        /* 對話紀錄卡片防擠壓設計 */
+        /* 對話紀錄卡片 */
         .thread-item { background: var(--input-bg); padding: 20px; border-radius: 12px; margin-bottom: 20px; border-left: 5px solid var(--glass-border); position: relative;}
         .thread-item.coach { border-left-color: var(--accent-green); background: #F0FDF4; }
         .thread-item.student { border-left-color: var(--primary-yellow); }
         .thread-header { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; margin-bottom: 12px; font-size: 0.9em; border-bottom: 1px dashed #ccc; padding-bottom: 12px;}
         .thread-role { font-weight: bold; color: var(--slate-blue); font-size: 0.95rem;}
         .thread-time { color: var(--text-muted); }
+        
+        /* 讓 Thread 裡面的文字區塊底色稍微融入 */
+        .thread-item .post-excerpt { background: rgba(255,255,255,0.7); border: none; padding: 12px 16px; margin-bottom: 10px;}
 
         .video-wrapper { margin-top: 15px; border-radius: 8px; overflow: hidden; background: #000; border: 1px solid var(--glass-border); box-shadow: 0 2px 8px rgba(0,0,0,0.1);}
         .video-container { position: relative; padding-bottom: 56.25%; height: 0; }
@@ -201,10 +147,8 @@
         .sop-box strong { color: var(--slate-blue); font-size: 1.05rem; }
         .sop-box ol { margin-top: 8px; margin-bottom: 0; padding-left: 20px; color: var(--text-dark); font-size: 0.95rem; line-height: 1.6;}
 
-        /* 通用堆疊群組工具 */
         .stack-group { display: flex; flex-direction: column; gap: 12px; width: 100%; }
         .stack-group input, .stack-group button { margin-bottom: 0; }
-
         hr { border: 0; border-top: 1px dashed var(--glass-border); margin: 24px 0; }
     </style>
 </head>
@@ -213,9 +157,7 @@
     <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleMenu()"></div>
 
     <div class="sidebar-menu" id="sidebar-menu">
-        <div class="sidebar-header">
-            <button class="close-btn" onclick="toggleMenu()">✕</button>
-        </div>
+        <div class="sidebar-header"><button class="close-btn" onclick="toggleMenu()">✕</button></div>
         <a href="https://sites.google.com/view/troyaifreeflow/ai-courses" class="sidebar-link">實體開課</a>
         <a href="https://sites.google.com/view/troyaifreeflow/why-ai-ffs" class="sidebar-link">學院初心</a>
         <a href="https://sites.google.com/view/troyaifreeflow/ai-vibe-coding-app-blog" class="sidebar-link">AI筆記</a>
@@ -229,7 +171,8 @@
     <div class="app-header">
         <button class="hamburger-btn" onclick="toggleMenu()">☰</button>
         <h1 class="app-title">特洛伊賦能陪跑日誌</h1>
-        <div style="width: 28px;"></div> </div>
+        <div style="width: 28px;"></div> 
+    </div>
 
     <div class="section" id="login-section">
         <h3 style="margin-top:0;">會員通行證與錄影權限指南</h3>
@@ -357,7 +300,34 @@
 
     <script>
         // ==========================================
-        // 🌟 側邊選單控制邏輯 (改為直接出現/消失)
+        // 🌟 文字渲染引擎 (UI 美化與 Markdown 解析)
+        // ==========================================
+        function formatText(text) {
+            if (!text) return '';
+            // 1. 基礎防 XSS
+            let html = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            // 2. 解析 Markdown 粗體 **文字** -> 轉換為高質感深藍加粗
+            html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            // 3. 換行轉換為 <br>
+            html = html.replace(/\n/g, '<br>');
+            return html;
+        }
+
+        function getSummary(text) {
+            if(!text) return '⏳ AI 解析中...';
+            // 精準抓取 "1. 此篇重點：" 與 "2. 需求提問" 中間的文字做為摘要
+            const match = text.match(/1\.\s*此篇重點：([\s\S]*?)(?=2\.\s*需求提問|$)/);
+            if (match && match[1] && match[1].trim() !== '') {
+                return formatText("💡 **核心重點：**\n" + match[1].trim());
+            }
+            // 防呆機制：若 AI 還沒吐出標準格式，或格式異常，顯示前 80 個字
+            let summary = text.substring(0, 80);
+            if(text.length > 80) summary += '...';
+            return formatText(summary);
+        }
+
+        // ==========================================
+        // 🌟 側邊選單控制邏輯
         // ==========================================
         function toggleMenu() {
             const menu = document.getElementById('sidebar-menu');
@@ -368,15 +338,11 @@
                 setTimeout(() => overlay.style.display = 'none', 200); 
             } else {
                 overlay.style.display = 'block';
-                setTimeout(() => {
-                    menu.classList.add('active');
-                    overlay.style.opacity = '1';
-                }, 10);
+                setTimeout(() => { menu.classList.add('active'); overlay.style.opacity = '1'; }, 10);
             }
         }
 
-        // 🚨 替換成你的最新 GAS 網址！
-        const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbzeVjQIfVmOBZT3AKOuJ5PgmaA2WXaZIQ4tL6l4advDPywy0bpzgxf-HvbavhHa5vFK/exec';
+        const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbyX9HlzTAB1lFt_fquJW4NdCCEoBQkuyQoLCCife3FqE0a_BoNNIQBdmj8mb4Flbjrb/exec';
         const ADMIN_EMAIL = 'alwayslucky2hand@gmail.com';
 
         let currentUserEmail = ''; 
@@ -386,17 +352,12 @@
         let currentStatus = '全部';
         let currentPage = 1;
         const itemsPerPage = 5;
+        let pollingInterval = null; // 自動靜默更新的計時器
 
         // ==========================================
-        // 🎥 GAS 中繼站接力上傳引擎 (完全免疫 CORS)
+        // 🎥 GAS 中繼站接力上傳引擎 (免疫 CORS)
         // ==========================================
-        let mediaRecorder;
-        let recordedChunks = [];
-        let combinedStream;
-        let screenStream;
-        let micStream;
-        let audioContext;
-        let currentRecordType = ''; 
+        let mediaRecorder; let recordedChunks = []; let combinedStream; let screenStream; let micStream; let audioContext; let currentRecordType = ''; 
 
         function killMediaTracks() {
             if (screenStream) { screenStream.getTracks().forEach(t => t.stop()); screenStream = null; }
@@ -409,9 +370,7 @@
         function showRecorderMsg(type, msg, isError = false, keep = false) {
             const msgEl = document.getElementById(`${type}-record-status-msg`);
             if(!msgEl) return;
-            msgEl.innerText = msg;
-            msgEl.style.color = isError ? "var(--danger-color)" : "var(--slate-blue)";
-            msgEl.style.display = 'block';
+            msgEl.innerText = msg; msgEl.style.color = isError ? "var(--danger-color)" : "var(--slate-blue)"; msgEl.style.display = 'block';
             if(!keep && !isError) setTimeout(() => msgEl.style.display = 'none', 5000);
         }
 
@@ -421,75 +380,41 @@
             const useCamera = document.getElementById(`${type}-use-camera-cb`) ? document.getElementById(`${type}-use-camera-cb`).checked : false;
 
             try {
-                try {
-                    micStream = await navigator.mediaDevices.getUserMedia({ 
-                        audio: true, 
-                        video: useCamera ? { width: 320, height: 240 } : false 
-                    });
-                } catch(micErr) {
-                    showRecorderMsg(type, "❌ 您先前封鎖了權限！請點擊網址列左側的『鎖頭 🔒』將麥克風設為允許，並重新整理。", true, true);
-                    return;
-                }
+                try { micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: useCamera ? { width: 320, height: 240 } : false });
+                } catch(micErr) { showRecorderMsg(type, "❌ 您先前封鎖了權限！請點擊網址列左側的『鎖頭 🔒』將麥克風設為允許，並重新整理。", true, true); return; }
 
-                try {
-                    screenStream = await navigator.mediaDevices.getDisplayMedia({ 
-                        video: { displaySurface: "monitor" }, 
-                        audio: { systemAudio: "include", echoCancellation: false, noiseSuppression: false, autoGainControl: false }
-                    });
-                } catch(screenErr) {
-                    showRecorderMsg(type, "❌ 您取消了螢幕分享，請重新點擊啟動。", true, true);
-                    killMediaTracks();
-                    return;
-                }
+                try { screenStream = await navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: "monitor" }, audio: { systemAudio: "include", echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+                } catch(screenErr) { showRecorderMsg(type, "❌ 您取消了螢幕分享，請重新點擊啟動。", true, true); killMediaTracks(); return; }
 
                 if (screenStream.getAudioTracks().length === 0) {
-                    killMediaTracks(); 
-                    showRecorderMsg(type, "❌ 啟動失敗：您忘記勾選左下角的「一併分享系統音訊」了！請重新啟動並務必打勾。", true, true);
-                    return; 
+                    killMediaTracks(); showRecorderMsg(type, "❌ 啟動失敗：您忘記勾選左下角的「一併分享系統音訊」了！請重新啟動並務必打勾。", true, true); return; 
                 }
 
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 const dest = audioContext.createMediaStreamDestination();
-                
-                if (micStream && micStream.getAudioTracks().length > 0) {
-                    audioContext.createMediaStreamSource(micStream).connect(dest);
-                }
-                if (screenStream && screenStream.getAudioTracks().length > 0) {
-                    audioContext.createMediaStreamSource(screenStream).connect(dest);
-                }
+                if (micStream && micStream.getAudioTracks().length > 0) audioContext.createMediaStreamSource(micStream).connect(dest);
+                if (screenStream && screenStream.getAudioTracks().length > 0) audioContext.createMediaStreamSource(screenStream).connect(dest);
 
                 let tracks = [...screenStream.getVideoTracks(), ...dest.stream.getAudioTracks()];
                 combinedStream = new MediaStream(tracks);
 
                 const previewVideo = document.getElementById(`${type}-preview-video`);
-                previewVideo.srcObject = combinedStream;
-                previewVideo.style.display = 'block';
-                previewVideo.muted = true; 
+                previewVideo.srcObject = combinedStream; previewVideo.style.display = 'block'; previewVideo.muted = true; 
 
                 document.getElementById(`${type}-btn-setup-record`).style.display = 'none';
                 document.getElementById(`${type}-btn-start-record`).style.display = 'flex';
                 document.getElementById(`${type}-btn-cancel-record`).style.display = 'flex';
                 showRecorderMsg(type, "✅ 授權成功且系統音已連接！請點擊下方紅色按鈕開始錄製。", false, true);
 
-                screenStream.getVideoTracks()[0].onended = () => {
-                    if(mediaRecorder && mediaRecorder.state === "recording") { stopRecording(currentRecordType); } else { cancelRecording(currentRecordType); }
-                };
-            } catch (err) {
-                showRecorderMsg(type, "❌ 發生錯誤：" + err.message, true, true);
-                killMediaTracks();
-            }
+                screenStream.getVideoTracks()[0].onended = () => { if(mediaRecorder && mediaRecorder.state === "recording") { stopRecording(currentRecordType); } else { cancelRecording(currentRecordType); } };
+            } catch (err) { showRecorderMsg(type, "❌ 發生錯誤：" + err.message, true, true); killMediaTracks(); }
         }
 
         function startRecording(type) {
-            recordedChunks = [];
-            let options;
-            if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')) {
-                options = { mimeType: 'video/webm;codecs=vp8,opus', videoBitsPerSecond: 1200000 };
-            } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) {
-                options = { mimeType: 'video/webm;codecs=vp8', videoBitsPerSecond: 1200000 };
-            } else {
-                options = { videoBitsPerSecond: 1200000 };
-            }
+            recordedChunks = []; let options;
+            if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')) options = { mimeType: 'video/webm;codecs=vp8,opus', videoBitsPerSecond: 1200000 };
+            else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) options = { mimeType: 'video/webm;codecs=vp8', videoBitsPerSecond: 1200000 };
+            else options = { videoBitsPerSecond: 1200000 };
 
             mediaRecorder = new MediaRecorder(combinedStream, options);
             mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
@@ -497,64 +422,32 @@
             mediaRecorder.onstop = async function() {
                 const blob = new Blob(recordedChunks, { type: options.mimeType || 'video/webm' });
                 const previewVideo = document.getElementById(`${type}-preview-video`);
-                previewVideo.srcObject = null; 
-                previewVideo.src = URL.createObjectURL(blob); 
-                previewVideo.controls = true;
-                previewVideo.muted = false; 
+                previewVideo.srcObject = null; previewVideo.src = URL.createObjectURL(blob); previewVideo.controls = true; previewVideo.muted = false; 
                 
                 document.getElementById(`${type}-btn-stop-record`).style.display = 'none';
                 document.getElementById(`${type}-btn-cancel-record`).style.display = 'none';
                 document.getElementById(`${type}-recorder-container`).classList.remove('recording');
-                
                 killMediaTracks(); 
 
                 try {
                     showRecorderMsg(type, "⏳ 正在與中繼站建立連線通道...", false, true);
-                    
-                    const initRes = await fetch(GAS_LIVE_URL, {
-                        method: 'POST',
-                        body: JSON.stringify({ action: 'init_upload', filename: `Temp_${Date.now()}.webm` })
-                    });
+                    const initRes = await fetch(GAS_LIVE_URL, { method: 'POST', body: JSON.stringify({ action: 'init_upload', filename: `Temp_${Date.now()}.webm` }) });
                     const initData = await initRes.json();
-                    
                     if (initData.status !== 'success') throw new Error(initData.message);
                     const uploadUrl = initData.uploadUrl;
 
-                    // 透過 GAS 進行 3MB 中繼傳輸 (完美避開 CORS)
-                    const chunkSize = 3 * 1024 * 1024; 
-                    const fileSize = blob.size;
-                    let start = 0;
-                    let fileId = null;
+                    const chunkSize = 3 * 1024 * 1024; const fileSize = blob.size; let start = 0; let fileId = null;
 
                     while (start < fileSize) {
-                        const end = Math.min(start + chunkSize, fileSize);
-                        const chunk = blob.slice(start, end);
-                        const chunkBase64 = await blobToBase64(chunk);
-                        
+                        const end = Math.min(start + chunkSize, fileSize); const chunk = blob.slice(start, end); const chunkBase64 = await blobToBase64(chunk);
                         let progress = Math.round((start / fileSize) * 100);
                         showRecorderMsg(type, `⏳ 影片上傳中：${progress}% (請勿關閉網頁)...`, false, true);
 
                         const response = await fetch(GAS_LIVE_URL, {
-                            method: 'POST',
-                            body: JSON.stringify({
-                                action: 'upload_chunk',
-                                uploadUrl: uploadUrl,
-                                chunkBase64: chunkBase64,
-                                start: start,
-                                totalSize: fileSize
-                            })
+                            method: 'POST', body: JSON.stringify({ action: 'upload_chunk', uploadUrl: uploadUrl, chunkBase64: chunkBase64, start: start, totalSize: fileSize })
                         });
-
                         const data = await response.json();
-
-                        if (data.status === 'resume') {
-                            start = end; 
-                        } else if (data.status === 'success') {
-                            fileId = data.fileId;
-                            break;
-                        } else {
-                            throw new Error(data.message);
-                        }
+                        if (data.status === 'resume') { start = end; } else if (data.status === 'success') { fileId = data.fileId; break; } else { throw new Error(data.message); }
                     }
 
                     document.getElementById(`${type}-video`).value = `https://drive.google.com/file/d/${fileId}/view`;
@@ -566,78 +459,46 @@
 
                 } catch(e) {
                     showRecorderMsg(type, "❌ 上傳發生錯誤：" + e.message, true, true);
-                    document.getElementById(`${type}-btn-setup-record`).innerText = "重新錄製";
-                    document.getElementById(`${type}-btn-setup-record`).style.display = 'flex';
+                    document.getElementById(`${type}-btn-setup-record`).innerText = "重新錄製"; document.getElementById(`${type}-btn-setup-record`).style.display = 'flex';
                 }
             };
-
             mediaRecorder.start(1000); 
-            document.getElementById(`${type}-btn-start-record`).style.display = 'none';
-            document.getElementById(`${type}-btn-stop-record`).style.display = 'flex';
+            document.getElementById(`${type}-btn-start-record`).style.display = 'none'; document.getElementById(`${type}-btn-stop-record`).style.display = 'flex';
             document.getElementById(`${type}-recorder-container`).classList.add('recording');
             showRecorderMsg(type, "🔴 正在錄製中... (您與電腦的聲音皆會被嚴格錄下)", true, true);
         }
 
         function stopRecording(type) { if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop(); }
-
         function cancelRecording(type) {
-            if (mediaRecorder && mediaRecorder.state === "recording") {
-                mediaRecorder.stop(); 
-                mediaRecorder.onstop = () => { killMediaTracks(); resetRecordingUI(type); };
-            } else {
-                killMediaTracks();
-                resetRecordingUI(type);
-            }
+            if (mediaRecorder && mediaRecorder.state === "recording") { mediaRecorder.stop(); mediaRecorder.onstop = () => { killMediaTracks(); resetRecordingUI(type); };
+            } else { killMediaTracks(); resetRecordingUI(type); }
         }
 
         function resetRecordingUI(type) {
-            document.getElementById(`${type}-btn-setup-record`).innerText = "1. 啟動影音錄製權限";
-            document.getElementById(`${type}-btn-setup-record`).style.display = 'flex';
-            document.getElementById(`${type}-btn-start-record`).style.display = 'none';
-            document.getElementById(`${type}-btn-stop-record`).style.display = 'none';
-            document.getElementById(`${type}-btn-cancel-record`).style.display = 'none';
-            document.getElementById(`${type}-preview-video`).style.display = 'none';
-            document.getElementById(`${type}-preview-video`).src = '';
-            document.getElementById(`${type}-record-status-msg`).style.display = 'none';
+            document.getElementById(`${type}-btn-setup-record`).innerText = "1. 啟動影音錄製權限"; document.getElementById(`${type}-btn-setup-record`).style.display = 'flex';
+            document.getElementById(`${type}-btn-start-record`).style.display = 'none'; document.getElementById(`${type}-btn-stop-record`).style.display = 'none';
+            document.getElementById(`${type}-btn-cancel-record`).style.display = 'none'; document.getElementById(`${type}-preview-video`).style.display = 'none';
+            document.getElementById(`${type}-preview-video`).src = ''; document.getElementById(`${type}-record-status-msg`).style.display = 'none';
             document.getElementById(`${type}-recorder-container`).classList.remove('recording');
-            document.getElementById(`${type}-video`).value = '';
-            document.getElementById(`${type}-video-id`).value = '';
+            document.getElementById(`${type}-video`).value = ''; document.getElementById(`${type}-video-id`).value = '';
         }
 
-        function blobToBase64(blob) {
-            return new Promise((resolve, _) => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result.split(',')[1]);
-                reader.readAsDataURL(blob);
-            });
-        }
+        function blobToBase64(blob) { return new Promise((resolve, _) => { const reader = new FileReader(); reader.onloadend = () => resolve(reader.result.split(',')[1]); reader.readAsDataURL(blob); }); }
 
         // ==========================================
         // 🎯 網站基礎邏輯與通行證機制
         // ==========================================
-        
         function checkAutoLogin() {
             const savedEmail = localStorage.getItem('troy_user_email');
             const loginTime = localStorage.getItem('troy_login_time');
-
             if (savedEmail && loginTime) {
-                const now = new Date().getTime();
-                const timeDiff = now - parseInt(loginTime);
-                const oneHour = 60 * 60 * 1000; 
-
+                const now = new Date().getTime(); const timeDiff = now - parseInt(loginTime); const oneHour = 60 * 60 * 1000; 
                 if (timeDiff < oneHour) {
-                    currentUserEmail = savedEmail;
-                    document.getElementById('login-status').innerText = `已登入：${currentUserEmail}`;
-                    document.getElementById('step-1').style.display = 'none';
-                    document.getElementById('step-2').style.display = 'none';
-                    document.getElementById('btn-logout').style.display = 'flex';
-                    document.getElementById('publish-section').style.display = 'block';
-                    
+                    currentUserEmail = savedEmail; document.getElementById('login-status').innerText = `已登入：${currentUserEmail}`;
+                    document.getElementById('step-1').style.display = 'none'; document.getElementById('step-2').style.display = 'none';
+                    document.getElementById('btn-logout').style.display = 'flex'; document.getElementById('publish-section').style.display = 'block';
                     localStorage.setItem('troy_login_time', now);
-                } else {
-                    localStorage.removeItem('troy_user_email');
-                    localStorage.removeItem('troy_login_time');
-                }
+                } else { localStorage.removeItem('troy_user_email'); localStorage.removeItem('troy_login_time'); }
             }
         }
 
@@ -646,13 +507,43 @@
             renderTypeFilter();
             checkAutoLogin(); 
             fetchLiveData();
+            startPolling(); // 啟動靜默無感輪詢
         };
 
+        // 🌟 新增：每 15 秒靜默比對資料 (不干擾使用者、不用重整網頁)
+        function startPolling() {
+            if(pollingInterval) clearInterval(pollingInterval);
+            pollingInterval = setInterval(silentFetchLiveData, 15000);
+        }
+
+        function silentFetchLiveData() {
+            fetch(GAS_LIVE_URL).then(res => res.json()).then(data => {
+                const newData = data.reverse();
+                // 只有當遠端資料跟本地紀錄不一樣時，才進行局部更新渲染
+                if (JSON.stringify(newData) !== JSON.stringify(allLiveData)) {
+                    allLiveData = newData;
+                    
+                    // 若在列表頁，重新過濾與渲染列表
+                    if (document.getElementById('list-section').style.display === 'block') {
+                        filterPosts();
+                    }
+                    
+                    // 若在內頁，且正在看的文章有被更新
+                    if (document.getElementById('detail-section').style.display === 'block' && currentPost) {
+                        const updatedPost = allLiveData.find(p => p.courseId === currentPost.courseId);
+                        if (updatedPost && JSON.stringify(updatedPost) !== JSON.stringify(currentPost)) {
+                            currentPost = updatedPost;
+                            document.getElementById('detail-title').innerText = currentPost.title;
+                            document.getElementById('detail-meta').innerHTML = `<span>編號: ${currentPost.courseId}</span> <span>狀態: ${currentPost.status}</span>`;
+                            renderThread(currentPost); // 僅抽換對話串內容，完全不會中斷下面正在錄影的操作
+                        }
+                    }
+                }
+            }).catch(err => console.log("靜默更新失敗", err));
+        }
+
         function showAppMsg(id, text, isError=false) {
-            const el = document.getElementById(id);
-            el.innerText = text;
-            el.className = isError ? "inline-msg" : "inline-msg success";
-            setTimeout(() => el.innerText = '', 4000);
+            const el = document.getElementById(id); el.innerText = text; el.className = isError ? "inline-msg" : "inline-msg success"; setTimeout(() => el.innerText = '', 4000);
         }
         
         function scrollToLogin() { window.scrollTo({ top: 0, behavior: 'smooth' }); document.getElementById('email').focus(); }
@@ -665,63 +556,43 @@
             .then(res => res.json()).then(data => {
                 document.getElementById('btn-otp').innerText = "寄送驗證碼";
                 if (data.status === "error") return showAppMsg('otp-msg', data.message, true);
-                document.getElementById('step-1').style.display = 'none';
-                document.getElementById('step-2').style.display = 'flex';
+                document.getElementById('step-1').style.display = 'none'; document.getElementById('step-2').style.display = 'flex';
             }).catch(() => { showAppMsg('otp-msg', '連線失敗', true); document.getElementById('btn-otp').innerText = "寄送驗證碼"; });
         }
 
         function verifyLogin() {
-            const email = document.getElementById('email').value.trim();
-            const otp = document.getElementById('otp-code').value.trim();
+            const email = document.getElementById('email').value.trim(); const otp = document.getElementById('otp-code').value.trim();
             if (!otp) return showAppMsg('login-msg', '請輸入驗證碼', true);
-
             document.getElementById('btn-login').innerText = "驗證中...";
             fetch(GAS_LIVE_URL, { method: 'POST', body: JSON.stringify({ action: 'verifyOTP', email: email, otp: otp }) })
             .then(res => res.json()).then(data => {
                 document.getElementById('btn-login').innerText = "登入通行";
                 if (data.status === "error") return showAppMsg('login-msg', data.message, true);
                 
-                currentUserEmail = email;
-                document.getElementById('login-status').innerText = `已登入：${email}`;
-                document.getElementById('step-1').style.display = 'none';
-                document.getElementById('step-2').style.display = 'none';
-                document.getElementById('btn-logout').style.display = 'flex';
-                document.getElementById('publish-section').style.display = 'block';
+                currentUserEmail = email; document.getElementById('login-status').innerText = `已登入：${email}`;
+                document.getElementById('step-1').style.display = 'none'; document.getElementById('step-2').style.display = 'none';
+                document.getElementById('btn-logout').style.display = 'flex'; document.getElementById('publish-section').style.display = 'block';
                 
-                localStorage.setItem('troy_user_email', currentUserEmail);
-                localStorage.setItem('troy_login_time', new Date().getTime());
-
+                localStorage.setItem('troy_user_email', currentUserEmail); localStorage.setItem('troy_login_time', new Date().getTime());
                 if(currentPost && document.getElementById('detail-section').style.display === 'block') { enterClass(currentPost.courseId); }
             });
         }
 
         function logout() { 
-            currentUserEmail = ''; 
-            document.getElementById('email').value = ''; 
-            document.getElementById('otp-code').value = ''; 
+            currentUserEmail = ''; document.getElementById('email').value = ''; document.getElementById('otp-code').value = ''; 
             document.getElementById('login-status').innerText = '目前狀態：未登入 (訪客)'; 
-            document.getElementById('step-1').style.display = 'flex'; 
-            document.getElementById('btn-logout').style.display = 'none'; 
-            document.getElementById('publish-section').style.display = 'none';
-            document.getElementById('detail-section').style.display = 'none';
-            document.getElementById('list-section').style.display = 'block';
-            
-            localStorage.removeItem('troy_user_email');
-            localStorage.removeItem('troy_login_time');
-
-            killMediaTracks(); 
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            document.getElementById('step-1').style.display = 'flex'; document.getElementById('btn-logout').style.display = 'none'; 
+            document.getElementById('publish-section').style.display = 'none'; document.getElementById('detail-section').style.display = 'none'; document.getElementById('list-section').style.display = 'block';
+            localStorage.removeItem('troy_user_email'); localStorage.removeItem('troy_login_time');
+            killMediaTracks(); window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function cancelLogin() { document.getElementById('step-1').style.display = 'flex'; document.getElementById('step-2').style.display = 'none'; }
 
         function renderTypeFilter() {
-            const container = document.getElementById('type-container'); 
-            container.innerHTML = '';
+            const container = document.getElementById('type-container'); container.innerHTML = '';
             ['全部', '待回覆', '教練已回覆', '學員追問'].forEach(opt => {
-                const btn = document.createElement('button'); 
-                btn.className = opt === currentStatus ? 'cat-btn active' : 'cat-btn';
-                btn.innerText = opt; 
+                const btn = document.createElement('button'); btn.className = opt === currentStatus ? 'cat-btn active' : 'cat-btn'; btn.innerText = opt; 
                 btn.onclick = () => { currentStatus = opt; currentPage = 1; renderTypeFilter(); filterPosts(); };
                 container.appendChild(btn);
             });
@@ -740,20 +611,15 @@
         function filterPosts() {
             currentSearchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
             let dateQuery = document.getElementById('datePicker').value.replace(/-/g, '/'); 
-            
             let filtered = allLiveData;
-            if (currentSearchQuery) {
-                filtered = filtered.filter(p => (p.title && p.title.toLowerCase().includes(currentSearchQuery)) || (p.desc && p.desc.toLowerCase().includes(currentSearchQuery)) || (p.courseId && p.courseId.toLowerCase().includes(currentSearchQuery)) );
-            }
+            if (currentSearchQuery) { filtered = filtered.filter(p => (p.title && p.title.toLowerCase().includes(currentSearchQuery)) || (p.desc && p.desc.toLowerCase().includes(currentSearchQuery)) || (p.courseId && p.courseId.toLowerCase().includes(currentSearchQuery)) ); }
             if (currentStatus !== '全部') filtered = filtered.filter(p => p.status === currentStatus);
             if (dateQuery) filtered = filtered.filter(p => p.date === dateQuery);
-
             renderList(filtered);
         }
 
         function renderList(filteredData) {
-            const listContainer = document.getElementById('post-list');
-            const pagination = document.getElementById('pagination-container');
+            const listContainer = document.getElementById('post-list'); const pagination = document.getElementById('pagination-container');
             listContainer.innerHTML = ''; pagination.innerHTML = '';
 
             if (filteredData.length === 0) return listContainer.innerHTML = '<p class="system-msg">目前沒有符合條件的紀錄！</p>';
@@ -763,7 +629,7 @@
 
             postsToShow.forEach(post => {
                 let badgeClass = post.status.includes('已回覆') ? 'tag-replied' : 'tag-pending';
-                
+                // 🌟 使用 getSummary 取代直接顯示完整內文
                 listContainer.innerHTML += `
                     <div class="post-card">
                         <div class="post-title-row">
@@ -775,7 +641,7 @@
                             <span>發佈人：${post.email.split('@')[0]}***</span> 
                             <span>發佈於：${post.date} ${post.time}</span>
                         </div>
-                        <div class="post-excerpt">${post.desc}</div>
+                        <div class="post-excerpt">${getSummary(post.desc)}</div>
                         <button onclick="enterClass('${post.courseId}')" class="btn-outline" style="margin-bottom: 0;">進入日誌</button>
                     </div>`;
             });
@@ -798,21 +664,22 @@
                     <div class="video-container">
                         <iframe src="https://drive.google.com/file/d/${match[1]}/preview" allowfullscreen></iframe>
                     </div>
-                </div>`;
+                </div>
+                <a href="${url}" target="_blank" class="btn-outline" style="display:inline-block; text-align:center; padding:10px; border-radius:8px; text-decoration:none; margin-top:10px; width:100%;">🔗 若無法預覽，點擊於新分頁觀看</a>`;
             }
             return `<a href="${url}" target="_blank" class="btn-outline" style="display:inline-block; text-align:center; padding:10px; border-radius:8px; text-decoration:none; margin-top:10px; width:100%;">🎥 點擊觀看外部影片</a>`;
         }
 
         function renderThread(post) {
-            let html = '';
-            let vidHtml = getDriveIframe(post.videoUrl);
+            let html = ''; let vidHtml = getDriveIframe(post.videoUrl);
+            // 🌟 內文改用 formatText 去渲染粗體與換行
             html += `
                 <div class="thread-item student">
                     <div class="thread-header">
                         <span class="thread-role">👤 學員提問 (${post.email})</span>
                         <span class="thread-time">${post.date} ${post.time}</span>
                     </div>
-                    <div class="post-excerpt">${post.desc.replace(/\n/g, '<br>')}</div>
+                    <div class="post-excerpt">${formatText(post.desc)}</div>
                     ${vidHtml}
                 </div>`;
             
@@ -820,16 +687,15 @@
                 let parts = reply.split('|||');
                 if(parts.length >= 5) {
                     let rDate = parts[0], rTime = parts[1], rRole = parts[2], rEmail = parts[3], rContent = parts[4], rVid = parts[5] || '';
-                    let itemClass = rRole === '陪跑教練' ? 'coach' : 'student';
-                    let rVidHtml = getDriveIframe(rVid);
-                    
+                    let itemClass = rRole === '陪跑教練' ? 'coach' : 'student'; let rVidHtml = getDriveIframe(rVid);
+                    // 🌟 內文改用 formatText 去渲染粗體與換行
                     html += `
                     <div class="thread-item ${itemClass}">
                         <div class="thread-header">
                             <span class="thread-role">${rRole === '陪跑教練' ? '👑' : '👤'} ${rRole} (${rEmail})</span>
                             <span class="thread-time">${rDate} ${rTime}</span>
                         </div>
-                        <div class="post-excerpt">${rContent.replace(/\n/g, '<br>')}</div>
+                        <div class="post-excerpt">${formatText(rContent)}</div>
                         ${rVidHtml}
                     </div>`;
                 }
@@ -841,115 +707,69 @@
             currentPost = allLiveData.find(p => p.courseId === courseId);
             if(!currentPost) return;
 
-            document.getElementById('publish-section').style.display = 'none';
-            document.getElementById('list-section').style.display = 'none';
-            document.getElementById('detail-section').style.display = 'block';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            document.getElementById('publish-section').style.display = 'none'; document.getElementById('list-section').style.display = 'none';
+            document.getElementById('detail-section').style.display = 'block'; window.scrollTo({ top: 0, behavior: 'smooth' });
 
             document.getElementById('detail-title').innerText = currentPost.title;
             document.getElementById('detail-meta').innerHTML = `<span>編號: ${currentPost.courseId}</span> <span>狀態: ${currentPost.status}</span>`;
             
-            const authWarningContainer = document.getElementById('auth-warning-container');
-            const authWarningMessage = document.getElementById('auth-warning-message');
-            const authWarningBtn = document.getElementById('auth-warning-btn');
-            const threadContentWrapper = document.getElementById('thread-content-wrapper');
+            const authWarningContainer = document.getElementById('auth-warning-container'); const authWarningMessage = document.getElementById('auth-warning-message');
+            const authWarningBtn = document.getElementById('auth-warning-btn'); const threadContentWrapper = document.getElementById('thread-content-wrapper');
 
             if (!currentUserEmail) {
-                authWarningContainer.style.display = 'flex';
-                threadContentWrapper.style.display = 'none';
-                authWarningMessage.innerHTML = "🔒 這是專屬陪跑日誌<br>請先登入或加入會員以解鎖您的權限！";
-                authWarningBtn.style.display = 'flex';
+                authWarningContainer.style.display = 'flex'; threadContentWrapper.style.display = 'none';
+                authWarningMessage.innerHTML = "🔒 這是專屬陪跑日誌<br>請先登入或加入會員以解鎖您的權限！"; authWarningBtn.style.display = 'flex';
             } else if (currentUserEmail.toLowerCase() !== currentPost.email.toLowerCase() && currentUserEmail.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
-                authWarningContainer.style.display = 'flex';
-                threadContentWrapper.style.display = 'none';
-                authWarningMessage.innerHTML = "⛔ 這是其他學員的專屬陪跑日誌<br>為保障學員隱私，您無權觀看哦！";
-                authWarningBtn.style.display = 'none'; 
+                authWarningContainer.style.display = 'flex'; threadContentWrapper.style.display = 'none';
+                authWarningMessage.innerHTML = "⛔ 這是其他學員的專屬陪跑日誌<br>為保障學員隱私，您無權觀看哦！"; authWarningBtn.style.display = 'none'; 
             } else {
-                authWarningContainer.style.display = 'none';
-                threadContentWrapper.style.display = 'block';
-                renderThread(currentPost);
+                authWarningContainer.style.display = 'none'; threadContentWrapper.style.display = 'block'; renderThread(currentPost);
             }
         }
 
-        // 💡 修改：送出提問時，完全省略填寫文字標題步驟，直接預設標記，由後端AI接手處理
         function submitPost() {
-            // 自動套用 AI 解析標記作為預設值
             const title = "⏳ AI 影片解析中...";
-            const desc = "⏳ 系統正在透過 AI 自動解析影片並為您總結「此篇重點」、「需求提問」、「影片描述」與「逐字稿」...請稍候重新載入。";
+            const desc = "⏳ 系統正在透過 AI 自動解析影片並為您總結「此篇重點」、「需求提問」、「影片描述」與「逐字稿」...請稍候。";
             
-            const videoUrl = document.getElementById('post-video').value.trim();
-            const videoFileId = document.getElementById('post-video-id').value; 
+            const videoUrl = document.getElementById('post-video').value.trim(); const videoFileId = document.getElementById('post-video-id').value; 
             const btn = document.getElementById('btn-submit-post');
             
-            // 唯一限制：必須完成錄影
             if(!videoUrl) return showAppMsg('post-msg', '⚠️ 請先完成錄影或提供影片！', true);
-            
             btn.disabled = true; btn.innerText = "發布中...";
 
             fetch(GAS_LIVE_URL, {
                 method: 'POST',
-                body: JSON.stringify({ 
-                    action: 'add_post', 
-                    email: currentUserEmail, 
-                    title: title, 
-                    desc: desc, 
-                    videoUrl: videoUrl,
-                    videoFileId: videoFileId 
-                })
+                body: JSON.stringify({ action: 'add_post', email: currentUserEmail, title: title, desc: desc, videoUrl: videoUrl, videoFileId: videoFileId })
             }).then(() => {
                 btn.disabled = false; btn.innerText = "🚀 提交並呼叫 AI 解析";
-                document.getElementById('post-title').value = ''; 
-                document.getElementById('post-desc').value = ''; 
-                resetRecordingUI('post'); 
-                showAppMsg('post-msg', '提問發布成功！AI 即將接手處理。');
-                fetchLiveData(); 
+                document.getElementById('post-title').value = ''; document.getElementById('post-desc').value = ''; 
+                resetRecordingUI('post'); showAppMsg('post-msg', '提問發布成功！AI 即將接手處理。'); fetchLiveData(); 
             });
         }
 
-        // 💡 修改：送出回覆時，同樣省略填寫內容，由 AI 接手整理回覆影片的逐字稿
         function submitReply() {
-            const desc = "⏳ 系統正在透過 AI 自動解析您的影音回覆，為您整理五大核心重點...請稍候重新載入。";
-            
-            const videoUrl = document.getElementById('reply-video').value.trim();
-            const videoFileId = document.getElementById('reply-video-id').value; 
+            const desc = "⏳ 系統正在透過 AI 自動解析您的影音回覆，為您整理五大核心重點...請稍候。";
+            const videoUrl = document.getElementById('reply-video').value.trim(); const videoFileId = document.getElementById('reply-video-id').value; 
             const btn = document.getElementById('btn-submit-reply');
             
             if(!videoUrl) return showAppMsg('reply-msg', '⚠️ 請先完成錄影或提供影片！', true);
-            
             btn.disabled = true; btn.innerText = "傳送中...";
 
             fetch(GAS_LIVE_URL, {
                 method: 'POST',
-                body: JSON.stringify({ 
-                    action: 'add_reply', 
-                    courseId: currentPost.courseId, 
-                    email: currentUserEmail, 
-                    desc: desc, 
-                    videoUrl: videoUrl,
-                    videoFileId: videoFileId
-                })
+                body: JSON.stringify({ action: 'add_reply', courseId: currentPost.courseId, email: currentUserEmail, desc: desc, videoUrl: videoUrl, videoFileId: videoFileId })
             }).then(() => {
                 btn.disabled = false; btn.innerText = "🚀 送出並呼叫 AI 解析";
-                document.getElementById('reply-desc').value = ''; 
-                resetRecordingUI('reply'); 
-                showAppMsg('reply-msg', '回覆成功！重新載入並等候 AI 處理...');
-                
-                fetch(GAS_LIVE_URL).then(res=>res.json()).then(data => {
-                    allLiveData = data.reverse();
-                    enterClass(currentPost.courseId);
-                });
+                document.getElementById('reply-desc').value = ''; resetRecordingUI('reply'); 
+                showAppMsg('reply-msg', '回覆成功！已交由 AI 處理。');
+                fetchLiveData(); // 送出後重新抓取資料
             });
         }
 
         function backToList() {
-            document.getElementById('detail-section').style.display = 'none';
-            document.getElementById('list-section').style.display = 'block';
+            document.getElementById('detail-section').style.display = 'none'; document.getElementById('list-section').style.display = 'block';
             if(currentUserEmail) document.getElementById('publish-section').style.display = 'block';
-            killMediaTracks(); 
-            resetRecordingUI('post');
-            resetRecordingUI('reply');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            filterPosts();
+            killMediaTracks(); resetRecordingUI('post'); resetRecordingUI('reply'); window.scrollTo({ top: 0, behavior: 'smooth' }); filterPosts();
         }
     </script>
 </body>
