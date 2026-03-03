@@ -107,7 +107,15 @@
         button:hover { background: var(--primary-hover); transform: translateY(-2px);} 
         button:disabled { background: #E5E7EB; color: var(--text-muted); cursor: not-allowed; box-shadow: none; transform: none;}
         .btn-outline { background: var(--input-bg); color: var(--slate-blue); border: 2px solid var(--glass-border); box-shadow: none; }
-        .btn-outline:hover { background: var(--glass-border); }
+        .btn-outline:hover { 
+    background: var(--primary-yellow); 
+    color: #ffffff; 
+    border-color: var(--primary-yellow); 
+}
+        .media-toggle-btn:hover:not(.active) { 
+    background: var(--primary-yellow); 
+    color: #ffffff; 
+}
         .btn-danger { background: var(--danger-color); box-shadow: 0 4px 6px rgba(239, 68, 68, 0.2); } 
         
         .search-box { width: 100%; padding: 14px 16px; border: 1px solid var(--glass-border); border-radius: 10px; font-size: 1rem; background: var(--input-bg); margin-bottom: 24px; }
