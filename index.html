@@ -6,7 +6,7 @@
     <title>特洛伊-賦能陪跑日誌</title>
     <style>
         /* =========================================
-           特洛伊 AI 賦能陪跑日誌 - 企業級無縫錄影版
+           特洛伊 AI 賦能陪跑日誌 - App 級別舒適閱讀版
            ========================================= */
         :root {
             --primary-yellow: #F59E0B; 
@@ -26,18 +26,35 @@
         }
         
         *, *::before, *::after { box-sizing: border-box; }
+        
         html { background: var(--bg-pure); }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Microsoft JhengHei', sans-serif; 
-            line-height: 1.6; max-width: 500px; margin: 0 auto; padding: 0 15px 20px 15px; 
-            background: var(--panel-bg); color: var(--text-dark); min-height: 100vh; 
-            box-shadow: 0 0 20px rgba(0,0,0,0.05); -webkit-font-smoothing: antialiased; overflow-x: hidden;
+            line-height: 1.6; 
+            max-width: 500px; 
+            margin: 0 auto; 
+            padding: 0 15px 20px 15px; 
+            background: var(--panel-bg); 
+            color: var(--text-dark); 
+            min-height: 100vh; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+            -webkit-font-smoothing: antialiased; 
+            overflow-x: hidden;
         }
 
-        .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--primary-yellow); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 6px; vertical-align: middle; }
+        .spinner {
+            display: inline-block; width: 14px; height: 14px;
+            border: 2px solid var(--primary-yellow); border-top-color: transparent;
+            border-radius: 50%; animation: spin 1s linear infinite; margin-right: 6px;
+            vertical-align: middle;
+        }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        .record-dot { display: inline-block; width: 10px; height: 10px; background-color: white; border-radius: 50%; margin-right: 8px; animation: pulse-dot 1.5s infinite; }
+        .record-dot { 
+            display: inline-block; width: 10px; height: 10px; 
+            background-color: white; border-radius: 50%; 
+            margin-right: 8px; animation: pulse-dot 1.5s infinite; 
+        }
         .record-dot.danger-dot { background-color: var(--danger-color); }
         @keyframes pulse-dot { 0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); } 70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(255, 255, 255, 0); } 100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); } }
 
@@ -47,15 +64,25 @@
         
         .hint-label { font-weight: bold; color: var(--accent-green); border: 1px solid var(--accent-green); padding: 2px 6px; border-radius: 4px; margin-right: 6px; font-size: 0.8rem; }
         .warning-label { font-weight: bold; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 2px 6px; border-radius: 4px; margin-right: 6px; font-size: 0.8rem; }
+        .system-label { font-weight: bold; color: #3B82F6; border: 1px solid #3B82F6; padding: 2px 6px; border-radius: 4px; margin-right: 6px; font-size: 0.8rem; }
         
         .status-icon { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; margin-right: 8px; }
         .status-success { background: #D1FAE5; color: #065F46; }
         .status-error { background: #FEE2E2; color: #991B1B; }
         .status-system { background: #DBEAFE; color: #1E40AF; }
 
-        .app-header { display: flex; align-items: center; justify-content: space-between; padding: 15px 0; margin-bottom: 24px; border-bottom: 1px dashed var(--glass-border); background: var(--panel-bg); position: sticky; top: 0; z-index: 100; }
+        .arrow-up { display: inline-block; width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-bottom: 5px solid #3B82F6; margin-right: 6px; vertical-align: middle;}
+        .arrow-down { display: inline-block; width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 5px solid #3B82F6; margin-right: 6px; vertical-align: middle;}
+        .section-mark { display: inline-block; width: 4px; height: 16px; background: var(--primary-yellow); border-radius: 2px; margin-right: 8px; vertical-align: text-bottom; }
+
+        .app-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 15px 0; margin-bottom: 24px; border-bottom: 1px dashed var(--glass-border);
+            background: var(--panel-bg); position: sticky; top: 0; z-index: 100;
+        }
         .app-title { font-size: 1.5rem; margin: 0; text-align: center; color: var(--slate-blue); font-weight: bold; flex-grow: 1; }
         .hamburger-btn { background: transparent; border: none; padding: 5px; cursor: pointer; box-shadow: none; width: auto; margin: 0; color: var(--slate-blue); font-size: 28px; display: flex; align-items: center; justify-content: center; }
+        .hamburger-btn:hover { background: transparent; transform: scale(1.1); }
         
         .sidebar-overlay { position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 500px; height: 100vh; background: rgba(0,0,0,0.6); z-index: 999; display: none; opacity: 0; transition: opacity 0.2s ease; }
         .sidebar-overlay.active { display: block; opacity: 1; }
@@ -63,8 +90,10 @@
         .sidebar-menu { position: fixed; top: 0; left: 50%; margin-left: calc(min(100vw, 500px) / -2); width: 260px; height: 100vh; background: #28292A; z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.2s ease, visibility 0.2s ease; overflow-y: auto; display: flex; flex-direction: column; padding-top: 10px; box-shadow: 4px 0 15px rgba(0,0,0,0.5); }
         .sidebar-menu.active { opacity: 1; visibility: visible; }
         .sidebar-header { padding: 10px 20px; display: flex; align-items: center; margin-bottom: 10px; }
-        .close-btn { background: rgba(255,255,255,0.1); border: none; color: #E8EAED; font-size: 20px; cursor: pointer; width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; box-shadow: none; }
-        .sidebar-link { display: block; padding: 16px 24px; color: #E8EAED; text-decoration: none; font-size: 1.1rem; }
+        .close-btn { background: rgba(255,255,255,0.1); border: none; color: #E8EAED; font-size: 20px; cursor: pointer; width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; box-shadow: none; padding: 0; margin: 0; transition: background 0.2s; }
+        .close-btn:hover { background: rgba(255,255,255,0.2); transform: none; }
+        .sidebar-link { display: block; padding: 16px 24px; color: #E8EAED; text-decoration: none; font-size: 1.1rem; transition: background 0.2s, color 0.2s; font-weight: normal; }
+        .sidebar-link:hover { background: rgba(255,255,255,0.05); }
         .sidebar-link.active { color: #8AB4F8; font-weight: bold; }
         
         h2, h3 { color: var(--slate-blue); font-weight: bold; margin-bottom: 16px; }
@@ -78,8 +107,15 @@
         button:hover { background: var(--primary-hover); transform: translateY(-2px);} 
         button:disabled { background: #E5E7EB; color: var(--text-muted); cursor: not-allowed; box-shadow: none; transform: none;}
         .btn-outline { background: var(--input-bg); color: var(--slate-blue); border: 2px solid var(--glass-border); box-shadow: none; }
-        .btn-outline:hover { background: var(--primary-yellow); color: #ffffff; border-color: var(--primary-yellow); }
-        .media-toggle-btn:hover:not(.active) { background: var(--primary-yellow); color: #ffffff; }
+        .btn-outline:hover { 
+    background: var(--primary-yellow); 
+    color: #ffffff; 
+    border-color: var(--primary-yellow); 
+}
+        .media-toggle-btn:hover:not(.active) { 
+    background: var(--primary-yellow); 
+    color: #ffffff; 
+}
         .btn-danger { background: var(--danger-color); box-shadow: 0 4px 6px rgba(239, 68, 68, 0.2); } 
         
         .search-box { width: 100%; padding: 14px 16px; border: 1px solid var(--glass-border); border-radius: 10px; font-size: 1rem; background: var(--input-bg); margin-bottom: 24px; }
@@ -92,50 +128,72 @@
         .cat-btn.active, .cat-btn:hover { background: var(--primary-yellow); color: #ffffff; border-color: var(--primary-yellow); transform: none;}
 
         .media-toggle-container { display: flex; gap: 10px; margin-bottom: 15px; background: var(--input-bg); padding: 4px; border-radius: 12px; border: 1px solid var(--glass-border); }
-        .media-toggle-btn { flex: 1; padding: 12px 10px; border-radius: 8px; border: none; background: transparent; color: var(--text-muted); font-weight: bold; cursor: pointer; box-shadow: none; margin: 0; font-size: 0.95rem; }
+        .media-toggle-btn { flex: 1; padding: 12px 10px; border-radius: 8px; border: none; background: transparent; color: var(--text-muted); font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: none; margin: 0; font-size: 0.95rem; }
         .media-toggle-btn.active { background: #FFFFFF; color: var(--primary-yellow); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
 
-        .post-card { background: var(--panel-bg); border: 1px solid var(--glass-border); padding: 24px 20px; margin-bottom: 20px; border-radius: var(--radius-soft); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);}
+        .post-card { background: var(--panel-bg); border: 1px solid var(--glass-border); padding: 24px 20px; margin-bottom: 20px; border-radius: var(--radius-soft); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); transition: transform 0.2s;}
         .post-title-row { display: flex; flex-direction: column; align-items: flex-start; margin-bottom: 16px; gap: 10px; }
         .post-title { font-size: 1.35em; margin: 0; font-weight: bold; color: var(--text-dark); line-height: 1.4; }
+        
         .tag-badge { padding: 4px 12px; border-radius: 6px; font-size: 0.85em; font-weight: bold; color: white; display: inline-block; white-space: nowrap; }
         .tag-pending { background: #EF4444; animation: pulse 2s infinite; }
         .tag-replied { background: var(--accent-green); }
+        .tag-rag { background: #3B82F6; }
+
         .post-meta { font-size: 0.85em; color: var(--text-muted); margin-bottom: 16px; display: flex; gap: 8px; flex-wrap: wrap; }
         .post-meta span { background: var(--input-bg); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--glass-border); color: var(--slate-blue); font-weight: bold;}
         
+        .cta-container { display: none; padding: 40px 20px; text-align: center; background: #f8fafc; flex-direction: column; justify-content: center; align-items: center; border-radius: var(--radius-soft); border: 1px dashed var(--glass-border); margin-top: 20px; }
+
         .post-excerpt { color: var(--text-dark); margin-bottom: 20px; word-wrap: break-word; overflow-wrap: break-word; }
         .ai-analysis-container { display: flex; flex-direction: column; gap: 16px; margin-top: 10px; }
-        .ai-section-block { background: #FFFFFF; border: 1px solid var(--glass-border); border-radius: 12px; padding: 18px; position: relative; overflow: hidden; }
+        .ai-section-block { background: #FFFFFF; border: 1px solid var(--glass-border); border-radius: 12px; padding: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); position: relative; overflow: hidden; }
         .ai-section-block::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--primary-yellow); opacity: 0.8; }
         .ai-section-block:nth-child(even)::before { background: var(--accent-green); }
-        .ai-section-header.collapsible { cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
-        .toggle-btn { font-size: 0.85rem; color: #3B82F6; background: #EFF6FF; padding: 4px 8px; border-radius: 6px; border: 1px solid #BFDBFE; }
-        .ai-section-body { color: #374151; font-size: 0.98rem; line-height: 1.8; margin-top: 12px; }
-        .ai-section-header { font-weight: 900; color: var(--slate-blue); font-size: 1.1rem; display: flex; align-items: center; border-bottom: 1px dashed var(--glass-border); padding-bottom: 10px; }
-        .section-mark { display: inline-block; width: 4px; height: 16px; background: var(--primary-yellow); border-radius: 2px; margin-right: 8px; }
+        
+        .ai-section-header.collapsible { cursor: pointer; transition: background 0.2s ease; display: flex; align-items: center; justify-content: space-between; }
+        .ai-section-header.collapsible:hover { background: #F9FAFB; }
+        .toggle-btn { font-size: 0.85rem; color: #3B82F6; background: #EFF6FF; padding: 4px 8px; border-radius: 6px; font-weight: normal; border: 1px solid #BFDBFE; display: flex; align-items: center; }
+        .ai-section-body { color: #374151; font-size: 0.98rem; line-height: 1.8; margin-top: 12px; transition: all 0.3s ease;}
+        
+        .ai-section-header { font-weight: 900; color: var(--slate-blue); font-size: 1.1rem; display: flex; align-items: center; margin-bottom: 0px; border-bottom: 1px dashed var(--glass-border); padding-bottom: 10px; }
+        .ai-section-body p { margin: 0 0 10px 0; }
+        .ai-section-body p:last-child { margin-bottom: 0; }
+        
+        .highlight-pill { background-color: var(--pill-bg); color: var(--pill-text); padding: 2px 10px; border-radius: 20px; font-weight: bold; display: inline-block; margin: 2px 0; border: 1px solid #BAE6FD; }
         .timecode-badge { background-color: #DBEAFE; color: #1D4ED8; font-family: monospace; padding: 2px 8px; border-radius: 6px; font-weight: bold; border: 1px solid #BFDBFE; margin-right: 6px; display: inline-flex; align-items: center; }
-
+        .ai-list { margin: 0 0 12px 0; padding-left: 24px; }
+        .ai-list li { margin-bottom: 8px; position: relative; list-style-type: disc; }
+        .ai-list li::marker { color: var(--primary-yellow); }
+        
         .summary-block { background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 12px; padding: 18px; margin-top: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
         .summary-label { color: #166534; font-weight: 900; margin-bottom: 10px; font-size: 1rem; display: flex; align-items: center; border-bottom: 1px solid #BBF7D0; padding-bottom: 8px; }
+        .summary-body { color: #374151; font-size: 0.95rem; line-height: 1.7; }
         
+        .processing-msg { display: inline-flex; align-items: center; padding: 10px 20px; border-radius: 30px; background: #FEF3C7; border: 1px solid #FDE68A; color: #B45309; font-weight: bold; font-size: 0.95rem; }
+
         .thread-item { background: var(--input-bg); padding: 20px; border-radius: 16px; margin-bottom: 24px; position: relative;}
         .thread-item.coach { border-top: 5px solid var(--accent-green); background: #F0FDF4; }
         .thread-item.student { border-top: 5px solid var(--primary-yellow); }
         .thread-header { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; margin-bottom: 16px; font-size: 0.9em; border-bottom: 1px dashed var(--glass-border); padding-bottom: 12px;}
         .thread-role { font-weight: 900; color: var(--slate-blue); font-size: 1.05rem; display: flex; align-items: center;}
-        
+        .thread-time { color: var(--text-muted); }
+        .thread-email { font-weight: normal; color: var(--slate-blue); font-size: 0.95rem; word-break: break-all;}
+
         .video-wrapper { margin-top: 15px; border-radius: 12px; overflow: hidden; background: #000; border: 1px solid var(--glass-border); box-shadow: 0 4px 12px rgba(0,0,0,0.1);}
         .video-container { position: relative; padding-bottom: 56.25%; height: 0; }
         .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
 
+        /* --- 新增：多圖預覽與輪播樣式 --- */
         .image-carousel-wrapper { overflow-x: auto; scroll-snap-type: x mandatory; display: flex; gap: 12px; padding-bottom: 10px; margin-top: 15px; }
+        .image-carousel-wrapper::-webkit-scrollbar { height: 6px; }
+        .image-carousel-wrapper::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
         .img-preview-box { position: relative; flex-shrink: 0; scroll-snap-align: center; }
         .img-preview-box img { height: 180px; width: auto; border-radius: 8px; border: 1px solid var(--glass-border); object-fit: contain; background: #fff; }
-        .btn-delete-img { position: absolute; top: -8px; right: -8px; background: var(--danger-color); color: #fff; border: none; width: 26px; height: 26px; border-radius: 50%; font-size: 14px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center;}
+        .btn-delete-img { position: absolute; top: -8px; right: -8px; background: var(--danger-color); color: #fff; border: none; width: 26px; height: 26px; border-radius: 50%; font-size: 14px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
 
         .pagination { display: flex; justify-content: center; gap: 8px; margin-top: 24px; flex-wrap: wrap;}
-        .page-btn { background: var(--panel-bg); color: var(--slate-blue); border: 1px solid var(--glass-border); padding: 10px 16px; border-radius: 8px; cursor: pointer; width: auto; margin-bottom: 0; font-weight: bold;}
+        .page-btn { background: var(--panel-bg); color: var(--slate-blue); border: 1px solid var(--glass-border); padding: 10px 16px; border-radius: 8px; cursor: pointer; width: auto; margin-bottom: 0; box-shadow: none; font-weight: bold;}
         .page-btn.active { background: var(--primary-yellow); color: #ffffff; border-color: var(--primary-yellow); }
         
         .inline-msg { font-weight: bold; display: block; margin-top: 8px; min-height: 20px; color: var(--danger-color); text-align: center; font-size: 0.95rem;}
@@ -144,15 +202,21 @@
 
         .recorder-box { background: #f1f5f9; border: 2px dashed var(--slate-blue); border-radius: 12px; padding: 20px; margin-bottom: 24px; text-align: center; transition: all 0.3s ease;}
         .recorder-box.recording { border-color: var(--danger-color); background: #fef2f2; }
+        
         .preview-video-el { width: 100%; border-radius: 10px; background: #111; margin-top: 15px; display: none; aspect-ratio: 16/9; }
         .controls-row { display: flex; flex-direction: column; gap: 10px; justify-content: center; margin-top: 15px; width: 100%;}
+        
         .record-hint { font-size: 0.85rem; color: var(--danger-color); margin-bottom: 10px; display: inline-block; padding: 8px 12px; background: #fef2f2; border-radius: 8px; line-height: 1.5; text-align: left; width: 100%;}
+        
         .sop-box { background: #FFFBEB; border-left: 4px solid var(--primary-yellow); padding: 16px; margin-bottom: 20px; border-radius: 8px; text-align: left;}
         .sop-title { color: var(--slate-blue); font-size: 1.05rem; font-weight: bold; }
-        
+        .sop-box ol { margin-top: 8px; margin-bottom: 0; padding-left: 20px; color: var(--text-dark); font-size: 0.95rem; line-height: 1.6;}
+
         .stack-group { display: flex; flex-direction: column; gap: 12px; width: 100%; }
         .stack-group input, .stack-group button { margin-bottom: 0; }
         hr { border: 0; border-top: 1px dashed var(--glass-border); margin: 24px 0; }
+
+        /* 新增：隱藏預設文字欄位的 class */
         .hidden-fields { display: none !important; }
 
         /* 新增：草稿提示區塊樣式 */
@@ -173,6 +237,7 @@
         <a href="https://sites.google.com/view/troyaifreeflow/ai-vibe-coding-live-streaming" class="sidebar-link">影音直播</a>
         <a href="https://alwayslucky2hand-ops.github.io/troyffs-learningbuddy/" class="sidebar-link active">陪跑日誌</a>
         <a href="https://alwayslucky2hand-ops.github.io/troyfreeflowjoin/" class="sidebar-link">加入會員</a>
+        <a href="https://sites.google.com/view/troyaifreeflow/ai-ffs-membership" class="sidebar-link">會員專區</a>
     </div>
 
     <div class="app-header">
@@ -182,14 +247,24 @@
     </div>
 
     <div class="section" id="login-section">
-        <h3 style="margin-top:0;">會員通行證</h3>
-        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">請先驗證身分登入，即可發起提問並查看您的專屬陪跑日誌。</p>
+        <h3 style="margin-top:0;">會員通行證與權限指南</h3>
+        <div class="sop-box">
+            <div class="sop-title">錄影神器權限開通說明：</div>
+            <ol>
+                <li>請點擊瀏覽器網址列最左側的 <strong>「鎖頭圖示」</strong>。</li>
+                <li>找到 <strong>「麥克風」</strong> 與 <strong>「攝影機」</strong>，將其狀態切換為 <strong>「允許」</strong>。</li>
+                <li>設定完成後，請務必 <strong>重新整理 (F5) 此網頁</strong>。</li>
+            </ol>
+        </div>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">為保障學員隱私，請先驗證身分登入，即可發起提問並查看您的專屬陪跑日誌。</p>
         <p id="login-status" style="color: var(--primary-yellow); font-weight: bold; margin-bottom: 15px; text-align: center;">目前狀態：未登入 (訪客)</p>
+        
         <div id="step-1" class="stack-group">
             <input type="email" id="email" class="input-box" placeholder="輸入會員 Email">
             <button onclick="requestOTP()" id="btn-otp">寄送驗證碼</button>
             <span id="otp-msg" class="inline-msg"></span>
         </div>
+        
         <div id="step-2" style="display: none; margin-top: 10px;">
             <div class="stack-group">
                 <input type="text" id="otp-code" class="input-box" placeholder="輸入 6 位數驗證碼">
@@ -198,12 +273,15 @@
             </div>
             <span id="login-msg" class="inline-msg"></span>
         </div>
-        <button id="btn-logout" onclick="logout()" style="display: none; background: var(--danger-color); margin-top: 20px;">登出帳號</button>
+        <button id="btn-logout" onclick="logout()" style="display: none; background: var(--danger-color); margin-top: 20px; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.25);">登出帳號</button>
     </div>
 
     <div class="section" id="publish-section" style="display: none; border-left: 5px solid var(--primary-yellow);">
         <h3 style="margin-top:0;">發起新提問</h3>
-        
+        <p style="margin-bottom: 12px; font-size: 0.95rem;">
+            <span class="hint-label">系統升級</span><span style="color: var(--accent-green); font-weight: bold;">支援錄影暫停與多段影片接續上傳！</span>
+        </p>
+
         <div class="draft-banner" id="post-draft-banner">
             <p>📁 已載入跨裝置草稿！目前包含 <span id="post-draft-count" style="color:#D97706; font-size:1.1rem;">0</span> 個錄影片段。</p>
             <p style="font-size:0.85rem; margin-top:5px; font-weight:normal;">您可以繼續錄製新片段疊加，或直接確認發布。</p>
@@ -235,16 +313,16 @@
                 
                 <div id="post-ready-controls" style="display:none; gap: 10px; width: 100%;">
                     <button id="post-btn-start-record" onclick="startRecording('post')" class="btn-danger" style="flex:2; margin:0;"><span class="record-dot"></span>開始錄製</button>
-                    <button class="switch-btn" onclick="switchVideoSource('post')" class="btn-outline" style="flex:1; margin:0; padding: 10px;">切換鏡頭</button>
+                    <button class="switch-btn" onclick="switchVideoSource('post')" class="btn-outline" style="flex:1; margin:0; padding: 10px;">切換畫面</button>
                 </div>
 
                 <div id="post-active-controls" style="display:none; gap: 10px; width: 100%; flex-wrap: wrap;">
                     <button id="post-btn-pause-record" onclick="togglePauseRecording('post')" class="btn-outline" style="flex:1; margin:0; padding: 10px;">暫停錄影</button>
                     <button onclick="changeScreenSource('post')" class="btn-outline" style="flex:1; margin:0; padding: 10px;">換分享視窗</button>
-                    <button class="switch-btn" onclick="switchVideoSource('post')" class="btn-outline" style="flex:1; margin:0; padding: 10px;">切換鏡頭</button>
+                    <button class="switch-btn" onclick="switchVideoSource('post')" class="btn-outline" style="flex:1; margin:0; padding: 10px;">切換畫面</button>
                     <button id="post-btn-stop-record" onclick="stopRecording('post')" style="flex:100%; margin-top:5px; background: var(--slate-blue); padding: 10px;">結束錄製並預覽</button>
                 </div>
-                
+
                 <div id="post-preview-controls" style="display:none; gap: 10px; width: 100%; flex-direction: column;">
                     <div style="display: flex; gap: 10px;">
                         <button onclick="discardRecording('post')" class="btn-outline" style="flex:1; margin:0;">捨棄重錄</button>
@@ -257,13 +335,19 @@
 
         <div id="post-image-container" class="recorder-box" style="display: none;">
             <h4 style="margin: 0 0 10px 0; color: var(--slate-blue); border-bottom: 1px dashed var(--glass-border); padding-bottom: 8px;">智慧多圖辨識神器</h4>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">您可以選取或拍攝多張圖片，可左右滑動檢視或刪除，確認無誤後點擊最下方發布即可。</p>
+            
             <input type="file" id="post-image-input" accept="image/*" multiple style="display:none;" onchange="handleImageSelected('post', this)">
             <button class="btn-outline" onclick="document.getElementById('post-image-input').click()">📸 開啟相機 / 批次選擇相片</button>
+            
             <div id="post-image-carousel" class="image-carousel-wrapper" style="display:none;"></div>
             <p id="post-image-status-msg" style="font-size: 0.95rem; margin-top: 15px; display: none;"></p>
         </div>
+
+        <input type="hidden" id="post-video" readonly>
+        <input type="hidden" id="post-video-id"> 
         
-        <button onclick="submitPost()" id="btn-submit-post" style="margin-top:15px;">確認上傳並呼叫 AI 解析</button>
+        <button onclick="submitPost()" id="btn-submit-post" style="margin-top:15px;">確認發布並呼叫 AI 解析</button>
         <span id="post-msg" class="inline-msg"></span>
     </div>
 
@@ -289,7 +373,7 @@
         <h2 id="detail-title" style="margin-top: 5px; font-size: 1.6em; color: var(--text-dark); line-height: 1.4;"></h2>
         <hr>
         
-        <div id="auth-warning-container" style="display: none; padding: 40px 20px; text-align: center; background: #f8fafc; flex-direction: column; border-radius: var(--radius-soft); border: 1px dashed var(--glass-border); margin-top: 20px;">
+        <div id="auth-warning-container" class="cta-container">
             <h3 id="auth-warning-message" style="color: var(--slate-blue); margin-bottom: 20px; line-height: 1.6; font-size: 1.2rem;"></h3>
             <button id="auth-warning-btn" onclick="scrollToLogin()">立即登入解鎖</button>
         </div>
@@ -299,7 +383,10 @@
             
             <div style="margin-top:32px; border-top: 2px dashed var(--glass-border); padding-top: 24px;">
                 <h3 style="margin-top:0;">新增影音回覆 / 追問</h3>
-                
+                <p style="margin-bottom: 12px; font-size: 0.95rem;">
+                    <span class="hint-label">系統升級</span><span style="color: var(--accent-green); font-weight: bold;">支援錄影暫停與多段影片接續上傳！</span>
+                </p>
+
                 <div class="draft-banner" id="reply-draft-banner">
                     <p>📁 已載入跨裝置草稿！目前包含 <span id="reply-draft-count" style="color:#D97706; font-size:1.1rem;">0</span> 個錄影片段。</p>
                 </div>
@@ -315,6 +402,7 @@
                 </div>
 
                 <div id="reply-recorder-container" class="recorder-box">
+                    <h4 style="margin: 0 0 10px 0; color: var(--slate-blue); border-bottom: 1px dashed var(--glass-border); padding-bottom: 8px;">網頁內建錄影神器 (1080p 防卡頓版)</h4>
                     <p id="reply-desktop-msg" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">系統將同時擷取麥克風與電腦畫面聲音，若未勾選系統音訊將無法啟動錄影。</p>
                     <label id="reply-camera-label" style="cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px; font-weight: bold; color: var(--slate-blue);">
                         <input type="checkbox" id="reply-use-camera-cb" checked style="width: 18px; height: 18px;"> 同時開啟視訊鏡頭 (露臉)
@@ -327,13 +415,13 @@
                         
                         <div id="reply-ready-controls" style="display:none; gap: 10px; width: 100%;">
                             <button id="reply-btn-start-record" onclick="startRecording('reply')" class="btn-danger" style="flex:2; margin:0;"><span class="record-dot"></span>開始錄製</button>
-                            <button class="switch-btn" onclick="switchVideoSource('reply')" class="btn-outline" style="flex:1; margin:0; padding: 10px;">切換鏡頭</button>
+                            <button class="switch-btn" onclick="switchVideoSource('reply')" class="btn-outline" style="flex:1; margin:0; padding: 10px;">切換畫面</button>
                         </div>
 
                         <div id="reply-active-controls" style="display:none; gap: 10px; width: 100%; flex-wrap: wrap;">
                             <button id="reply-btn-pause-record" onclick="togglePauseRecording('reply')" class="btn-outline" style="flex:1; margin:0; padding: 10px;">暫停錄影</button>
                             <button onclick="changeScreenSource('reply')" class="btn-outline" style="flex:1; margin:0; padding: 10px;">換分享視窗</button>
-                            <button class="switch-btn" onclick="switchVideoSource('reply')" class="btn-outline" style="flex:1; margin:0; padding: 10px;">切換鏡頭</button>
+                            <button class="switch-btn" onclick="switchVideoSource('reply')" class="btn-outline" style="flex:1; margin:0; padding: 10px;">切換畫面</button>
                             <button id="reply-btn-stop-record" onclick="stopRecording('reply')" style="flex:100%; margin-top:5px; background: var(--slate-blue); padding: 10px;">結束錄製並預覽</button>
                         </div>
 
@@ -348,13 +436,20 @@
                 </div>
 
                 <div id="reply-image-container" class="recorder-box" style="display: none;">
+                    <h4 style="margin: 0 0 10px 0; color: var(--slate-blue); border-bottom: 1px dashed var(--glass-border); padding-bottom: 8px;">智慧多圖辨識神器</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">您可以選取或拍攝多張圖片，可左右滑動檢視或刪除，確認無誤後點擊最下方發布即可。</p>
+                    
                     <input type="file" id="reply-image-input" accept="image/*" multiple style="display:none;" onchange="handleImageSelected('reply', this)">
                     <button class="btn-outline" onclick="document.getElementById('reply-image-input').click()">📸 開啟相機 / 批次選擇相片</button>
+                    
                     <div id="reply-image-carousel" class="image-carousel-wrapper" style="display:none;"></div>
                     <p id="reply-image-status-msg" style="font-size: 0.95rem; margin-top: 15px; display: none;"></p>
                 </div>
+
+                <input type="hidden" id="reply-video" readonly>
+                <input type="hidden" id="reply-video-id"> 
                 
-                <button onclick="submitReply()" id="btn-submit-reply" style="margin-top:15px;">確認上傳並呼叫 AI 解析</button>
+                <button onclick="submitReply()" id="btn-submit-reply" style="margin-top:15px;">確認發布並呼叫 AI 解析</button>
                 <span id="reply-msg" class="inline-msg"></span>
             </div>
         </div>
@@ -403,7 +498,7 @@
                     const hint = document.getElementById(`${type}-record-hint`);
                     const msg = document.getElementById(`${type}-desktop-msg`);
                     const camLabel = document.getElementById(`${type}-camera-label`);
-                    if(hint) hint.innerHTML = '<span class="warning-label">手機模式</span>因系統安全限制，手機無法錄製螢幕。<br>您可使用下方「切換鏡頭」無縫切換前後鏡頭！';
+                    if(hint) hint.innerHTML = '<span class="warning-label">手機模式</span>因系統安全限制，手機網頁無法錄製螢幕。<br><span class="hint-label" style="margin-top:6px; display:inline-block;">操作提示</span>您可以使用下方「切換畫面」按鈕，<strong>無縫切換前置/後置鏡頭</strong>！';
                     if(msg) msg.style.display = 'none';
                     if(camLabel) camLabel.style.display = 'none';
                 });
@@ -426,6 +521,62 @@
             }
             document.getElementById(`${type}-media-type`).value = mode;
             draftState[type].mediaType = mode;
+        }
+
+        // ==========================================
+        // 圖片輪播與預覽管理
+        // ==========================================
+        function handleImageSelected(type, inputEl) {
+            const files = Array.from(inputEl.files);
+            if (files.length === 0) return;
+            files.forEach(file => { pendingImages[type].push(file); });
+            inputEl.value = ''; 
+            renderImageCarousel(type);
+        }
+
+        function removeImage(type, index) { pendingImages[type].splice(index, 1); renderImageCarousel(type); }
+
+        function renderImageCarousel(type) {
+            const container = document.getElementById(`${type}-image-carousel`);
+            container.innerHTML = '';
+            if (pendingImages[type].length === 0) { container.style.display = 'none'; return; }
+            container.style.display = 'flex';
+            
+            pendingImages[type].forEach((file, index) => {
+                const url = URL.createObjectURL(file);
+                const wrapper = document.createElement('div');
+                wrapper.className = 'img-preview-box';
+                wrapper.innerHTML = `<img src="${url}"><button class="btn-delete-img" onclick="removeImage('${type}', ${index})">✕</button>`;
+                container.appendChild(wrapper);
+            });
+        }
+
+        async function uploadPendingImages(type) {
+            const files = pendingImages[type];
+            if (files.length === 0) return { urls: '', ids: '' };
+            let uploadedUrls = []; let uploadedIds = [];
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i]; const ext = file.name.split('.').pop() || 'jpg'; const filename = `Temp_${Date.now()}_${i}.${ext}`;
+                showRecorderMsg(type, `正在上傳圖片 (${i+1}/${files.length})，請勿關閉網頁...`, false, true, true);
+                
+                try {
+                    const initRes = await fetch(GAS_LIVE_URL, { method: 'POST', body: JSON.stringify({ action: 'init_upload', filename: filename }) });
+                    const initData = await initRes.json();
+                    if (initData.status !== 'success') throw new Error(initData.message);
+                    const uploadUrl = initData.uploadUrl;
+                    const chunkSize = 3 * 1024 * 1024; const fileSize = file.size; let start = 0; let fileId = null;
+
+                    while (start < fileSize) {
+                        const end = Math.min(start + chunkSize, fileSize); const chunk = file.slice(start, end); const chunkBase64 = await blobToBase64(chunk);
+                        const response = await fetch(GAS_LIVE_URL, { method: 'POST', body: JSON.stringify({ action: 'upload_chunk', uploadUrl: uploadUrl, chunkBase64: chunkBase64, start: start, totalSize: fileSize }) });
+                        const data = await response.json();
+                        if (data.status === 'resume') { start = end; } else if (data.status === 'success') { fileId = data.fileId; break; } else { throw new Error(data.message); }
+                    }
+                    uploadedIds.push(fileId); uploadedUrls.push(`https://drive.google.com/file/d/${fileId}/view`);
+                } catch(err) { throw new Error(`第 ${i+1} 張圖片上傳失敗: ` + err.message); }
+            }
+            return { urls: uploadedUrls.join(','), ids: uploadedIds.join(',') };
         }
 
         // ==========================================
@@ -454,7 +605,6 @@
                 document.getElementById(`${type}-draft-banner`).style.display = 'none';
             }
 
-            // 恢復文字
             if(type === 'post') {
                 if(state.title) document.getElementById('post-title').value = state.title;
                 if(state.desc) document.getElementById('post-desc').value = state.desc;
@@ -462,7 +612,6 @@
                 if(state.desc) document.getElementById('reply-desc').value = state.desc;
             }
 
-            // 恢復模式
             if(state.mediaType) switchMediaMode(type, state.mediaType);
         }
 
@@ -482,7 +631,7 @@
                     const fileData = await uploadBlobToDrive(currentLocalBlob[type], type);
                     draftState[type].uploadedIds.push(fileData.id);
                     draftState[type].uploadedUrls.push(`https://drive.google.com/file/d/${fileData.id}/view`);
-                    currentLocalBlob[type] = null; // 清除本地
+                    currentLocalBlob[type] = null; 
                 }
 
                 draftState[type].title = titleInput;
@@ -494,7 +643,7 @@
                 });
 
                 showAppMsg(`${type}-msg`, '片段已暫存雲端！您可以用其他裝置登入繼續錄製。', false);
-                resetRecordingUI(type, true); // true: keep draft banner active
+                resetRecordingUI(type, true); 
                 renderDraftStatus(type);
             } catch(e) {
                 showAppMsg(`${type}-msg`, '草稿儲存失敗: ' + e.message, true);
@@ -503,7 +652,6 @@
             }
         }
 
-        // 通用的 Blob 上傳驅動器 (分段上傳)
         async function uploadBlobToDrive(blob, type) {
             const initRes = await fetch(GAS_LIVE_URL, { method: 'POST', body: JSON.stringify({ action: 'init_upload', filename: `Clip_${Date.now()}.webm` }) });
             const initData = await initRes.json();
@@ -525,14 +673,27 @@
         }
 
         // ==========================================
-        // 無縫錄影與預覽引擎 (防卡頓版)
+        // 無縫錄影與預覽引擎 (1080p防卡頓版 + 視窗切換)
         // ==========================================
-        function showRecorderMsg(type, text, isError = false, keep = false) {
-            const msgEl = document.getElementById(`${type}-record-status-msg`); if(!msgEl) return;
+        function killMediaTracks() {
+            if (drawLoopId) { cancelAnimationFrame(drawLoopId); drawLoopId = null; }
+            if (screenStream) { screenStream.getTracks().forEach(t => t.stop()); screenStream = null; }
+            if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
+            if (combinedStream) { combinedStream.getTracks().forEach(t => t.stop()); combinedStream = null; }
+            if (audioContext && audioContext.state !== 'closed') { audioContext.close(); audioContext = null; }
+            document.querySelectorAll('.preview-video-el').forEach(v => { if (v.tagName.toLowerCase() === 'video') v.srcObject = null; });
+            screenHiddenVideo = null; cameraHiddenVideo = null;
+            internalCanvas = null; internalCtx = null;
+            activeVideoSource = 'screen'; currentFacingMode = 'user'; isPaused = false;
+        }
+
+        function showRecorderMsg(type, text, isError = false, keep = false, isImageMode = false) {
+            const elId = isImageMode ? `${type}-image-status-msg` : `${type}-record-status-msg`;
+            const msgEl = document.getElementById(elId); if(!msgEl) return;
             let badgeHtml = '';
             if (isError) badgeHtml = '<span class="status-icon status-error">錯誤</span>';
             else if (text.includes("錄製中")) badgeHtml = '<span class="record-dot danger-dot"></span><span class="status-icon" style="background:#FEE2E2; color:#991B1B;">錄製中</span>';
-            else if (text.includes("暫停")) badgeHtml = '<span class="status-icon" style="background:#FEF3C7; color:#B45309;">暫停</span>';
+            else if (text.includes("暫停") || text.includes("切換")) badgeHtml = '<span class="status-icon" style="background:#FEF3C7; color:#B45309;">暫停</span>';
             else badgeHtml = '<span class="status-icon status-success">提示</span>';
             msgEl.innerHTML = badgeHtml + text; msgEl.style.display = 'block';
             if(!keep && !isError) setTimeout(() => msgEl.style.display = 'none', 5000);
@@ -559,12 +720,11 @@
             }
         }
 
-        // 新增：換分享視窗邏輯
         async function changeScreenSource(type) {
             if (isMobileDevice()) return showRecorderMsg(type, "手機模式不支援螢幕分享", true, false);
             
             const wasRecording = (mediaRecorder && mediaRecorder.state === 'recording' && !isPaused);
-            if (wasRecording) togglePauseRecording(type); // 自動幫用戶暫停
+            if (wasRecording) togglePauseRecording(type); 
 
             try {
                 const newScreenStream = await navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: "monitor" }, audio: { systemAudio: "include" } });
@@ -585,7 +745,7 @@
             if (mediaRecorder.state === 'recording') {
                 mediaRecorder.pause(); isPaused = true;
                 pauseBtn.innerHTML = '<span class="record-dot"></span> 繼續錄影'; pauseBtn.classList.replace('btn-outline', 'btn-danger');
-                showRecorderMsg(type, "錄影已暫停... (切換好畫面後再繼續)", false, true);
+                showRecorderMsg(type, "錄影已暫停... (準備好再繼續)", false, true);
             } else if (mediaRecorder.state === 'paused') {
                 mediaRecorder.resume(); isPaused = false;
                 pauseBtn.innerHTML = '暫停錄影'; pauseBtn.classList.replace('btn-danger', 'btn-outline');
@@ -682,15 +842,13 @@
             mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
 
             mediaRecorder.onstop = function() {
-                // 將錄影結果轉為 Blob 並存入本地草稿變數
                 currentLocalBlob[type] = new Blob(recordedChunks, { type: options.mimeType || 'video/webm' });
-                
                 const previewVideo = document.getElementById(`${type}-preview-video`);
                 previewVideo.srcObject = null; previewVideo.src = URL.createObjectURL(currentLocalBlob[type]); 
                 previewVideo.controls = true; previewVideo.muted = false; 
                 
                 document.getElementById(`${type}-active-controls`).style.display = 'none';
-                document.getElementById(`${type}-preview-controls`).style.display = 'flex'; // 顯示預覽操作按鈕
+                document.getElementById(`${type}-preview-controls`).style.display = 'flex'; 
                 document.getElementById(`${type}-recorder-container`).classList.remove('recording');
                 
                 showRecorderMsg(type, "錄製結束，您可以直接預覽。滿意請點擊下方確認發布！", false, true);
@@ -731,6 +889,101 @@
         function blobToBase64(blob) { return new Promise((resolve, _) => { const reader = new FileReader(); reader.onloadend = () => resolve(reader.result.split(',')[1]); reader.readAsDataURL(blob); }); }
 
         // ==========================================
+        // AI 排版與渲染引擎
+        // ==========================================
+        function toggleAiSection(headerEl) {
+            const bodyEl = headerEl.nextElementSibling; const toggleBtn = headerEl.querySelector('.toggle-btn');
+            if (bodyEl.style.display === 'none') { bodyEl.style.display = 'block'; toggleBtn.innerHTML = '<span class="arrow-up"></span> 點擊收合';
+            } else { bodyEl.style.display = 'none'; toggleBtn.innerHTML = '<span class="arrow-down"></span> 點擊展開'; }
+        }
+
+        function processMarkdown(text) {
+            if (!text) return ""; let lines = text.split('\n'); let htmlLines = []; let inList = false;
+            for (let line of lines) {
+                line = line.trim();
+                if (line.startsWith('* ') || line.startsWith('- ')) {
+                    if (!inList) { htmlLines.push('<ul class="ai-list">'); inList = true; }
+                    htmlLines.push(`<li>${line.substring(2)}</li>`);
+                } else {
+                    if (inList) { htmlLines.push('</ul>'); inList = false; }
+                    if (line) htmlLines.push(`<p>${line}</p>`);
+                }
+            }
+            if (inList) htmlLines.push('</ul>');
+            let html = htmlLines.join('');
+            html = html.replace(/\*\*(.*?)\*\*/g, '<span class="highlight-pill">$1</span>');
+            html = html.replace(/(?:\[|\()(\d{1,2}:\d{2}(?::\d{2})?)(?:\]|\))/g, '<span class="timecode-badge">$1</span>');
+            return html;
+        }
+
+        function formatText(text) {
+            if (!text) return ''; let isProcessing = text.includes('[SYS:處理中]'); let cleanText = text;
+            let sysLogs = [];
+            cleanText = cleanText.replace(/\[系統紀錄：(.*?)\]/g, (match, p1) => { sysLogs.push(p1.trim()); return ""; });
+            cleanText = cleanText.replace(/\[SYS:REC_VIDEO=.+?\]/g, ''); cleanText = cleanText.replace(/\[SYS:LOW_CONFIDENCE\]/g, '');
+            cleanText = cleanText.replace(/\[SYS:ORIGINAL_DESC\]([\s\S]*?)\[\/SYS:ORIGINAL_DESC\]/g, (match, p1) => { return `${p1.trim()}\n\n====================\n【AI 輔助解析】\n`; });
+            cleanText = cleanText.replace(/\[SYS:[^\]]+\]/g, '').trim(); cleanText = cleanText.replace(/\[\/SYS:[^\]]+\]/g, '').trim();
+
+            let originalText = ""; let aiText = cleanText;
+            if (cleanText.includes("【AI 輔助解析】")) {
+                let parts = cleanText.split("【AI 輔助解析】");
+                originalText = parts[0].replace(/====================/g, '').trim(); aiText = parts.slice(1).join("【AI 輔助解析】").trim();
+            }
+
+            aiText = aiText.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            if (originalText) originalText = originalText.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+            const sections = [
+                { id: 1, name: "此篇重點", regex: /1\.\s*此篇重點：([\s\S]*?)(?=2\.\s*需求提問\/回應或再提問：|$)/ },
+                { id: 2, name: "需求提問與回應", regex: /2\.\s*需求提問\/回應或再提問：([\s\S]*?)(?=3\.\s*畫面描述：|$)/ },
+                { id: 3, name: "畫面描述", regex: /3\.\s*畫面描述：([\s\S]*?)(?=4\.\s*影音逐字稿紀錄：|$)/ },
+                { id: 4, name: "圖文/影音逐字稿", regex: /4\.\s*影音逐字稿紀錄：([\s\S]*?)(?=5\.\s*總結：|$)/ },
+                { id: 5, name: "總結", regex: /5\.\s*總結：([\s\S]*?)$/ }
+            ];
+
+            let hasSections = sections.some(s => s.regex.test(aiText)); let html = '';
+
+            if (hasSections) {
+                html = '<div class="ai-analysis-container">';
+                if (originalText) {
+                    html += `<div class="ai-section-block" style="border: 2px solid #E0F2FE; background: #F8FAFC; margin-bottom: 12px;"><div class="ai-section-header"><div style="display:flex; align-items:center;"><span class="section-mark" style="background: #3B82F6;"></span> 手動輸入內容</div></div><div class="ai-section-body" style="color:#0F172A; font-weight:500;">${processMarkdown(originalText)}</div></div>`;
+                }
+                sections.forEach(sec => {
+                    let match = aiText.match(sec.regex);
+                    if (match && match[1].trim() && match[1].trim() !== "無") {
+                        let content = processMarkdown(match[1].trim()); let isCollapsible = (sec.id === 3 || sec.id === 4);
+                        html += `<div class="ai-section-block"><div class="ai-section-header ${isCollapsible ? 'collapsible' : ''}" ${isCollapsible ? 'onclick="toggleAiSection(this)"' : ''}><div style="display:flex; align-items:center;"><span class="section-mark"></span> ${sec.name}</div>${isCollapsible ? '<span class="toggle-btn"><span class="arrow-down"></span> 點擊展開</span>' : ''}</div><div class="ai-section-body" ${isCollapsible ? 'style="display:none;"' : ''}>${content}</div></div>`;
+                    }
+                });
+                html += '</div>';
+            } else { if (cleanText) html = `<div class="ai-analysis-container"><div class="ai-section-block" style="border: 2px solid #E0F2FE; background: #F8FAFC;"><div class="ai-section-body">${processMarkdown(cleanText)}</div></div></div>`; }
+            
+            if (isProcessing) html += `<div class="processing-msg" style="margin-top: 10px; width:100%;"><span class="spinner"></span> AI 正在深度讀取您的圖文並進行解析，請稍候...</div>`;
+            if (sysLogs.length > 0) sysLogs.forEach(log => { html += `<div style="margin-top:15px; padding:12px; background:#F8FAFC; border:1px dashed #CBD5E1; border-radius:10px; font-size:0.95rem; font-weight:bold; color:#475569; text-align:center;">🔔 系統紀錄：${log}</div>`; });
+            return html;
+        }
+
+        function getSummary(text) {
+            if(!text) return '<span style="color:var(--text-muted);"><span class="spinner"></span> 準備中...</span>';
+            let isProcessing = text.includes('[SYS:處理中]');
+            let cleanText = text.replace(/\[SYS:ORIGINAL_DESC\][\s\S]*?\[\/SYS:ORIGINAL_DESC\]/g, ''); cleanText = cleanText.replace(/\[SYS:[^\]]+\]/g, '').trim(); cleanText = cleanText.replace(/\[\/SYS:[^\]]+\]/g, '').trim(); cleanText = cleanText.replace(/\[系統紀錄：(.*?)\]/g, '').trim();
+            if (cleanText.includes("【AI 輔助解析】")) { let parts = cleanText.split("【AI 輔助解析】"); cleanText = parts.slice(1).join("【AI 輔助解析】").trim(); }
+            
+            let safeText = cleanText.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            const match = safeText.match(/1\.\s*此篇重點：([\s\S]*?)(?=2\.\s*需求提問\/回應或再提問：|$)/);
+            let summaryHTML = "";
+            if (match && match[1].trim() && match[1].trim() !== "無") { summaryHTML = processMarkdown(match[1].trim()); } else { let plainText = safeText.substring(0, 80); if(safeText.length > 80) plainText += '...'; summaryHTML = processMarkdown(plainText); }
+            let html = `<div class="summary-block"><div class="summary-label"><span class="section-mark"></span> 核心重點提要</div><div class="summary-body">${summaryHTML || '<span style="color:var(--text-muted);">圖文處理中...</span>'}</div></div>`;
+            if (isProcessing) html += `<div class="processing-msg" style="margin-top: 8px;"><span class="spinner"></span> AI 正在深度解析中...</div>`; return html;
+        }
+
+        function toggleMenu() {
+            const menu = document.getElementById('sidebar-menu'); const overlay = document.getElementById('sidebar-overlay');
+            if (menu.classList.contains('active')) { menu.classList.remove('active'); overlay.style.opacity = '0'; setTimeout(() => overlay.style.display = 'none', 200); } 
+            else { overlay.style.display = 'block'; setTimeout(() => { menu.classList.add('active'); overlay.style.opacity = '1'; }, 10); }
+        }
+
+        // ==========================================
         // 送出資料與 AI 解析整合 (組合多個片段)
         // ==========================================
         async function submitPost() {
@@ -756,12 +1009,11 @@
                     finalTitle = titleInput;
                     finalDesc = descInput + "\n\n[SYS:處理中] AI 正在準備解析並建立專屬資料夾...";
                 } else {
-                    // 合併雲端草稿與本地剛剛錄製的 Blob
                     if (currentLocalBlob['post']) {
                         showRecorderMsg('post', "正在上傳最後的片段...", false, true);
                         const fileData = await uploadBlobToDrive(currentLocalBlob['post'], 'post');
-                        draftState['post].uploadedIds.push(fileData.id);
-                        draftState['post].uploadedUrls.push(`https://drive.google.com/file/d/${fileData.id}/view`);
+                        draftState['post'].uploadedIds.push(fileData.id);
+                        draftState['post'].uploadedUrls.push(`https://drive.google.com/file/d/${fileData.id}/view`);
                     }
                     
                     if (draftState['post'].uploadedIds.length === 0) throw new Error('提示：請先完成錄影或拍攝！');
@@ -776,15 +1028,14 @@
                     body: JSON.stringify({ action: 'add_post', email: currentUserEmail, title: finalTitle, desc: finalDesc, videoUrl: finalVideoUrls.join(','), videoFileId: finalVideoIds.join(','), mediaType: mediaType })
                 });
 
-                // 清除後端草稿
                 fetch(GAS_LIVE_URL, { method: 'POST', body: JSON.stringify({ action: 'clear_draft', email: currentUserEmail, draftType: 'post' }) });
 
-                btn.disabled = false; btn.innerText = "確認上傳並呼叫 AI 解析";
+                btn.disabled = false; btn.innerText = "確認發布並呼叫 AI 解析";
                 document.getElementById('post-title').value = ''; document.getElementById('post-desc').value = ''; 
                 resetRecordingUI('post'); showAppMsg('post-msg', '提問發布成功！已為您建立專屬資料夾並交由 AI 處理。'); fetchLiveData(); 
 
             } catch(err) {
-                btn.disabled = false; btn.innerText = "確認上傳並呼叫 AI 解析"; return showAppMsg('post-msg', err.message, true);
+                btn.disabled = false; btn.innerText = "確認發布並呼叫 AI 解析"; return showAppMsg('post-msg', err.message, true);
             }
         }
 
@@ -827,15 +1078,14 @@
                     body: JSON.stringify({ action: 'add_reply', courseId: currentPost.courseId, email: currentUserEmail, desc: finalDesc, videoUrl: finalVideoUrls.join(','), videoFileId: finalVideoIds.join(','), mediaType: mediaType })
                 });
 
-                // 清除後端草稿
                 fetch(GAS_LIVE_URL, { method: 'POST', body: JSON.stringify({ action: 'clear_draft', email: currentUserEmail, draftType: 'reply' }) });
 
-                btn.disabled = false; btn.innerText = "確認上傳並呼叫 AI 解析";
+                btn.disabled = false; btn.innerText = "確認發布並呼叫 AI 解析";
                 document.getElementById('reply-desc').value = ''; 
                 resetRecordingUI('reply'); showAppMsg('reply-msg', '回覆成功！已交由 AI 處理歸檔。'); fetchLiveData(); 
 
             } catch(err) {
-                btn.disabled = false; btn.innerText = "確認上傳並呼叫 AI 解析"; return showAppMsg('reply-msg', err.message, true);
+                btn.disabled = false; btn.innerText = "確認發布並呼叫 AI 解析"; return showAppMsg('reply-msg', err.message, true);
             }
         }
 
@@ -951,7 +1201,11 @@
             if (!urlStr) return ''; const urls = urlStr.split(','); let html = '';
             urls.forEach((url, idx) => {
                 const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-                if (match && match[1]) { html += `<p style="font-weight:bold; color:var(--text-muted); font-size:0.9em; margin-bottom:5px;">🎞️ 錄影片段 ${idx+1}</p><div class="video-wrapper"><div class="video-container"><iframe src="https://drive.google.com/file/d/${match[1]}/preview" allowfullscreen></iframe></div></div>`; } 
+                // 處理多個錄影片段時，加入「錄影片段 1、2...」的標題提示
+                if (match && match[1]) { 
+                    if (urls.length > 1) html += `<p style="font-weight:bold; color:var(--text-muted); font-size:0.9em; margin-bottom:5px;">🎞️ 錄影片段 ${idx+1}</p>`;
+                    html += `<div class="video-wrapper"><div class="video-container"><iframe src="https://drive.google.com/file/d/${match[1]}/preview" allowfullscreen></iframe></div></div>`; 
+                } 
             }); return html;
         }
 
