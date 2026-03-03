@@ -42,7 +42,7 @@
             overflow-x: hidden;
         }
 
-        /* --- 視覺化元件設計 (取代 Emoji) --- */
+        /* --- 視覺化元件設計 (無 Emoji) --- */
         .spinner {
             display: inline-block; width: 14px; height: 14px;
             border: 2px solid var(--primary-yellow); border-top-color: transparent;
@@ -76,7 +76,6 @@
         .arrow-down { display: inline-block; width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 5px solid #3B82F6; margin-right: 6px; vertical-align: middle;}
         .section-mark { display: inline-block; width: 4px; height: 16px; background: var(--primary-yellow); border-radius: 2px; margin-right: 8px; vertical-align: text-bottom; }
 
-        /* 導覽列與側邊欄 */
         .app-header {
             display: flex; align-items: center; justify-content: space-between;
             padding: 15px 0; margin-bottom: 24px; border-bottom: 1px dashed var(--glass-border);
@@ -98,7 +97,6 @@
         .sidebar-link:hover { background: rgba(255,255,255,0.05); }
         .sidebar-link.active { color: #8AB4F8; font-weight: bold; }
         
-        /* 基本佈局與表單 */
         h2, h3 { color: var(--slate-blue); font-weight: bold; margin-bottom: 16px; }
         .section { background: var(--panel-bg); padding: 24px 20px; margin-bottom: 24px; border-radius: var(--radius-soft); border: 1px solid var(--glass-border); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); }
         
@@ -129,7 +127,7 @@
         .tag-badge { padding: 4px 12px; border-radius: 6px; font-size: 0.85em; font-weight: bold; color: white; display: inline-block; white-space: nowrap; }
         .tag-pending { background: #EF4444; animation: pulse 2s infinite; }
         .tag-replied { background: var(--accent-green); }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 1; } }
+        .tag-rag { background: #3B82F6; }
 
         .post-meta { font-size: 0.85em; color: var(--text-muted); margin-bottom: 16px; display: flex; gap: 8px; flex-wrap: wrap; }
         .post-meta span { background: var(--input-bg); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--glass-border); color: var(--slate-blue); font-weight: bold;}
@@ -169,7 +167,7 @@
         .thread-header { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; margin-bottom: 16px; font-size: 0.9em; border-bottom: 1px dashed var(--glass-border); padding-bottom: 12px;}
         .thread-role { font-weight: 900; color: var(--slate-blue); font-size: 1.05rem; display: flex; align-items: center;}
         .thread-time { color: var(--text-muted); }
-        .thread-email { font-weight: normal; color: var(--slate-blue); font-size: 0.95rem; }
+        .thread-email { font-weight: normal; color: var(--slate-blue); font-size: 0.95rem; word-break: break-all;}
 
         .video-wrapper { margin-top: 15px; border-radius: 12px; overflow: hidden; background: #000; border: 1px solid var(--glass-border); box-shadow: 0 4px 12px rgba(0,0,0,0.1);}
         .video-container { position: relative; padding-bottom: 56.25%; height: 0; }
@@ -444,12 +442,26 @@
             
             cleanText = cleanText.replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
+            // 處理專屬推薦影片區塊
+            cleanText = cleanText.replace(/\[SYS:REC_VIDEO=(.+?)\]/g, (match, url) => {
+                return `<div class="ai-section-block" style="margin-top:16px;">
+                            <div class="ai-section-header" style="color:var(--accent-green);">
+                                <span class="section-mark" style="background:var(--accent-green);"></span> 相關歷史影音推薦
+                            </div>
+                            <div class="ai-section-body">
+                                ${getDriveIframe(url)}
+                            </div>
+                        </div>`;
+            });
+            // 移除低匹配標籤 (由 renderThread 處理顯示)
+            cleanText = cleanText.replace(/\[SYS:LOW_CONFIDENCE\]/g, '');
+
             const sections = [
                 { id: 1, name: "此篇重點", regex: /1\.\s*此篇重點：([\s\S]*?)(?=2\.\s*需求提問|$)/ },
                 { id: 2, name: "需求提問與回應", regex: /2\.\s*需求提問\/回應或再提問：([\s\S]*?)(?=3\.\s*影片描述|$)/ },
                 { id: 3, name: "影片描述", regex: /3\.\s*影片描述：([\s\S]*?)(?=4\.\s*影音逐字稿紀錄|$)/ },
                 { id: 4, name: "影音逐字稿", regex: /4\.\s*影音逐字稿紀錄：([\s\S]*?)(?=5\.\s*總結|$)/ },
-                { id: 5, name: "總結與建議", regex: /5\.\s*總結：([\s\S]*?)$/ }
+                { id: 5, name: "總結與建議", regex: /5\.\s*總結：([\s\S]*?)(?=<div class="ai-section-block"|$)/ }
             ];
 
             let hasSections = sections.some(s => s.regex.test(cleanText));
@@ -474,6 +486,11 @@
                         `;
                     }
                 });
+                
+                // 如果有推薦影片，接在區塊後面
+                let recMatch = cleanText.match(/<div class="ai-section-block" style="margin-top:16px;">[\s\S]*?<\/div>\s*<\/div>/);
+                if (recMatch) html += recMatch[0];
+                
                 html += '</div>';
                 return html;
             } else {
@@ -518,7 +535,7 @@
             }
         }
 
-        const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbwbzkEZKPt8l2lmh0d9Z2_L_7LFmuIefJja3i1QiXIJaIejXEa81HXbh3zhgDNtqETI/exec';
+        const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbzunHuAJRARGCaIRvO-DI5CZNJ1os7oiSlu91aBer_uruUsArEllm4LyL4gbSx5PipM/exec';
         const ADMIN_EMAIL = 'alwayslucky2hand@gmail.com';
 
         let currentUserEmail = ''; 
@@ -955,7 +972,7 @@
 
         function renderTypeFilter() {
             const container = document.getElementById('type-container'); container.innerHTML = '';
-            ['全部', '待回覆', '教練已回覆', '學員追問'].forEach(opt => {
+            ['全部', '待回覆', '教練已回覆', '學員追問', 'AI已推薦解答'].forEach(opt => {
                 const btn = document.createElement('button'); btn.className = opt === currentStatus ? 'cat-btn active' : 'cat-btn'; btn.innerText = opt; 
                 btn.onclick = () => { currentStatus = opt; currentPage = 1; renderTypeFilter(); filterPosts(); };
                 container.appendChild(btn);
@@ -1000,7 +1017,8 @@
             const postsToShow = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
             postsToShow.forEach(post => {
-                let badgeClass = post.status.includes('已回覆') ? 'tag-replied' : 'tag-pending';
+                let badgeClass = post.status.includes('已回覆') ? 'tag-replied' : 
+                                 post.status.includes('AI已推薦解答') ? 'tag-rag' : 'tag-pending';
                 listContainer.innerHTML += `
                     <div class="post-card">
                         <div class="post-title-row">
@@ -1040,16 +1058,59 @@
             return `<a href="${url}" target="_blank" class="btn-outline" style="display:inline-block; text-align:center; padding:10px; border-radius:8px; text-decoration:none; margin-top:10px; width:100%;">點擊觀看外部影片</a>`;
         }
 
+        // 滿意度回饋按鈕功能
+        function sendFeedback(courseId, satisfaction) {
+            const box = document.getElementById(`feedback-box-${courseId}`);
+            if(box) box.innerHTML = '<span class="spinner"></span> 狀態更新中...';
+            
+            fetch(GAS_LIVE_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'submit_feedback', courseId: courseId, satisfaction: satisfaction })
+            }).then(res => res.json()).then(data => {
+                if(data.status === 'success') {
+                    if(satisfaction === 'yes') {
+                        showAppMsg('reply-msg', '感謝您的回饋，此提問已結案！', false);
+                    } else {
+                        showAppMsg('reply-msg', '已通知教練，我們將盡快為您人工回覆！', true);
+                    }
+                    fetchLiveData(); 
+                }
+            });
+        }
+
         function renderThread(post) {
-            let html = ''; let vidHtml = getDriveIframe(post.videoUrl);
+            let html = ''; 
+            let vidHtml = getDriveIframe(post.videoUrl);
+            
+            // 處理低匹配度警示條
+            let lowConfidenceHtml = '';
+            if (post.desc.includes('[SYS:LOW_CONFIDENCE]')) {
+                lowConfidenceHtml = `<div class="warning-label" style="display:block; padding:12px; border-radius:8px; margin-bottom:16px; font-weight:bold; text-align:center; border:1px solid #FCA5A5; font-size:0.95rem; line-height:1.5;">系統判別歷史資料匹配度不佳，已通知教練盡快為您人工回覆。<br><span style="font-weight:normal; font-size:0.85rem; color:var(--text-muted);">在此之前，您仍可先參考下方 AI 彙整的初步資訊。</span></div>`;
+            }
+
+            // 處理滿意度調查區塊 (當狀態為 AI已推薦解答 或 待回覆(低匹配但有資料)，才顯示給用戶評分)
+            let feedbackHtml = '';
+            if (!post.desc.includes('處理中') && post.status !== '教練已回覆' && post.status !== '已結案' && post.status !== '學員追問') {
+                feedbackHtml = `
+                <div id="feedback-box-${post.courseId}" style="margin-top:24px; padding-top:20px; border-top:1px dashed var(--glass-border); text-align:center;">
+                    <p style="font-size:0.95rem; color:var(--slate-blue); margin-bottom:12px; font-weight:bold;">這份初步的 AI 彙整解答對您有幫助嗎？</p>
+                    <div style="display:flex; gap:10px; justify-content:center;">
+                        <button onclick="sendFeedback('${post.courseId}', 'yes')" style="margin:0; flex:1; background:#D1FAE5; color:#065F46; border:1px solid #10B981; box-shadow:none;">滿意，已解決</button>
+                        <button onclick="sendFeedback('${post.courseId}', 'no')" style="margin:0; flex:1; background:#FEE2E2; color:#991B1B; border:1px solid #EF4444; box-shadow:none;">不滿意，需專人回覆</button>
+                    </div>
+                </div>`;
+            }
+
             html += `
                 <div class="thread-item student">
+                    ${lowConfidenceHtml}
                     <div class="thread-header">
                         <div class="thread-role"><span class="role-badge student-badge">學員提問</span> <span class="thread-email">${post.email}</span></div>
                         <span class="thread-time">${post.date} ${post.time}</span>
                     </div>
                     <div class="post-excerpt">${formatText(post.desc)}</div>
                     ${vidHtml}
+                    ${feedbackHtml}
                 </div>`;
             
             post.replies.forEach(reply => {
@@ -1086,10 +1147,14 @@
             const authWarningContainer = document.getElementById('auth-warning-container'); const authWarningMessage = document.getElementById('auth-warning-message');
             const authWarningBtn = document.getElementById('auth-warning-btn'); const threadContentWrapper = document.getElementById('thread-content-wrapper');
 
+            // 支援多組 Email 驗證
+            const validEmails = currentPost.email.toLowerCase().split(/[\n,]+/).map(e => e.trim());
+            const isAllowed = validEmails.includes(currentUserEmail.toLowerCase()) || currentUserEmail.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+
             if (!currentUserEmail) {
                 authWarningContainer.style.display = 'flex'; threadContentWrapper.style.display = 'none';
                 authWarningMessage.innerHTML = '<div class="warning-label" style="display:inline-block; margin-bottom:10px;">專屬內容</div><br>請先登入或加入會員以解鎖您的權限！'; authWarningBtn.style.display = 'flex';
-            } else if (currentUserEmail.toLowerCase() !== currentPost.email.toLowerCase() && currentUserEmail.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+            } else if (!isAllowed) {
                 authWarningContainer.style.display = 'flex'; threadContentWrapper.style.display = 'none';
                 authWarningMessage.innerHTML = '<div class="warning-label" style="display:inline-block; margin-bottom:10px;">權限限制</div><br>這是其他學員的專屬日誌，為保障隱私您無權觀看。'; authWarningBtn.style.display = 'none'; 
             } else {
@@ -1099,7 +1164,7 @@
 
         function submitPost() {
             const title = "AI 影片解析中...";
-            const desc = "系統正在透過 AI 自動解析影片並為您總結「此篇重點」、「需求提問」、「影片描述」與「逐字稿」...請稍候。";
+            const desc = "[SYS:處理中] 系統正在透過 AI 自動比對歷史知識庫並為您總結精華...請稍候。";
             
             const videoUrl = document.getElementById('post-video').value.trim(); const videoFileId = document.getElementById('post-video-id').value; 
             const btn = document.getElementById('btn-submit-post');
@@ -1113,12 +1178,12 @@
             }).then(() => {
                 btn.disabled = false; btn.innerText = "提交並呼叫 AI 解析";
                 document.getElementById('post-title').value = ''; document.getElementById('post-desc').value = ''; 
-                resetRecordingUI('post'); showAppMsg('post-msg', '提問發布成功！AI 即將接手處理。'); fetchLiveData(); 
+                resetRecordingUI('post'); showAppMsg('post-msg', '提問發布成功！AI 即將接手比對。'); fetchLiveData(); 
             });
         }
 
         function submitReply() {
-            const desc = "系統正在透過 AI 自動解析您的影音回覆，為您整理五大核心重點...請稍候。";
+            const desc = "[SYS:處理中] 系統正在透過 AI 自動解析您的影音回覆...請稍候。";
             const videoUrl = document.getElementById('reply-video').value.trim(); const videoFileId = document.getElementById('reply-video-id').value; 
             const btn = document.getElementById('btn-submit-reply');
             
