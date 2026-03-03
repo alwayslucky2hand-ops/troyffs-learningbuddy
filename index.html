@@ -607,28 +607,49 @@
             return html;
         }
 
+        // --- 核心優化：完美保留原始圖文與解析 AI 新版格式 ---
         function formatText(text) {
             if (!text) return '';
             let isProcessing = text.includes('[SYS:處理中]');
             let cleanText = text;
-            
-            // 將後端寫入的發布者原始描述提取為 UI 可讀區塊
-            cleanText = cleanText.replace(/\[SYS:ORIGINAL_DESC\]([\s\S]*?)\[\/SYS:ORIGINAL_DESC\]/g, (match, p1) => {
-                return `**【手動補充描述】**\n${p1.trim()}\n\n`;
+
+            // 先抽離可能包含的【系統紀錄】
+            let sysLogs = [];
+            cleanText = cleanText.replace(/\[系統紀錄：(.*?)\]/g, (match, p1) => {
+                sysLogs.push(p1.trim());
+                return ""; 
             });
-            
-            // 靜默移除可能存在的歷史知識庫與低信心標籤，避免破版
+
+            // 清理舊有的無用系統標籤，保持乾淨
             cleanText = cleanText.replace(/\[SYS:REC_VIDEO=.+?\]/g, '');
             cleanText = cleanText.replace(/\[SYS:LOW_CONFIDENCE\]/g, '');
-            
+
+            // 向下兼容：將過去的 [SYS:ORIGINAL_DESC] 轉化為新版切割點
+            cleanText = cleanText.replace(/\[SYS:ORIGINAL_DESC\]([\s\S]*?)\[\/SYS:ORIGINAL_DESC\]/g, (match, p1) => {
+                return `${p1.trim()}\n\n====================\n【AI 輔助解析】\n`;
+            });
+
+            // 確保剩餘隱藏標籤不再出現
             cleanText = cleanText.replace(/\[SYS:[^\]]+\]/g, '').trim();
             cleanText = cleanText.replace(/\[\/SYS:[^\]]+\]/g, '').trim();
-            
-            cleanText = cleanText.replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-            // 確保前後端字眼一致，抓出精準的五大結構！ (已在此次優化對齊後端)
+            let originalText = "";
+            let aiText = cleanText;
+
+            // 透過新版的精準切割點，分離使用者手動文字與 AI 產出內容
+            if (cleanText.includes("【AI 輔助解析】")) {
+                let parts = cleanText.split("【AI 輔助解析】");
+                originalText = parts[0].replace(/====================/g, '').trim();
+                aiText = parts.slice(1).join("【AI 輔助解析】").trim();
+            }
+
+            // HTML 安全轉義
+            aiText = aiText.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            if (originalText) {
+                originalText = originalText.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            }
+
             const sections = [
-                { id: 0, name: "發布者手動描述", regex: /\*\*【手動補充描述】\*\*\n([\s\S]*?)(?=1\.\s*此篇重點：|$)/ },
                 { id: 1, name: "此篇重點", regex: /1\.\s*此篇重點：([\s\S]*?)(?=2\.\s*需求提問\/回應或再提問：|$)/ },
                 { id: 2, name: "需求提問與回應", regex: /2\.\s*需求提問\/回應或再提問：([\s\S]*?)(?=3\.\s*畫面描述：|$)/ },
                 { id: 3, name: "畫面描述", regex: /3\.\s*畫面描述：([\s\S]*?)(?=4\.\s*影音逐字稿紀錄：|$)/ },
@@ -636,21 +657,35 @@
                 { id: 5, name: "總結", regex: /5\.\s*總結：([\s\S]*?)$/ }
             ];
 
-            let hasSections = sections.some(s => s.regex.test(cleanText));
+            let hasSections = sections.some(s => s.regex.test(aiText));
             let html = '';
 
             if (hasSections) {
                 html = '<div class="ai-analysis-container">';
+                
+                // 【重點更新】將使用者的原始文字獨立、安全、清楚地渲染在最上方！
+                if (originalText) {
+                    html += `
+                        <div class="ai-section-block" style="border: 2px solid #E0F2FE; background: #F8FAFC; margin-bottom: 12px;">
+                            <div class="ai-section-header">
+                                <div style="display:flex; align-items:center;"><span class="section-mark" style="background: #3B82F6;"></span> 手動輸入內容</div>
+                            </div>
+                            <div class="ai-section-body" style="color:#0F172A; font-weight:500;">
+                                ${processMarkdown(originalText)}
+                            </div>
+                        </div>
+                    `;
+                }
+
                 sections.forEach(sec => {
-                    let match = cleanText.match(sec.regex);
+                    let match = aiText.match(sec.regex);
                     if (match && match[1].trim() && match[1].trim() !== "無") {
                         let content = processMarkdown(match[1].trim());
                         let isCollapsible = (sec.id === 3 || sec.id === 4);
-                        let isOriginal = sec.id === 0;
                         html += `
-                            <div class="ai-section-block" ${isOriginal ? 'style="border: 2px solid #E0F2FE; background: #F8FAFC;"' : ''}>
+                            <div class="ai-section-block">
                                 <div class="ai-section-header ${isCollapsible ? 'collapsible' : ''}" ${isCollapsible ? 'onclick="toggleAiSection(this)"' : ''}>
-                                    <div style="display:flex; align-items:center;"><span class="section-mark" ${isOriginal ? 'style="background: #3B82F6;"' : ''}></span> ${sec.name}</div>
+                                    <div style="display:flex; align-items:center;"><span class="section-mark"></span> ${sec.name}</div>
                                     ${isCollapsible ? '<span class="toggle-btn"><span class="arrow-down"></span> 點擊展開</span>' : ''}
                                 </div>
                                 <div class="ai-section-body" ${isCollapsible ? 'style="display:none;"' : ''}>
@@ -668,9 +703,18 @@
             if (isProcessing) {
                 html += `<div class="processing-msg" style="margin-top: 10px; width:100%;"><span class="spinner"></span> AI 正在深度讀取您的圖文並進行解析，請稍候...</div>`;
             }
+
+            // 【重點更新】將後端附加上去的系統紀錄轉化為美觀的橫幅提醒
+            if (sysLogs.length > 0) {
+                sysLogs.forEach(log => {
+                    html += `<div style="margin-top:15px; padding:12px; background:#F8FAFC; border:1px dashed #CBD5E1; border-radius:10px; font-size:0.95rem; font-weight:bold; color:#475569; text-align:center;">🔔 系統紀錄：${log}</div>`;
+                });
+            }
+
             return html;
         }
 
+        // --- 同步優化列表預覽排版 ---
         function getSummary(text) {
             if(!text) return '<span style="color:var(--text-muted);"><span class="spinner"></span> 準備中...</span>';
             let isProcessing = text.includes('[SYS:處理中]');
@@ -678,6 +722,12 @@
             let cleanText = text.replace(/\[SYS:ORIGINAL_DESC\][\s\S]*?\[\/SYS:ORIGINAL_DESC\]/g, '');
             cleanText = cleanText.replace(/\[SYS:[^\]]+\]/g, '').trim();
             cleanText = cleanText.replace(/\[\/SYS:[^\]]+\]/g, '').trim();
+            cleanText = cleanText.replace(/\[系統紀錄：(.*?)\]/g, '').trim();
+
+            if (cleanText.includes("【AI 輔助解析】")) {
+                let parts = cleanText.split("【AI 輔助解析】");
+                cleanText = parts.slice(1).join("【AI 輔助解析】").trim();
+            }
             
             let safeText = cleanText.replace(/</g, '&lt;').replace(/>/g, '&gt;');
             const match = safeText.match(/1\.\s*此篇重點：([\s\S]*?)(?=2\.\s*需求提問\/回應或再提問：|$)/);
@@ -716,7 +766,7 @@
         // ==========================================
         // API 部署連線設定 (請在此處替換為你最新的 GAS 網址)
         // ==========================================
-        const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbzMDAarHlQZ2_G--ypQCt_A9dEjoCDtmdOj8Dto_x0JehvaMXKRQaGoh4hE21KPbs2a/exec'; // <--- 【請替換為您最新部署的 Google Apps Script 網頁應用程式 URL】
+        const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbySJRVE9yiqanjWbDR_tAWi7lul2RcyyxlSx3ayOp3NdxCBvfk2e5xmGFiHvT9xY6Pi/exec'; // <--- 【請確認是否為你最新部署的 GAS URL】
         const ADMIN_EMAIL = 'alwayslucky2hand@gmail.com';
 
         let currentUserEmail = ''; 
@@ -1063,7 +1113,6 @@
 
         function renderTypeFilter() {
             const container = document.getElementById('type-container'); container.innerHTML = '';
-            // 已移除 'AI已推薦解答' 的篩選按鈕
             ['全部', '待回覆', '教練已回覆', '學員追問'].forEach(opt => {
                 const btn = document.createElement('button'); btn.className = opt === currentStatus ? 'cat-btn active' : 'cat-btn'; btn.innerText = opt; 
                 btn.onclick = () => { currentStatus = opt; currentPage = 1; renderTypeFilter(); filterPosts(); }; container.appendChild(btn);
@@ -1129,36 +1178,30 @@
             return html;
         }
 
+        // --- 核心優化：更新評價 API 與互動提示 ---
         function sendFeedback(courseId, satisfaction) {
             const box = document.getElementById(`feedback-box-${courseId}`);
-            if(box) box.innerHTML = '<span class="spinner"></span> 狀態更新中...';
+            if(box) box.innerHTML = '<span class="spinner"></span> 正在記錄您的回饋...';
             
             fetch(GAS_LIVE_URL, {
                 method: 'POST', body: JSON.stringify({ action: 'submit_feedback', courseId: courseId, satisfaction: satisfaction })
             }).then(res => res.json()).then(data => {
                 if(data.status === 'success') {
-                    if(satisfaction === 'yes') { showAppMsg('reply-msg', '感謝回饋，您的日誌已順利結案！', false); } 
-                    else { showAppMsg('reply-msg', '已標記為未解決，教練會盡快親自回覆您！', true); }
+                    if(satisfaction === 'yes') { 
+                        showAppMsg('reply-msg', '感謝回饋！教練會繼續陪您一起成長！', false); 
+                    } else { 
+                        showAppMsg('reply-msg', '已收到您的不滿意反饋，教練會盡快再次親自協助您！', true); 
+                    }
                     fetchLiveData(); 
                 }
             });
         }
 
+        // --- 核心優化：評價按鈕顯示條件與位置調整 ---
         function renderThread(post) {
             let html = ''; let vidHtml = getDriveIframe(post.videoUrl);
 
-            let feedbackHtml = '';
-            if (!post.desc.includes('處理中') && post.status !== '教練已回覆' && post.status !== '已結案' && post.status !== '學員追問') {
-                feedbackHtml = `
-                <div id="feedback-box-${post.courseId}" style="margin-top:24px; padding-top:20px; border-top:1px dashed var(--glass-border); text-align:center;">
-                    <p style="font-size:0.95rem; color:var(--slate-blue); margin-bottom:12px; font-weight:bold;">這份初步的 AI 彙整解答對您有幫助嗎？</p>
-                    <div style="display:flex; gap:10px; justify-content:center;">
-                        <button onclick="sendFeedback('${post.courseId}', 'yes')" style="margin:0; flex:1; background:#D1FAE5; color:#065F46; border:1px solid #10B981; box-shadow:none;">滿意，已解決</button>
-                        <button onclick="sendFeedback('${post.courseId}', 'no')" style="margin:0; flex:1; background:#FEE2E2; color:#991B1B; border:1px solid #EF4444; box-shadow:none;">不滿意，需專人回覆</button>
-                    </div>
-                </div>`;
-            }
-
+            // 1. 第一筆學員提問
             html += `
                 <div class="thread-item student">
                     <div class="thread-header">
@@ -1167,9 +1210,9 @@
                     </div>
                     <div class="post-excerpt">${formatText(post.desc)}</div>
                     ${vidHtml}
-                    ${feedbackHtml}
                 </div>`;
             
+            // 2. 教練回覆與學員追問接續顯示
             post.replies.forEach(reply => {
                 let parts = reply.split('|||');
                 if(parts.length >= 5) {
@@ -1188,6 +1231,20 @@
                     </div>`;
                 }
             });
+
+            // 3. 【評價區塊】僅在最新狀態為「教練已回覆」，且學員尚未評價過時才顯示於最下方
+            let hasFeedback = post.desc.includes('系統紀錄：學員');
+            if (post.status === '教練已回覆' && !hasFeedback) {
+                html += `
+                <div id="feedback-box-${post.courseId}" class="thread-item" style="background: #F8FAFC; border: 2px dashed var(--primary-yellow); text-align: center; margin-top: 10px; padding: 25px 20px;">
+                    <p style="font-size:1.1rem; color:var(--slate-blue); margin-bottom:15px; font-weight:bold;">請問教練的解答有幫助您解決問題嗎？</p>
+                    <div style="display:flex; gap:12px; justify-content:center; max-width: 300px; margin: 0 auto;">
+                        <button onclick="sendFeedback('${post.courseId}', 'yes')" style="margin:0; flex:1; background:#10B981; color:#fff; border:none; box-shadow:0 4px 6px rgba(16,185,129,0.2);">滿意</button>
+                        <button onclick="sendFeedback('${post.courseId}', 'no')" style="margin:0; flex:1; background:#EF4444; color:#fff; border:none; box-shadow:0 4px 6px rgba(239,68,68,0.2);">不滿意</button>
+                    </div>
+                </div>`;
+            }
+
             document.getElementById('thread-container').innerHTML = html;
         }
 
@@ -1233,7 +1290,6 @@
             let finalTitle = "AI 正在分析您的提問...";
             let finalDesc = "";
 
-            // 如果是圖片模式，必須填寫文字，並開始批次上傳
             if (mediaType === 'image') {
                 if(!titleInput) return showAppMsg('post-msg', '請填寫標題！(必填)', true);
                 if(!descInput) return showAppMsg('post-msg', '請詳細描述問題！(必填)', true);
@@ -1252,7 +1308,6 @@
                 finalTitle = titleInput;
                 finalDesc = descInput + "\n\n[SYS:處理中] AI 正在準備解析並建立專屬資料夾...";
             } else {
-                // 錄影模式
                 if(!videoUrl) return showAppMsg('post-msg', '提示：請先完成錄影！', true);
                 finalDesc = "[SYS:處理中] AI 正在歸檔您的影片並進行深度解析...";
             }
@@ -1278,7 +1333,6 @@
             let videoFileId = document.getElementById('reply-video-id').value.trim(); 
             let finalDesc = "";
 
-            // 如果是圖片模式，必須填寫文字，並開始批次上傳
             if (mediaType === 'image') {
                 if(!descInput) return showAppMsg('reply-msg', '提示：請輸入回覆內容！(必填)', true);
                 if (pendingImages['reply'].length === 0 && !videoUrl) return showAppMsg('reply-msg', '提示：請先拍攝或選擇圖片！', true);
@@ -1295,7 +1349,6 @@
                 }
                 finalDesc = descInput + "\n\n[SYS:處理中] AI 正在歸檔您的檔案並進行解析...";
             } else {
-                // 錄影模式
                 if(!videoUrl) return showAppMsg('reply-msg', '提示：請先完成錄影！', true);
                 finalDesc = "[SYS:處理中] AI 正在歸檔您的檔案並進行解析...";
             }
