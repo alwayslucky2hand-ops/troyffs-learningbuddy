@@ -454,7 +454,6 @@
             }
         }
 
-        // --- 核心優化：切換模式時，動態顯示/隱藏文字欄位 ---
         function switchMediaMode(type, mode) {
             document.getElementById(`${type}-mode-video-btn`).classList.toggle('active', mode === 'video');
             document.getElementById(`${type}-mode-image-btn`).classList.toggle('active', mode === 'image');
@@ -462,14 +461,12 @@
             document.getElementById(`${type}-recorder-container`).style.display = mode === 'video' ? 'block' : 'none';
             document.getElementById(`${type}-image-container`).style.display = mode === 'image' ? 'block' : 'none';
             
-            // 只有選取圖片模式時，才顯示需要手動填寫的文字欄位
             const textFields = document.getElementById(`${type}-text-fields`);
             if (textFields) {
                 if (mode === 'image') {
                     textFields.classList.remove('hidden-fields');
                 } else {
                     textFields.classList.add('hidden-fields');
-                    // 切換回錄影模式時，清空已經輸入的文字
                     if (type === 'post') {
                         document.getElementById('post-title').value = '';
                         document.getElementById('post-desc').value = '';
@@ -492,7 +489,7 @@
             files.forEach(file => {
                 pendingImages[type].push(file);
             });
-            inputEl.value = ''; // 清空 input 確保能重複選取同一張
+            inputEl.value = ''; 
             renderImageCarousel(type);
         }
 
@@ -522,7 +519,6 @@
             });
         }
 
-        // 批次上傳多張圖片核心邏輯
         async function uploadPendingImages(type) {
             const files = pendingImages[type];
             if (files.length === 0) return { urls: '', ids: '' };
@@ -607,43 +603,36 @@
             return html;
         }
 
-        // --- 核心優化：完美保留原始圖文與解析 AI 新版格式 ---
         function formatText(text) {
             if (!text) return '';
             let isProcessing = text.includes('[SYS:處理中]');
             let cleanText = text;
 
-            // 先抽離可能包含的【系統紀錄】
             let sysLogs = [];
             cleanText = cleanText.replace(/\[系統紀錄：(.*?)\]/g, (match, p1) => {
                 sysLogs.push(p1.trim());
                 return ""; 
             });
 
-            // 清理舊有的無用系統標籤，保持乾淨
             cleanText = cleanText.replace(/\[SYS:REC_VIDEO=.+?\]/g, '');
             cleanText = cleanText.replace(/\[SYS:LOW_CONFIDENCE\]/g, '');
 
-            // 向下兼容：將過去的 [SYS:ORIGINAL_DESC] 轉化為新版切割點
             cleanText = cleanText.replace(/\[SYS:ORIGINAL_DESC\]([\s\S]*?)\[\/SYS:ORIGINAL_DESC\]/g, (match, p1) => {
                 return `${p1.trim()}\n\n====================\n【AI 輔助解析】\n`;
             });
 
-            // 確保剩餘隱藏標籤不再出現
             cleanText = cleanText.replace(/\[SYS:[^\]]+\]/g, '').trim();
             cleanText = cleanText.replace(/\[\/SYS:[^\]]+\]/g, '').trim();
 
             let originalText = "";
             let aiText = cleanText;
 
-            // 透過新版的精準切割點，分離使用者手動文字與 AI 產出內容
             if (cleanText.includes("【AI 輔助解析】")) {
                 let parts = cleanText.split("【AI 輔助解析】");
                 originalText = parts[0].replace(/====================/g, '').trim();
                 aiText = parts.slice(1).join("【AI 輔助解析】").trim();
             }
 
-            // HTML 安全轉義
             aiText = aiText.replace(/</g, '&lt;').replace(/>/g, '&gt;');
             if (originalText) {
                 originalText = originalText.replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -663,7 +652,6 @@
             if (hasSections) {
                 html = '<div class="ai-analysis-container">';
                 
-                // 【重點更新】將使用者的原始文字獨立、安全、清楚地渲染在最上方！
                 if (originalText) {
                     html += `
                         <div class="ai-section-block" style="border: 2px solid #E0F2FE; background: #F8FAFC; margin-bottom: 12px;">
@@ -704,7 +692,6 @@
                 html += `<div class="processing-msg" style="margin-top: 10px; width:100%;"><span class="spinner"></span> AI 正在深度讀取您的圖文並進行解析，請稍候...</div>`;
             }
 
-            // 【重點更新】將後端附加上去的系統紀錄轉化為美觀的橫幅提醒
             if (sysLogs.length > 0) {
                 sysLogs.forEach(log => {
                     html += `<div style="margin-top:15px; padding:12px; background:#F8FAFC; border:1px dashed #CBD5E1; border-radius:10px; font-size:0.95rem; font-weight:bold; color:#475569; text-align:center;">🔔 系統紀錄：${log}</div>`;
@@ -714,7 +701,6 @@
             return html;
         }
 
-        // --- 同步優化列表預覽排版 ---
         function getSummary(text) {
             if(!text) return '<span style="color:var(--text-muted);"><span class="spinner"></span> 準備中...</span>';
             let isProcessing = text.includes('[SYS:處理中]');
@@ -764,9 +750,9 @@
         }
 
         // ==========================================
-        // API 部署連線設定 (請在此處替換為你最新的 GAS 網址)
+        // API 部署連線設定
         // ==========================================
-        const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbySJRVE9yiqanjWbDR_tAWi7lul2RcyyxlSx3ayOp3NdxCBvfk2e5xmGFiHvT9xY6Pi/exec'; // <--- 【請確認是否為你最新部署的 GAS URL】
+        const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbxQ8tAF5BU_O4gysNRqGC8g-sHPr60MUEdeZXEPvOyEDDX23YR8-0ydxOPZlUjBlLM/exec'; 
         const ADMIN_EMAIL = 'alwayslucky2hand@gmail.com';
 
         let currentUserEmail = ''; 
@@ -779,7 +765,7 @@
         let pollingInterval = null; 
 
         // ==========================================
-        // GAS 中繼站接力上傳引擎 (Canvas 混流錄影)
+        // GAS 中繼站接力上傳引擎 (Canvas 混流錄影 1080p防卡頓版)
         // ==========================================
         let mediaRecorder; let recordedChunks = []; 
         let combinedStream, screenStream, micStream, audioContext; 
@@ -789,6 +775,10 @@
         let currentFacingMode = 'user';
         let internalCanvas, internalCtx, drawLoopId;
         let screenHiddenVideo, cameraHiddenVideo;
+        
+        // --- 效能優化參數 ---
+        let lastDrawTime = 0;
+        const fpsInterval = 1000 / 30; // 鎖定最高 30FPS，大幅降低 1080p 錄影時的 CPU/GPU 負擔，防止當機
 
         function killMediaTracks() {
             if (drawLoopId) { cancelAnimationFrame(drawLoopId); drawLoopId = null; }
@@ -824,7 +814,8 @@
                 currentFacingMode = (currentFacingMode === 'user') ? 'environment' : 'user';
                 showRecorderMsg(type, `正在切換至「${currentFacingMode === 'user' ? '前置' : '後置'}」鏡頭...`, false, true);
                 try {
-                    const newStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode, width: { ideal: 1280 }, height: { ideal: 720 } } });
+                    // ★ 手機鏡頭同樣要求 1080p
+                    const newStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode, width: { ideal: 1920 }, height: { ideal: 1080 } } });
                     if (cameraHiddenVideo && cameraHiddenVideo.srcObject) { cameraHiddenVideo.srcObject.getTracks().forEach(t => t.stop()); }
                     cameraHiddenVideo.srcObject = new MediaStream([newStream.getVideoTracks()[0]]);
                     showRecorderMsg(type, `已切換至「${currentFacingMode === 'user' ? '前置' : '後置'}」鏡頭`, false, false);
@@ -864,19 +855,32 @@
             try {
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 const dest = audioContext.createMediaStreamDestination();
-                internalCanvas = document.createElement('canvas'); internalCanvas.width = 1280; internalCanvas.height = 720;
+                
+                // ★ 將底層畫布升級為完整的 1080p 解析度
+                internalCanvas = document.createElement('canvas'); internalCanvas.width = 1920; internalCanvas.height = 1080;
                 internalCtx = internalCanvas.getContext('2d');
                 cameraHiddenVideo = document.createElement('video'); cameraHiddenVideo.muted = true; cameraHiddenVideo.autoplay = true; cameraHiddenVideo.playsInline = true;
+                
+                lastDrawTime = 0; // 重置效能節流閥時間
 
                 if (isMobileDevice()) {
                     currentFacingMode = 'user';
-                    try { micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: { facingMode: currentFacingMode, width: { ideal: 1280 }, height: { ideal: 720 } } });
+                    try { 
+                        // ★ 手機前置鏡頭升級為 1080p
+                        micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: { facingMode: currentFacingMode, width: { ideal: 1920 }, height: { ideal: 1080 } } });
                     } catch(e) { showRecorderMsg(type, "您封鎖了相機權限，請前往設定允許。", true, true); return; }
                     if (micStream.getAudioTracks().length > 0) audioContext.createMediaStreamSource(micStream).connect(dest);
                     cameraHiddenVideo.srcObject = new MediaStream([micStream.getVideoTracks()[0]]);
 
-                    function drawMobileFrame() {
+                    function drawMobileFrame(now) {
                         if (!internalCtx) return;
+                        drawLoopId = requestAnimationFrame(drawMobileFrame);
+                        
+                        // ★ 效能鎖：強制最高 30 FPS，保護手機不發燙、不閃退
+                        const elapsed = now - lastDrawTime;
+                        if (elapsed < fpsInterval) return;
+                        lastDrawTime = now - (elapsed % fpsInterval);
+
                         internalCtx.fillStyle = '#111'; internalCtx.fillRect(0, 0, internalCanvas.width, internalCanvas.height);
                         if (cameraHiddenVideo.readyState >= 2 && cameraHiddenVideo.videoWidth > 0) {
                             const vRatio = cameraHiddenVideo.videoWidth / cameraHiddenVideo.videoHeight;
@@ -889,12 +893,13 @@
                             } else { internalCtx.drawImage(cameraHiddenVideo, x, y, drawWidth, drawHeight); }
                             internalCtx.restore();
                         }
-                        drawLoopId = requestAnimationFrame(drawMobileFrame);
                     }
-                    drawMobileFrame();
+                    drawMobileFrame(performance.now());
                     showRecorderMsg(type, "鏡頭已就緒！點擊開始錄製。", false, true);
                 } else {
-                    try { micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: useCamera ? { width: 1280, height: 720 } : false });
+                    try { 
+                        // ★ 電腦鏡頭升級為 1080p
+                        micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: useCamera ? { width: { ideal: 1920 }, height: { ideal: 1080 } } : false });
                     } catch(e) { showRecorderMsg(type, "您封鎖了麥克風/相機。", true, true); return; }
                     try { screenStream = await navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: "monitor" }, audio: { systemAudio: "include" } });
                     } catch(e) { showRecorderMsg(type, "您取消了螢幕分享。", true, true); killMediaTracks(); return; }
@@ -910,8 +915,15 @@
                     if (useCamera && micStream.getVideoTracks().length > 0) cameraHiddenVideo.srcObject = new MediaStream([micStream.getVideoTracks()[0]]);
                     else cameraHiddenVideo = null;
 
-                    function drawPcFrame() {
+                    function drawPcFrame(now) {
                         if (!internalCtx) return;
+                        drawLoopId = requestAnimationFrame(drawPcFrame);
+                        
+                        // ★ 效能鎖：強制最高 30 FPS，避免高更新率螢幕(60Hz+)渲染 1080p 導致電腦卡頓
+                        const elapsed = now - lastDrawTime;
+                        if (elapsed < fpsInterval) return;
+                        lastDrawTime = now - (elapsed % fpsInterval);
+
                         internalCtx.fillStyle = '#111'; internalCtx.fillRect(0, 0, internalCanvas.width, internalCanvas.height);
                         let sourceVid = (activeVideoSource === 'screen') ? screenHiddenVideo : cameraHiddenVideo;
                         
@@ -930,13 +942,13 @@
                             } else { internalCtx.drawImage(sourceVid, x, y, drawWidth, drawHeight); }
                             internalCtx.restore();
                         }
-                        drawLoopId = requestAnimationFrame(drawPcFrame);
                     }
-                    drawPcFrame();
+                    drawPcFrame(performance.now());
                     screenStream.getVideoTracks()[0].onended = () => { if(mediaRecorder && mediaRecorder.state === "recording") stopRecording(currentRecordType); else cancelRecording(currentRecordType); };
                     showRecorderMsg(type, "系統音與畫面已連接！點擊開始錄製。", false, true);
                 }
 
+                // 擷取 30 FPS 進入錄影串流
                 let tracks = [...internalCanvas.captureStream(30).getVideoTracks(), ...dest.stream.getAudioTracks()];
                 combinedStream = new MediaStream(tracks);
                 const previewVideo = document.getElementById(`${type}-preview-video`);
@@ -949,9 +961,11 @@
 
         function startRecording(type) {
             recordedChunks = []; let options;
-            if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')) options = { mimeType: 'video/webm;codecs=vp8,opus', videoBitsPerSecond: 1200000 };
-            else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) options = { mimeType: 'video/webm;codecs=vp8', videoBitsPerSecond: 1200000 };
-            else options = { videoBitsPerSecond: 1200000 };
+            
+            // ★ 將影像碼率從 1.2 Mbps 提升到 3.5 Mbps (3500000)，確保 1080p 文字和畫面無馬賽克
+            if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')) options = { mimeType: 'video/webm;codecs=vp8,opus', videoBitsPerSecond: 3500000 };
+            else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) options = { mimeType: 'video/webm;codecs=vp8', videoBitsPerSecond: 3500000 };
+            else options = { videoBitsPerSecond: 3500000 };
 
             mediaRecorder = new MediaRecorder(combinedStream, options);
             mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
@@ -977,7 +991,7 @@
                     while (start < fileSize) {
                         const end = Math.min(start + chunkSize, fileSize); const chunk = blob.slice(start, end); const chunkBase64 = await blobToBase64(chunk);
                         let progress = Math.round((start / fileSize) * 100);
-                        showRecorderMsg(type, `影片上傳中：${progress}% (請勿關閉網頁)...`, false, true);
+                        showRecorderMsg(type, `影片上傳中：${progress}% (畫質較高請耐心等候)...`, false, true);
 
                         const response = await fetch(GAS_LIVE_URL, { method: 'POST', body: JSON.stringify({ action: 'upload_chunk', uploadUrl: uploadUrl, chunkBase64: chunkBase64, start: start, totalSize: fileSize }) });
                         const data = await response.json();
@@ -986,7 +1000,7 @@
 
                     document.getElementById(`${type}-video`).value = `https://drive.google.com/file/d/${fileId}/view`;
                     document.getElementById(`${type}-video-id`).value = fileId;
-                    showRecorderMsg(type, "影片上傳成功！(剛上傳的影片雲端需 3~5 分鐘處理預覽)", false, true);
+                    showRecorderMsg(type, "影片上傳成功！(1080p畫質需雲端約 5 分鐘處理預覽)", false, true);
                     document.getElementById(`${type}-btn-setup-record`).innerText = "重新錄製 (將覆蓋前一次)";
                     document.getElementById(`${type}-btn-setup-record`).style.display = 'flex';
                 } catch(e) {
@@ -1178,7 +1192,6 @@
             return html;
         }
 
-        // --- 核心優化：更新評價 API 與互動提示 ---
         function sendFeedback(courseId, satisfaction) {
             const box = document.getElementById(`feedback-box-${courseId}`);
             if(box) box.innerHTML = '<span class="spinner"></span> 正在記錄您的回饋...';
@@ -1197,11 +1210,9 @@
             });
         }
 
-        // --- 核心優化：評價按鈕顯示條件與位置調整 ---
         function renderThread(post) {
             let html = ''; let vidHtml = getDriveIframe(post.videoUrl);
 
-            // 1. 第一筆學員提問
             html += `
                 <div class="thread-item student">
                     <div class="thread-header">
@@ -1212,7 +1223,6 @@
                     ${vidHtml}
                 </div>`;
             
-            // 2. 教練回覆與學員追問接續顯示
             post.replies.forEach(reply => {
                 let parts = reply.split('|||');
                 if(parts.length >= 5) {
@@ -1232,7 +1242,6 @@
                 }
             });
 
-            // 3. 【評價區塊】僅在最新狀態為「教練已回覆」，且學員尚未評價過時才顯示於最下方
             let hasFeedback = post.desc.includes('系統紀錄：學員');
             if (post.status === '教練已回覆' && !hasFeedback) {
                 html += `
