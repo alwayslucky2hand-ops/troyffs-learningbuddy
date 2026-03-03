@@ -617,32 +617,23 @@
                 return `**【手動補充描述】**\n${p1.trim()}\n\n`;
             });
             
-            let recVideoHtml = '';
-            cleanText = cleanText.replace(/\[SYS:REC_VIDEO=(.+?)\]/g, (match, url) => {
-                recVideoHtml = `<div class="ai-section-block" style="margin-top:16px;">
-                            <div class="ai-section-header" style="color:var(--accent-green);">
-                                <span class="section-mark" style="background:var(--accent-green);"></span> 相關歷史知識庫推薦
-                            </div>
-                            <div class="ai-section-body">
-                                ${getDriveIframe(url)}
-                            </div>
-                        </div>`;
-                return ''; 
-            });
-
+            // 靜默移除可能存在的歷史知識庫與低信心標籤，避免破版
+            cleanText = cleanText.replace(/\[SYS:REC_VIDEO=.+?\]/g, '');
+            cleanText = cleanText.replace(/\[SYS:LOW_CONFIDENCE\]/g, '');
+            
             cleanText = cleanText.replace(/\[SYS:[^\]]+\]/g, '').trim();
             cleanText = cleanText.replace(/\[\/SYS:[^\]]+\]/g, '').trim();
             
             cleanText = cleanText.replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-            // 確保前後端字眼一致，抓出精準的五大結構！ (已在此次優化完美對齊後端)
+            // 確保前後端字眼一致，抓出精準的五大結構！ (已在此次優化對齊後端)
             const sections = [
                 { id: 0, name: "發布者手動描述", regex: /\*\*【手動補充描述】\*\*\n([\s\S]*?)(?=1\.\s*此篇重點：|$)/ },
                 { id: 1, name: "此篇重點", regex: /1\.\s*此篇重點：([\s\S]*?)(?=2\.\s*需求提問\/回應或再提問：|$)/ },
                 { id: 2, name: "需求提問與回應", regex: /2\.\s*需求提問\/回應或再提問：([\s\S]*?)(?=3\.\s*畫面描述：|$)/ },
                 { id: 3, name: "畫面描述", regex: /3\.\s*畫面描述：([\s\S]*?)(?=4\.\s*影音逐字稿紀錄：|$)/ },
                 { id: 4, name: "圖文/影音逐字稿", regex: /4\.\s*影音逐字稿紀錄：([\s\S]*?)(?=5\.\s*總結：|$)/ },
-                { id: 5, name: "AI 總結與智能解答", regex: /5\.\s*總結：([\s\S]*?)(?=<div class="ai-section-block"|$)/ }
+                { id: 5, name: "總結", regex: /5\.\s*總結：([\s\S]*?)$/ }
             ];
 
             let hasSections = sections.some(s => s.regex.test(cleanText));
@@ -669,7 +660,6 @@
                         `;
                     }
                 });
-                if (recVideoHtml) html += recVideoHtml;
                 html += '</div>';
             } else {
                 if (cleanText) html = `<div class="ai-analysis-container"><div class="ai-section-block" style="border: 2px solid #E0F2FE; background: #F8FAFC;"><div class="ai-section-body">${processMarkdown(cleanText)}</div></div></div>`;
@@ -690,7 +680,6 @@
             cleanText = cleanText.replace(/\[\/SYS:[^\]]+\]/g, '').trim();
             
             let safeText = cleanText.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-            // (已優化此處的正則匹配)
             const match = safeText.match(/1\.\s*此篇重點：([\s\S]*?)(?=2\.\s*需求提問\/回應或再提問：|$)/);
             
             let summaryHTML = "";
@@ -727,7 +716,7 @@
         // ==========================================
         // API 部署連線設定 (請在此處替換為你最新的 GAS 網址)
         // ==========================================
-        const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbxE-SULOxAZ3pQ-toEt9yWmi08vHyAsdvyqIb9Mtc18agLSIkNczwl0ypzUzt5UYNaP/exec'; // <--- 【請替換為您最新部署的 Google Apps Script 網頁應用程式 URL】
+        const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbzMDAarHlQZ2_G--ypQCt_A9dEjoCDtmdOj8Dto_x0JehvaMXKRQaGoh4hE21KPbs2a/exec'; // <--- 【請替換為您最新部署的 Google Apps Script 網頁應用程式 URL】
         const ADMIN_EMAIL = 'alwayslucky2hand@gmail.com';
 
         let currentUserEmail = ''; 
@@ -1074,7 +1063,8 @@
 
         function renderTypeFilter() {
             const container = document.getElementById('type-container'); container.innerHTML = '';
-            ['全部', '待回覆', '教練已回覆', '學員追問', 'AI已推薦解答'].forEach(opt => {
+            // 已移除 'AI已推薦解答' 的篩選按鈕
+            ['全部', '待回覆', '教練已回覆', '學員追問'].forEach(opt => {
                 const btn = document.createElement('button'); btn.className = opt === currentStatus ? 'cat-btn active' : 'cat-btn'; btn.innerText = opt; 
                 btn.onclick = () => { currentStatus = opt; currentPage = 1; renderTypeFilter(); filterPosts(); }; container.appendChild(btn);
             });
@@ -1156,8 +1146,6 @@
 
         function renderThread(post) {
             let html = ''; let vidHtml = getDriveIframe(post.videoUrl);
-            let lowConfidenceHtml = '';
-            if (post.desc.includes('[SYS:LOW_CONFIDENCE]')) { lowConfidenceHtml = `<div class="warning-label" style="display:block; padding:12px; border-radius:8px; margin-bottom:16px; font-weight:bold; text-align:center; border:1px solid #FCA5A5; font-size:0.95rem; line-height:1.5;">系統通知教練盡快為您人工回覆。<br><span style="font-weight:normal; font-size:0.85rem; color:var(--text-muted);">在此之前，您仍可先參考下方初步資訊。</span></div>`; }
 
             let feedbackHtml = '';
             if (!post.desc.includes('處理中') && post.status !== '教練已回覆' && post.status !== '已結案' && post.status !== '學員追問') {
@@ -1173,7 +1161,6 @@
 
             html += `
                 <div class="thread-item student">
-                    ${lowConfidenceHtml}
                     <div class="thread-header">
                         <div class="thread-role"><span class="role-badge student-badge">學員發問</span> <span class="thread-email">${post.email}</span></div>
                         <span class="thread-time">${post.date} ${post.time}</span>
