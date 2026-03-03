@@ -6,7 +6,7 @@
     <title>賦能陪跑日誌</title>
     <style>
         /* =========================================
-           特洛伊 AI 賦能陪跑日誌 - App 級別舒適閱讀版
+           特洛伊 AI 賦能陪跑日誌 - App 級別舒適閱讀版 (純 CSS 視覺設計)
            ========================================= */
         :root {
             --primary-yellow: #F59E0B; 
@@ -42,6 +42,41 @@
             overflow-x: hidden;
         }
 
+        /* --- 視覺化元件設計 (取代 Emoji) --- */
+        .spinner {
+            display: inline-block; width: 14px; height: 14px;
+            border: 2px solid var(--primary-yellow); border-top-color: transparent;
+            border-radius: 50%; animation: spin 1s linear infinite; margin-right: 6px;
+            vertical-align: middle;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .record-dot { 
+            display: inline-block; width: 10px; height: 10px; 
+            background-color: white; border-radius: 50%; 
+            margin-right: 8px; animation: pulse-dot 1.5s infinite; 
+        }
+        .record-dot.danger-dot { background-color: var(--danger-color); }
+        @keyframes pulse-dot { 0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); } 70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(255, 255, 255, 0); } 100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); } }
+
+        .role-badge { padding: 4px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; margin-right: 8px; display: inline-block; }
+        .coach-badge { background-color: var(--accent-green); color: white; }
+        .student-badge { background-color: var(--primary-yellow); color: white; }
+        
+        .hint-label { font-weight: bold; color: var(--accent-green); border: 1px solid var(--accent-green); padding: 2px 6px; border-radius: 4px; margin-right: 6px; font-size: 0.8rem; }
+        .warning-label { font-weight: bold; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 2px 6px; border-radius: 4px; margin-right: 6px; font-size: 0.8rem; }
+        .system-label { font-weight: bold; color: #3B82F6; border: 1px solid #3B82F6; padding: 2px 6px; border-radius: 4px; margin-right: 6px; font-size: 0.8rem; }
+        
+        .status-icon { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; margin-right: 8px; }
+        .status-success { background: #D1FAE5; color: #065F46; }
+        .status-error { background: #FEE2E2; color: #991B1B; }
+        .status-system { background: #DBEAFE; color: #1E40AF; }
+
+        .arrow-up { display: inline-block; width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-bottom: 5px solid #3B82F6; margin-right: 6px; vertical-align: middle;}
+        .arrow-down { display: inline-block; width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 5px solid #3B82F6; margin-right: 6px; vertical-align: middle;}
+        .section-mark { display: inline-block; width: 4px; height: 16px; background: var(--primary-yellow); border-radius: 2px; margin-right: 8px; vertical-align: text-bottom; }
+
+        /* 導覽列與側邊欄 */
         .app-header {
             display: flex; align-items: center; justify-content: space-between;
             padding: 15px 0; margin-bottom: 24px; border-bottom: 1px dashed var(--glass-border);
@@ -63,6 +98,7 @@
         .sidebar-link:hover { background: rgba(255,255,255,0.05); }
         .sidebar-link.active { color: #8AB4F8; font-weight: bold; }
         
+        /* 基本佈局與表單 */
         h2, h3 { color: var(--slate-blue); font-weight: bold; margin-bottom: 16px; }
         .section { background: var(--panel-bg); padding: 24px 20px; margin-bottom: 24px; border-radius: var(--radius-soft); border: 1px solid var(--glass-border); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); }
         
@@ -108,10 +144,10 @@
         
         .ai-section-header.collapsible { cursor: pointer; transition: background 0.2s ease; display: flex; align-items: center; justify-content: space-between; }
         .ai-section-header.collapsible:hover { background: #F9FAFB; }
-        .toggle-btn { font-size: 0.85rem; color: #3B82F6; background: #EFF6FF; padding: 4px 8px; border-radius: 6px; font-weight: normal; border: 1px solid #BFDBFE; display: flex; align-items: center; gap: 4px;}
+        .toggle-btn { font-size: 0.85rem; color: #3B82F6; background: #EFF6FF; padding: 4px 8px; border-radius: 6px; font-weight: normal; border: 1px solid #BFDBFE; display: flex; align-items: center; }
         .ai-section-body { color: #374151; font-size: 0.98rem; line-height: 1.8; margin-top: 12px; transition: all 0.3s ease;}
         
-        .ai-section-header { font-weight: 900; color: var(--slate-blue); font-size: 1.1rem; display: flex; align-items: center; gap: 8px; margin-bottom: 0px; border-bottom: 1px dashed var(--glass-border); padding-bottom: 10px; }
+        .ai-section-header { font-weight: 900; color: var(--slate-blue); font-size: 1.1rem; display: flex; align-items: center; margin-bottom: 0px; border-bottom: 1px dashed var(--glass-border); padding-bottom: 10px; }
         .ai-section-body p { margin: 0 0 10px 0; }
         .ai-section-body p:last-child { margin-bottom: 0; }
         
@@ -122,17 +158,18 @@
         .ai-list li::marker { color: var(--primary-yellow); }
         
         .summary-block { background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 12px; padding: 18px; margin-top: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
-        .summary-label { color: #166534; font-weight: 900; margin-bottom: 10px; font-size: 1rem; display: flex; align-items: center; gap: 6px; border-bottom: 1px solid #BBF7D0; padding-bottom: 8px; }
+        .summary-label { color: #166534; font-weight: 900; margin-bottom: 10px; font-size: 1rem; display: flex; align-items: center; border-bottom: 1px solid #BBF7D0; padding-bottom: 8px; }
         .summary-body { color: #374151; font-size: 0.95rem; line-height: 1.7; }
         
-        .processing-msg { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 30px; background: #FEF3C7; border: 1px solid #FDE68A; color: #B45309; font-weight: bold; font-size: 0.95rem; animation: pulse 2s infinite; }
+        .processing-msg { display: inline-flex; align-items: center; padding: 10px 20px; border-radius: 30px; background: #FEF3C7; border: 1px solid #FDE68A; color: #B45309; font-weight: bold; font-size: 0.95rem; }
 
         .thread-item { background: var(--input-bg); padding: 20px; border-radius: 16px; margin-bottom: 24px; position: relative;}
         .thread-item.coach { border-top: 5px solid var(--accent-green); background: #F0FDF4; }
         .thread-item.student { border-top: 5px solid var(--primary-yellow); }
         .thread-header { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; margin-bottom: 16px; font-size: 0.9em; border-bottom: 1px dashed var(--glass-border); padding-bottom: 12px;}
-        .thread-role { font-weight: 900; color: var(--slate-blue); font-size: 1.05rem;}
+        .thread-role { font-weight: 900; color: var(--slate-blue); font-size: 1.05rem; display: flex; align-items: center;}
         .thread-time { color: var(--text-muted); }
+        .thread-email { font-weight: normal; color: var(--slate-blue); font-size: 0.95rem; }
 
         .video-wrapper { margin-top: 15px; border-radius: 12px; overflow: hidden; background: #000; border: 1px solid var(--glass-border); box-shadow: 0 4px 12px rgba(0,0,0,0.1);}
         .video-container { position: relative; padding-bottom: 56.25%; height: 0; }
@@ -147,15 +184,15 @@
         .system-msg { text-align: center; color: var(--slate-blue); padding: 30px 20px; font-weight: bold; }
 
         .recorder-box { background: #f1f5f9; border: 2px dashed var(--slate-blue); border-radius: 12px; padding: 20px; margin-bottom: 24px; text-align: center; transition: all 0.3s ease;}
-        .recorder-box.recording { border-color: var(--danger-color); background: #fef2f2; animation: borderPulse 2s infinite; }
-        @keyframes borderPulse { 0% { border-color: var(--danger-color); } 50% { border-color: #fca5a5; } 100% { border-color: var(--danger-color); } }
+        .recorder-box.recording { border-color: var(--danger-color); background: #fef2f2; }
+        
         .preview-video-el { width: 100%; border-radius: 10px; background: #111; margin-top: 15px; display: none; aspect-ratio: 16/9; }
         .controls-row { display: flex; flex-direction: column; gap: 10px; justify-content: center; margin-top: 15px; width: 100%;}
         
-        .record-hint { font-size: 0.85rem; color: var(--danger-color); margin-bottom: 10px; font-weight: bold; display: inline-block; padding: 8px 12px; background: #fef2f2; border-radius: 8px; line-height: 1.5; text-align: left; width: 100%;}
+        .record-hint { font-size: 0.85rem; color: var(--danger-color); margin-bottom: 10px; display: inline-block; padding: 8px 12px; background: #fef2f2; border-radius: 8px; line-height: 1.5; text-align: left; width: 100%;}
         
         .sop-box { background: #FFFBEB; border-left: 4px solid var(--primary-yellow); padding: 16px; margin-bottom: 20px; border-radius: 8px; text-align: left;}
-        .sop-box strong { color: var(--slate-blue); font-size: 1.05rem; }
+        .sop-title { color: var(--slate-blue); font-size: 1.05rem; font-weight: bold; }
         .sop-box ol { margin-top: 8px; margin-bottom: 0; padding-left: 20px; color: var(--text-dark); font-size: 0.95rem; line-height: 1.6;}
 
         .stack-group { display: flex; flex-direction: column; gap: 12px; width: 100%; }
@@ -188,9 +225,9 @@
     <div class="section" id="login-section">
         <h3 style="margin-top:0;">會員通行證與權限指南</h3>
         <div class="sop-box">
-            <strong>🛠️ 錄影神器權限開通 SOP：</strong>
+            <div class="sop-title">錄影神器權限開通說明：</div>
             <ol>
-                <li>請點擊瀏覽器網址列最左側的 <strong>「鎖頭 🔒」</strong>。</li>
+                <li>請點擊瀏覽器網址列最左側的 <strong>「鎖頭圖示」</strong>。</li>
                 <li>找到 <strong>「麥克風」</strong> 與 <strong>「攝影機」</strong>，將其狀態切換為 <strong>「允許」</strong>。</li>
                 <li>設定完成後，請務必 <strong>重新整理 (F5) 此網頁</strong>。</li>
             </ol>
@@ -217,14 +254,16 @@
 
     <div class="section" id="publish-section" style="display: none; border-left: 5px solid var(--primary-yellow);">
         <h3 style="margin-top:0;">發起新提問</h3>
-        <p style="color: var(--accent-green); font-weight: bold; margin-bottom: 12px;">✨ 全新升級：支援錄影暫停與畫面切換！</p>
+        <p style="margin-bottom: 12px; font-size: 0.95rem;">
+            <span class="hint-label">系統升級</span><span style="color: var(--accent-green); font-weight: bold;">支援錄影暫停與畫面切換！</span>
+        </p>
         <div id="post-recorder-container" class="recorder-box">
-            <h4 style="margin: 0 0 10px 0; color: var(--slate-blue);">🎥 網頁內建錄影神器</h4>
-            <p id="post-desktop-msg" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">系統將同時擷取「麥克風」與「電腦畫面聲音」，若未勾選系統音訊將無法啟動錄影。</p>
+            <h4 style="margin: 0 0 10px 0; color: var(--slate-blue); border-bottom: 1px dashed var(--glass-border); padding-bottom: 8px;">網頁內建錄影神器</h4>
+            <p id="post-desktop-msg" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">系統將同時擷取麥克風與電腦畫面聲音，若未勾選系統音訊將無法啟動錄影。</p>
             <label id="post-camera-label" style="cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px; font-weight: bold; color: var(--slate-blue);">
-                <input type="checkbox" id="post-use-camera-cb" checked style="width: 18px; height: 18px;"> 📷 同時開啟視訊鏡頭 (露臉)
+                <input type="checkbox" id="post-use-camera-cb" checked style="width: 18px; height: 18px;"> 同時開啟視訊鏡頭 (露臉)
             </label><br>
-            <span class="record-hint" id="post-record-hint">💡 選擇分享畫面時：強烈建議選擇「整個螢幕畫面」，並務必勾選「一併分享系統音訊」。</span>
+            <span class="record-hint" id="post-record-hint"><span class="warning-label">操作提示</span>選擇分享畫面時：強烈建議選擇「整個螢幕畫面」，並務必勾選「一併分享系統音訊」。</span>
 
             <video id="post-preview-video" class="preview-video-el" autoplay playsinline></video>
             
@@ -232,19 +271,19 @@
                 <button id="post-btn-setup-record" onclick="setupRecording('post')" class="btn-outline">1. 啟動影音錄製權限</button>
                 
                 <div id="post-ready-controls" style="display:none; gap: 10px; width: 100%;">
-                    <button id="post-btn-start-record" onclick="startRecording('post')" class="btn-danger" style="flex:2; margin:0;">🔴 開始錄製</button>
-                    <button class="switch-btn" onclick="switchVideoSource('post')" class="btn-outline" style="flex:1; margin:0; padding: 10px;">🔄 切換</button>
+                    <button id="post-btn-start-record" onclick="startRecording('post')" class="btn-danger" style="flex:2; margin:0;"><span class="record-dot"></span>開始錄製</button>
+                    <button class="switch-btn" onclick="switchVideoSource('post')" class="btn-outline" style="flex:1; margin:0; padding: 10px;">切換畫面</button>
                 </div>
 
                 <div id="post-active-controls" style="display:none; gap: 10px; width: 100%;">
-                    <button id="post-btn-pause-record" onclick="togglePauseRecording('post')" class="btn-outline" style="flex:1; margin:0; padding: 10px;">⏸️ 暫停</button>
-                    <button class="switch-btn" onclick="switchVideoSource('post')" class="btn-outline" style="flex:1; margin:0; padding: 10px;">🔄 切換</button>
-                    <button id="post-btn-stop-record" onclick="stopRecording('post')" style="flex:1.5; margin:0; background: var(--slate-blue); padding: 10px;">⏹️ 結束上傳</button>
+                    <button id="post-btn-pause-record" onclick="togglePauseRecording('post')" class="btn-outline" style="flex:1; margin:0; padding: 10px;">暫停錄影</button>
+                    <button class="switch-btn" onclick="switchVideoSource('post')" class="btn-outline" style="flex:1; margin:0; padding: 10px;">切換畫面</button>
+                    <button id="post-btn-stop-record" onclick="stopRecording('post')" style="flex:1.5; margin:0; background: var(--slate-blue); padding: 10px;">結束並上傳</button>
                 </div>
 
-                <button id="post-btn-cancel-record" onclick="cancelRecording('post')" class="btn-outline" style="display:none;">❌ 取消錄影</button>
+                <button id="post-btn-cancel-record" onclick="cancelRecording('post')" class="btn-outline" style="display:none;">取消錄影</button>
             </div>
-            <p id="post-record-status-msg" style="font-size: 0.95rem; margin-top: 15px; font-weight: bold; display: none;"></p>
+            <p id="post-record-status-msg" style="font-size: 0.95rem; margin-top: 15px; display: none;"></p>
         </div>
 
         <input type="text" id="post-video" class="input-box" placeholder="影片網址 (錄影完自動填入，或手動貼網址)" style="background: #fff;" readonly>
@@ -253,7 +292,7 @@
         <input type="text" id="post-title" class="input-box" placeholder="AI 自動生成中..." style="display:none;">
         <textarea id="post-desc" class="input-box" placeholder="AI 自動生成中..." style="display:none;"></textarea>
         
-        <button onclick="submitPost()" id="btn-submit-post">🚀 提交並呼叫 AI 解析</button>
+        <button onclick="submitPost()" id="btn-submit-post">提交並呼叫 AI 解析</button>
         <span id="post-msg" class="inline-msg"></span>
     </div>
 
@@ -268,7 +307,7 @@
                 <button onclick="clearDateFilter()" class="btn-outline">清除日期條件</button>
             </div>
         </div>
-        <div id="loading-list" class="system-msg">正在為您準備陪跑紀錄...</div>
+        <div id="loading-list" class="system-msg"><span class="spinner"></span> 正在為您準備陪跑紀錄...</div>
         <div id="post-list"></div>
         <div id="pagination-container" class="pagination"></div>
     </div>
@@ -281,7 +320,7 @@
         
         <div id="auth-warning-container" class="cta-container">
             <h3 id="auth-warning-message" style="color: var(--slate-blue); margin-bottom: 20px; line-height: 1.6; font-size: 1.2rem;"></h3>
-            <button id="auth-warning-btn" onclick="scrollToLogin()">👉 立即登入解鎖</button>
+            <button id="auth-warning-btn" onclick="scrollToLogin()">立即登入解鎖</button>
         </div>
 
         <div id="thread-content-wrapper" style="display: none;">
@@ -289,33 +328,35 @@
             
             <div style="margin-top:32px; border-top: 2px dashed var(--glass-border); padding-top: 24px;">
                 <h3 style="margin-top:0;">新增影音回覆 / 追問</h3>
-                <p style="color: var(--accent-green); font-weight: bold; margin-bottom: 12px;">✨ 支援錄影中隨時切換畫面與暫停！</p>
+                <p style="margin-bottom: 12px; font-size: 0.95rem;">
+                    <span class="hint-label">系統升級</span><span style="color: var(--accent-green); font-weight: bold;">支援錄影中隨時切換畫面與暫停！</span>
+                </p>
                 <div id="reply-recorder-container" class="recorder-box">
-                    <h4 style="margin: 0 0 10px 0; color: var(--slate-blue);">🎥 網頁內建錄影神器 (回覆專用)</h4>
-                    <p id="reply-desktop-msg" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">系統將同時擷取「麥克風」與「電腦畫面聲音」，若未勾選系統音訊將無法啟動錄影。</p>
+                    <h4 style="margin: 0 0 10px 0; color: var(--slate-blue); border-bottom: 1px dashed var(--glass-border); padding-bottom: 8px;">網頁內建錄影神器 (回覆專用)</h4>
+                    <p id="reply-desktop-msg" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">系統將同時擷取麥克風與電腦畫面聲音，若未勾選系統音訊將無法啟動錄影。</p>
                     <label id="reply-camera-label" style="cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px; font-weight: bold; color: var(--slate-blue);">
-                        <input type="checkbox" id="reply-use-camera-cb" checked style="width: 18px; height: 18px;"> 📷 同時開啟視訊鏡頭 (露臉)
+                        <input type="checkbox" id="reply-use-camera-cb" checked style="width: 18px; height: 18px;"> 同時開啟視訊鏡頭 (露臉)
                     </label><br>
-                    <span class="record-hint" id="reply-record-hint">⚠️ 提示：請選擇「整個螢幕畫面」，並務必勾選「一併分享系統音訊」。</span>
+                    <span class="record-hint" id="reply-record-hint"><span class="warning-label">操作提示</span>選擇分享畫面時：強烈建議選擇「整個螢幕畫面」，並務必勾選「一併分享系統音訊」。</span>
                     <video id="reply-preview-video" class="preview-video-el" autoplay playsinline></video>
                     
                     <div class="controls-row">
                         <button id="reply-btn-setup-record" onclick="setupRecording('reply')" class="btn-outline">1. 啟動影音錄製權限</button>
                         
                         <div id="reply-ready-controls" style="display:none; gap: 10px; width: 100%;">
-                            <button id="reply-btn-start-record" onclick="startRecording('reply')" class="btn-danger" style="flex:2; margin:0;">🔴 開始錄製</button>
-                            <button class="switch-btn" onclick="switchVideoSource('reply')" class="btn-outline" style="flex:1; margin:0; padding: 10px;">🔄 切換</button>
+                            <button id="reply-btn-start-record" onclick="startRecording('reply')" class="btn-danger" style="flex:2; margin:0;"><span class="record-dot"></span>開始錄製</button>
+                            <button class="switch-btn" onclick="switchVideoSource('reply')" class="btn-outline" style="flex:1; margin:0; padding: 10px;">切換畫面</button>
                         </div>
 
                         <div id="reply-active-controls" style="display:none; gap: 10px; width: 100%;">
-                            <button id="reply-btn-pause-record" onclick="togglePauseRecording('reply')" class="btn-outline" style="flex:1; margin:0; padding: 10px;">⏸️ 暫停</button>
-                            <button class="switch-btn" onclick="switchVideoSource('reply')" class="btn-outline" style="flex:1; margin:0; padding: 10px;">🔄 切換</button>
-                            <button id="reply-btn-stop-record" onclick="stopRecording('reply')" style="flex:1.5; margin:0; background: var(--slate-blue); padding: 10px;">⏹️ 結束上傳</button>
+                            <button id="reply-btn-pause-record" onclick="togglePauseRecording('reply')" class="btn-outline" style="flex:1; margin:0; padding: 10px;">暫停錄影</button>
+                            <button class="switch-btn" onclick="switchVideoSource('reply')" class="btn-outline" style="flex:1; margin:0; padding: 10px;">切換畫面</button>
+                            <button id="reply-btn-stop-record" onclick="stopRecording('reply')" style="flex:1.5; margin:0; background: var(--slate-blue); padding: 10px;">結束並上傳</button>
                         </div>
 
-                        <button id="reply-btn-cancel-record" onclick="cancelRecording('reply')" class="btn-outline" style="display:none;">❌ 取消錄影</button>
+                        <button id="reply-btn-cancel-record" onclick="cancelRecording('reply')" class="btn-outline" style="display:none;">取消錄影</button>
                     </div>
-                    <p id="reply-record-status-msg" style="font-size: 0.95rem; margin-top: 15px; font-weight: bold; display: none;"></p>
+                    <p id="reply-record-status-msg" style="font-size: 0.95rem; margin-top: 15px; display: none;"></p>
                 </div>
 
                 <input type="text" id="reply-video" class="input-box" placeholder="影片網址 (錄影完自動填入，或手動貼網址)" style="background: #fff;" readonly>
@@ -323,7 +364,7 @@
                 
                 <textarea id="reply-desc" class="input-box" placeholder="AI 自動生成中..." style="display:none;"></textarea>
                 
-                <button onclick="submitReply()" id="btn-submit-reply">🚀 送出並呼叫 AI 解析</button>
+                <button onclick="submitReply()" id="btn-submit-reply">送出並呼叫 AI 解析</button>
                 <span id="reply-msg" class="inline-msg"></span>
             </div>
         </div>
@@ -331,13 +372,12 @@
 
     <script>
         // ==========================================
-        // 📱 裝置偵測與 UI 初始化機制
+        // 裝置偵測與 UI 初始化機制
         // ==========================================
         function isMobileDevice() {
             return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         }
 
-        // 初始化時，如果偵測到手機，將提示文字改成專屬手機的鏡頭切換教學
         function initDeviceUI() {
             if (isMobileDevice()) {
                 ['post', 'reply'].forEach(type => {
@@ -345,7 +385,7 @@
                     const msg = document.getElementById(`${type}-desktop-msg`);
                     const camLabel = document.getElementById(`${type}-camera-label`);
                     
-                    if(hint) hint.innerHTML = '📱 <strong>手機模式</strong>：因系統安全限制，手機網頁無法錄製螢幕。<br>💡 但您可以使用下方「切換」按鈕，<strong>無縫切換前置/後置鏡頭</strong>！';
+                    if(hint) hint.innerHTML = '<span class="warning-label">手機模式</span>因系統安全限制，手機網頁無法錄製螢幕。<br><span class="hint-label" style="margin-top:6px; display:inline-block;">操作提示</span>您可以使用下方「切換」按鈕，<strong>無縫切換前置/後置鏡頭</strong>！';
                     if(msg) msg.style.display = 'none';
                     if(camLabel) camLabel.style.display = 'none';
                 });
@@ -353,17 +393,17 @@
         }
 
         // ==========================================
-        // ✨ AI 排版與渲染引擎
+        // AI 排版與渲染引擎 (純 CSS 視覺設計)
         // ==========================================
         function toggleAiSection(headerEl) {
             const bodyEl = headerEl.nextElementSibling;
             const toggleBtn = headerEl.querySelector('.toggle-btn');
             if (bodyEl.style.display === 'none') {
                 bodyEl.style.display = 'block';
-                toggleBtn.innerHTML = '🔼 點擊收合';
+                toggleBtn.innerHTML = '<span class="arrow-up"></span> 點擊收合';
             } else {
                 bodyEl.style.display = 'none';
-                toggleBtn.innerHTML = '🔽 點擊展開';
+                toggleBtn.innerHTML = '<span class="arrow-down"></span> 點擊展開';
             }
         }
 
@@ -386,22 +426,30 @@
             if (inList) htmlLines.push('</ul>');
             let html = htmlLines.join('');
             html = html.replace(/\*\*(.*?)\*\*/g, '<span class="highlight-pill">$1</span>');
-            html = html.replace(/(?:\[|\()(\d{1,2}:\d{2}(?::\d{2})?)(?:\]|\))/g, '<span class="timecode-badge">⏱️ $1</span>');
+            
+            // 轉換時間軸 [MM:SS] 或 (MM:SS) 
+            html = html.replace(/(?:\[|\()(\d{1,2}:\d{2}(?::\d{2})?)(?:\]|\))/g, '<span class="timecode-badge">$1</span>');
             return html;
         }
 
         function formatText(text) {
             if (!text) return '';
             let cleanText = text.replace(/\[SYS:[^\]]+\]/g, '').trim();
-            if (cleanText.includes("⏳")) return `<div class="processing-msg">⏳ ${cleanText}</div>`;
+            
+            // 處理後端傳來的 AI 處理中文字 (動態濾除 Emoji 並加上 Spinner)
+            if (cleanText.includes("影片解析中") || cleanText.includes("系統正在透過")) {
+                let cleanWaitText = cleanText.replace(/⏳/g, '').trim();
+                return `<div class="processing-msg"><span class="spinner"></span> ${cleanWaitText}</div>`;
+            }
+            
             cleanText = cleanText.replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
             const sections = [
-                { id: 1, name: "此篇重點", icon: "🎯", regex: /1\.\s*此篇重點：([\s\S]*?)(?=2\.\s*需求提問|$)/ },
-                { id: 2, name: "需求提問與回應", icon: "💬", regex: /2\.\s*需求提問\/回應或再提問：([\s\S]*?)(?=3\.\s*影片描述|$)/ },
-                { id: 3, name: "影片描述", icon: "🎬", regex: /3\.\s*影片描述：([\s\S]*?)(?=4\.\s*影音逐字稿紀錄|$)/ },
-                { id: 4, name: "影音逐字稿", icon: "📝", regex: /4\.\s*影音逐字稿紀錄：([\s\S]*?)(?=5\.\s*總結|$)/ },
-                { id: 5, name: "總結與建議", icon: "💡", regex: /5\.\s*總結：([\s\S]*?)$/ }
+                { id: 1, name: "此篇重點", regex: /1\.\s*此篇重點：([\s\S]*?)(?=2\.\s*需求提問|$)/ },
+                { id: 2, name: "需求提問與回應", regex: /2\.\s*需求提問\/回應或再提問：([\s\S]*?)(?=3\.\s*影片描述|$)/ },
+                { id: 3, name: "影片描述", regex: /3\.\s*影片描述：([\s\S]*?)(?=4\.\s*影音逐字稿紀錄|$)/ },
+                { id: 4, name: "影音逐字稿", regex: /4\.\s*影音逐字稿紀錄：([\s\S]*?)(?=5\.\s*總結|$)/ },
+                { id: 5, name: "總結與建議", regex: /5\.\s*總結：([\s\S]*?)$/ }
             ];
 
             let hasSections = sections.some(s => s.regex.test(cleanText));
@@ -416,8 +464,8 @@
                         html += `
                             <div class="ai-section-block">
                                 <div class="ai-section-header ${isCollapsible ? 'collapsible' : ''}" ${isCollapsible ? 'onclick="toggleAiSection(this)"' : ''}>
-                                    <div style="display:flex; align-items:center; gap:8px;"><span>${sec.icon}</span> ${sec.name}</div>
-                                    ${isCollapsible ? '<span class="toggle-btn">🔽 點擊展開</span>' : ''}
+                                    <div style="display:flex; align-items:center;"><span class="section-mark"></span> ${sec.name}</div>
+                                    ${isCollapsible ? '<span class="toggle-btn"><span class="arrow-down"></span> 點擊展開</span>' : ''}
                                 </div>
                                 <div class="ai-section-body" ${isCollapsible ? 'style="display:none;"' : ''}>
                                     ${content}
@@ -434,9 +482,11 @@
         }
 
         function getSummary(text) {
-            if(!text) return '<span style="color:var(--text-muted);">⏳ 準備中...</span>';
+            if(!text) return '<span style="color:var(--text-muted);"><span class="spinner"></span> 準備中...</span>';
             let cleanText = text.replace(/\[SYS:[^\]]+\]/g, '').trim();
-            if (cleanText.includes("⏳")) return `<div class="processing-msg">⏳ AI 正在深度解析中...</div>`;
+            if (cleanText.includes("影片解析中") || cleanText.includes("系統正在透過")) {
+                return `<div class="processing-msg"><span class="spinner"></span> AI 正在深度解析中...</div>`;
+            }
             let safeText = cleanText.replace(/</g, '&lt;').replace(/>/g, '&gt;');
             const match = safeText.match(/1\.\s*此篇重點：([\s\S]*?)(?=2\.\s*需求提問|$)/);
             
@@ -450,7 +500,7 @@
             }
             return `
                 <div class="summary-block">
-                    <div class="summary-label">🎯 核心重點提要</div>
+                    <div class="summary-label"><span class="section-mark"></span> 核心重點提要</div>
                     <div class="summary-body">${summaryHTML}</div>
                 </div>`;
         }
@@ -481,7 +531,7 @@
         let pollingInterval = null; 
 
         // ==========================================
-        // 🎥 升級版 GAS 中繼站接力上傳引擎 (Canvas 混流技術)
+        // GAS 中繼站接力上傳引擎 (Canvas 混流技術)
         // ==========================================
         let mediaRecorder; let recordedChunks = []; 
         let combinedStream, screenStream, micStream, audioContext; 
@@ -489,7 +539,7 @@
         
         let isPaused = false;
         let activeVideoSource = 'screen'; 
-        let currentFacingMode = 'user'; // 手機版用：預設前鏡頭
+        let currentFacingMode = 'user';
         
         let internalCanvas, internalCtx, drawLoopId;
         let screenHiddenVideo, cameraHiddenVideo;
@@ -509,76 +559,86 @@
             isPaused = false;
         }
 
-        function showRecorderMsg(type, msg, isError = false, keep = false) {
+        // 動態生成系統提示 UI
+        function showRecorderMsg(type, text, isError = false, keep = false) {
             const msgEl = document.getElementById(`${type}-record-status-msg`);
             if(!msgEl) return;
-            msgEl.innerText = msg; msgEl.style.color = isError ? "var(--danger-color)" : "var(--slate-blue)"; msgEl.style.display = 'block';
+            
+            let badgeHtml = '';
+            if (isError) {
+                badgeHtml = '<span class="status-icon status-error">錯誤</span>';
+            } else if (text.includes("正在錄製中")) {
+                badgeHtml = '<span class="record-dot danger-dot"></span><span class="status-icon" style="background:#FEE2E2; color:#991B1B;">錄製中</span>';
+            } else if (text.includes("正在") || text.includes("上傳中") || text.includes("解析中")) {
+                badgeHtml = '<span class="spinner"></span><span class="status-icon status-system">處理中</span>';
+            } else if (text.includes("暫停")) {
+                badgeHtml = '<span class="status-icon" style="background:#FEF3C7; color:#B45309;">暫停</span>';
+            } else {
+                badgeHtml = '<span class="status-icon status-success">成功</span>';
+            }
+            
+            msgEl.innerHTML = badgeHtml + text;
+            msgEl.style.display = 'block';
             if(!keep && !isError) setTimeout(() => msgEl.style.display = 'none', 5000);
         }
 
-        // 🚀 切換畫面核心邏輯
+        // 切換畫面核心邏輯
         async function switchVideoSource(type) {
             if (isMobileDevice()) {
-                // 📱 手機版：切換「前置/後置」鏡頭
                 currentFacingMode = (currentFacingMode === 'user') ? 'environment' : 'user';
-                showRecorderMsg(type, `🔄 正在無縫切換至「${currentFacingMode === 'user' ? '前置' : '後置'}」鏡頭...`, false, true);
+                showRecorderMsg(type, `正在切換至「${currentFacingMode === 'user' ? '前置' : '後置'}」鏡頭...`, false, true);
                 
                 try {
-                    // 請求新鏡頭的畫面
                     const newStream = await navigator.mediaDevices.getUserMedia({
                         video: { facingMode: currentFacingMode, width: { ideal: 1280 }, height: { ideal: 720 } }
                     });
                     
-                    // 關閉舊鏡頭並替換為新鏡頭 (Canvas會自動抓取新畫面，MediaRecorder 不會斷線)
                     if (cameraHiddenVideo && cameraHiddenVideo.srcObject) {
                         cameraHiddenVideo.srcObject.getTracks().forEach(t => t.stop());
                     }
                     cameraHiddenVideo.srcObject = new MediaStream([newStream.getVideoTracks()[0]]);
                     
-                    showRecorderMsg(type, `✅ 已切換至「${currentFacingMode === 'user' ? '前置' : '後置'}」鏡頭`, false, false);
+                    showRecorderMsg(type, `已切換至「${currentFacingMode === 'user' ? '前置' : '後置'}」鏡頭`, false, false);
                     if (mediaRecorder && mediaRecorder.state === 'recording' && !isPaused) {
-                        setTimeout(() => showRecorderMsg(type, "🔴 正在錄製中...", true, true), 2000);
+                        setTimeout(() => showRecorderMsg(type, "正在錄製中...", false, true), 2000);
                     }
                 } catch (err) {
-                    showRecorderMsg(type, "❌ 切換鏡頭失敗：" + err.message, true, true);
-                    currentFacingMode = (currentFacingMode === 'user') ? 'environment' : 'user'; // 退回原狀態
+                    showRecorderMsg(type, "切換鏡頭失敗：" + err.message, true, true);
+                    currentFacingMode = (currentFacingMode === 'user') ? 'environment' : 'user'; 
                 }
             } else {
-                // 💻 電腦版：切換「螢幕/鏡頭」
                 activeVideoSource = (activeVideoSource === 'screen') ? 'camera' : 'screen';
-                showRecorderMsg(type, `🔄 已無縫切換至「${activeVideoSource === 'screen' ? '螢幕' : '鏡頭'}」畫面`, false, false);
+                showRecorderMsg(type, `已無縫切換至「${activeVideoSource === 'screen' ? '螢幕' : '鏡頭'}」畫面`, false, false);
                 if (mediaRecorder && mediaRecorder.state === 'recording' && !isPaused) {
-                    setTimeout(() => showRecorderMsg(type, "🔴 正在錄製中... (您與電腦的聲音皆會被嚴格錄下)", true, true), 2000);
+                    setTimeout(() => showRecorderMsg(type, "正在錄製中... (聲音皆會被嚴格錄下)", false, true), 2000);
                 }
             }
         }
 
-        // ⏸️ 暫停與繼續錄製
         function togglePauseRecording(type) {
             if (!mediaRecorder) return;
             const pauseBtn = document.getElementById(`${type}-btn-pause-record`);
             if (mediaRecorder.state === 'recording') {
                 mediaRecorder.pause();
                 isPaused = true;
-                pauseBtn.innerText = '▶️ 繼續';
+                pauseBtn.innerHTML = '<span class="record-dot"></span> 繼續錄影';
                 pauseBtn.classList.replace('btn-outline', 'btn-danger');
-                showRecorderMsg(type, "⏸️ 錄影已暫停... (可先點擊切換畫面，準備好再繼續)", false, true);
+                showRecorderMsg(type, "錄影已暫停... (準備好再繼續)", false, true);
             } else if (mediaRecorder.state === 'paused') {
                 mediaRecorder.resume();
                 isPaused = false;
-                pauseBtn.innerText = '⏸️ 暫停';
+                pauseBtn.innerHTML = '暫停錄影';
                 pauseBtn.classList.replace('btn-danger', 'btn-outline');
-                showRecorderMsg(type, "🔴 正在錄製中...", true, true);
+                showRecorderMsg(type, "正在錄製中... (聲音皆會被嚴格錄下)", false, true);
             }
         }
 
         async function setupRecording(type) {
             currentRecordType = type;
-            showRecorderMsg(type, "🔄 正在請求權限...", false, true);
+            showRecorderMsg(type, "正在請求權限...", false, true);
             const useCamera = document.getElementById(`${type}-use-camera-cb`) ? document.getElementById(`${type}-use-camera-cb`).checked : false;
 
             try {
-                // 建立繪圖音訊環境
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 const dest = audioContext.createMediaStreamDestination();
                 internalCanvas = document.createElement('canvas');
@@ -589,21 +649,17 @@
                 cameraHiddenVideo.muted = true; cameraHiddenVideo.autoplay = true; cameraHiddenVideo.playsInline = true;
 
                 if (isMobileDevice()) {
-                    // ==========================================
-                    // 📱 手機版：啟動相機 (預設前鏡頭)
-                    // ==========================================
                     currentFacingMode = 'user';
                     try {
                         micStream = await navigator.mediaDevices.getUserMedia({ 
                             audio: true, 
                             video: { facingMode: currentFacingMode, width: { ideal: 1280 }, height: { ideal: 720 } } 
                         });
-                    } catch(e) { showRecorderMsg(type, "❌ 您封鎖了相機權限，請前往手機設定允許瀏覽器存取相機。", true, true); return; }
+                    } catch(e) { showRecorderMsg(type, "您封鎖了相機權限，請前往手機設定允許瀏覽器存取相機。", true, true); return; }
 
                     if (micStream.getAudioTracks().length > 0) audioContext.createMediaStreamSource(micStream).connect(dest);
                     cameraHiddenVideo.srcObject = new MediaStream([micStream.getVideoTracks()[0]]);
 
-                    // 繪製手機版畫面
                     function drawMobileFrame() {
                         if (!internalCtx) return;
                         internalCtx.fillStyle = '#111';
@@ -623,7 +679,6 @@
                             }
                             
                             internalCtx.save();
-                            // 如果是前鏡頭 (user)，執行鏡像翻轉，讓使用者看到正確的自己
                             if (currentFacingMode === 'user') {
                                 internalCtx.translate(x + drawWidth / 2, y + drawHeight / 2);
                                 internalCtx.scale(-1, 1);
@@ -637,20 +692,17 @@
                     }
                     drawMobileFrame();
                     
-                    showRecorderMsg(type, "✅ 鏡頭已就緒！您可以先測試「切換前後鏡頭」，準備好後點擊開始錄製。", false, true);
+                    showRecorderMsg(type, "鏡頭已就緒！您可以先測試「切換畫面」，準備好後點擊開始錄製。", false, true);
 
                 } else {
-                    // ==========================================
-                    // 💻 電腦版：啟動螢幕 + 電腦相機
-                    // ==========================================
                     try { micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: useCamera ? { width: 1280, height: 720 } : false });
-                    } catch(e) { showRecorderMsg(type, "❌ 您封鎖了麥克風/相機，請點擊網址列左側『鎖頭 🔒』設為允許。", true, true); return; }
+                    } catch(e) { showRecorderMsg(type, "您封鎖了麥克風/相機，請點擊網址列左側『鎖頭』設為允許。", true, true); return; }
 
                     try { screenStream = await navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: "monitor" }, audio: { systemAudio: "include", echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
-                    } catch(e) { showRecorderMsg(type, "❌ 您取消了螢幕分享，請重新點擊啟動。", true, true); killMediaTracks(); return; }
+                    } catch(e) { showRecorderMsg(type, "您取消了螢幕分享，請重新點擊啟動。", true, true); killMediaTracks(); return; }
 
                     if (screenStream.getAudioTracks().length === 0) {
-                        killMediaTracks(); showRecorderMsg(type, "❌ 啟動失敗：您忘記勾選左下角的「一併分享系統音訊」了！", true, true); return; 
+                        killMediaTracks(); showRecorderMsg(type, "啟動失敗：您忘記勾選左下角的「一併分享系統音訊」了！", true, true); return; 
                     }
 
                     if (micStream.getAudioTracks().length > 0) audioContext.createMediaStreamSource(micStream).connect(dest);
@@ -688,7 +740,6 @@
                             }
                             
                             internalCtx.save();
-                            // 電腦的鏡頭畫面也要鏡像處理
                             if (activeVideoSource === 'camera') {
                                 internalCtx.translate(x + drawWidth / 2, y + drawHeight / 2);
                                 internalCtx.scale(-1, 1);
@@ -703,10 +754,9 @@
                     drawPcFrame();
                     
                     screenStream.getVideoTracks()[0].onended = () => { if(mediaRecorder && mediaRecorder.state === "recording") { stopRecording(currentRecordType); } else { cancelRecording(currentRecordType); } };
-                    showRecorderMsg(type, "✅ 系統音與畫面已連接！您可以先測試「切換畫面」，準備好後點擊開始錄製。", false, true);
+                    showRecorderMsg(type, "系統音與畫面已連接！您可以先測試「切換畫面」，準備好後點擊開始錄製。", false, true);
                 }
 
-                // --- 綁定最終錄製串流 (Canvas影像 + 音軌) ---
                 let tracks = [...internalCanvas.captureStream(30).getVideoTracks(), ...dest.stream.getAudioTracks()];
                 combinedStream = new MediaStream(tracks);
 
@@ -715,12 +765,11 @@
                 previewVideo.style.display = 'block'; 
                 previewVideo.muted = true; 
 
-                // UI 更新
                 document.getElementById(`${type}-btn-setup-record`).style.display = 'none';
                 document.getElementById(`${type}-ready-controls`).style.display = 'flex';
                 document.getElementById(`${type}-btn-cancel-record`).style.display = 'flex';
 
-            } catch (err) { showRecorderMsg(type, "❌ 發生錯誤：" + err.message, true, true); killMediaTracks(); }
+            } catch (err) { showRecorderMsg(type, "發生錯誤：" + err.message, true, true); killMediaTracks(); }
         }
 
         function startRecording(type) {
@@ -743,7 +792,7 @@
                 killMediaTracks(); 
 
                 try {
-                    showRecorderMsg(type, "⏳ 正在與中繼站建立連線通道...", false, true);
+                    showRecorderMsg(type, "正在與中繼站建立連線通道...", false, true);
                     const initRes = await fetch(GAS_LIVE_URL, { method: 'POST', body: JSON.stringify({ action: 'init_upload', filename: `Temp_${Date.now()}.webm` }) });
                     const initData = await initRes.json();
                     if (initData.status !== 'success') throw new Error(initData.message);
@@ -754,7 +803,7 @@
                     while (start < fileSize) {
                         const end = Math.min(start + chunkSize, fileSize); const chunk = blob.slice(start, end); const chunkBase64 = await blobToBase64(chunk);
                         let progress = Math.round((start / fileSize) * 100);
-                        showRecorderMsg(type, `⏳ 影片上傳中：${progress}% (請勿關閉網頁)...`, false, true);
+                        showRecorderMsg(type, `影片上傳中：${progress}% (請勿關閉網頁)...`, false, true);
 
                         const response = await fetch(GAS_LIVE_URL, {
                             method: 'POST', body: JSON.stringify({ action: 'upload_chunk', uploadUrl: uploadUrl, chunkBase64: chunkBase64, start: start, totalSize: fileSize })
@@ -765,13 +814,12 @@
 
                     document.getElementById(`${type}-video`).value = `https://drive.google.com/file/d/${fileId}/view`;
                     document.getElementById(`${type}-video-id`).value = fileId;
-                    showRecorderMsg(type, "✅ 影片上傳成功！網址已自動填入。(💡 剛上傳的影片雲端需 3~5 分鐘處理預覽)", false, true);
-                    document.getElementById(`${type}-record-status-msg`).style.color = "var(--accent-green)";
+                    showRecorderMsg(type, "影片上傳成功！網址已自動填入。(剛上傳的影片雲端需 3~5 分鐘處理預覽)", false, true);
                     document.getElementById(`${type}-btn-setup-record`).innerText = "重新錄製 (將覆蓋前一次)";
                     document.getElementById(`${type}-btn-setup-record`).style.display = 'flex';
 
                 } catch(e) {
-                    showRecorderMsg(type, "❌ 上傳發生錯誤：" + e.message, true, true);
+                    showRecorderMsg(type, "上傳發生錯誤：" + e.message, true, true);
                     document.getElementById(`${type}-btn-setup-record`).innerText = "重新錄製"; document.getElementById(`${type}-btn-setup-record`).style.display = 'flex';
                 }
             };
@@ -781,11 +829,11 @@
             document.getElementById(`${type}-active-controls`).style.display = 'flex';
             
             const pauseBtn = document.getElementById(`${type}-btn-pause-record`);
-            pauseBtn.innerText = '⏸️ 暫停'; pauseBtn.classList.replace('btn-danger', 'btn-outline');
+            pauseBtn.innerHTML = '暫停錄影'; pauseBtn.classList.replace('btn-danger', 'btn-outline');
             isPaused = false;
             
             document.getElementById(`${type}-recorder-container`).classList.add('recording');
-            showRecorderMsg(type, "🔴 正在錄製中...", true, true);
+            showRecorderMsg(type, "正在錄製中... (聲音皆會被嚴格錄下)", false, true);
         }
 
         function stopRecording(type) { if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop(); }
@@ -809,7 +857,7 @@
         function blobToBase64(blob) { return new Promise((resolve, _) => { const reader = new FileReader(); reader.onloadend = () => resolve(reader.result.split(',')[1]); reader.readAsDataURL(blob); }); }
 
         // ==========================================
-        // 🎯 網站基礎邏輯與輪詢更新機制
+        // 網站基礎邏輯與輪詢更新機制
         // ==========================================
         function checkAutoLogin() {
             const savedEmail = localStorage.getItem('troy_user_email');
@@ -867,7 +915,7 @@
         function requestOTP() {
             const email = document.getElementById('email').value.trim();
             if (!email) return showAppMsg('otp-msg', '請先輸入 Email', true);
-            document.getElementById('btn-otp').innerText = "寄送中...";
+            document.getElementById('btn-otp').innerHTML = '<span class="spinner"></span> 寄送中...';
             fetch(GAS_LIVE_URL, { method: 'POST', body: JSON.stringify({ action: 'requestOTP', email: email }) })
             .then(res => res.json()).then(data => {
                 document.getElementById('btn-otp').innerText = "寄送驗證碼";
@@ -879,7 +927,7 @@
         function verifyLogin() {
             const email = document.getElementById('email').value.trim(); const otp = document.getElementById('otp-code').value.trim();
             if (!otp) return showAppMsg('login-msg', '請輸入驗證碼', true);
-            document.getElementById('btn-login').innerText = "驗證中...";
+            document.getElementById('btn-login').innerHTML = '<span class="spinner"></span> 驗證中...';
             fetch(GAS_LIVE_URL, { method: 'POST', body: JSON.stringify({ action: 'verifyOTP', email: email, otp: otp }) })
             .then(res => res.json()).then(data => {
                 document.getElementById('btn-login').innerText = "登入通行";
@@ -989,7 +1037,7 @@
                     </div>
                 </div>`;
             }
-            return `<a href="${url}" target="_blank" class="btn-outline" style="display:inline-block; text-align:center; padding:10px; border-radius:8px; text-decoration:none; margin-top:10px; width:100%;">🎥 點擊觀看外部影片</a>`;
+            return `<a href="${url}" target="_blank" class="btn-outline" style="display:inline-block; text-align:center; padding:10px; border-radius:8px; text-decoration:none; margin-top:10px; width:100%;">點擊觀看外部影片</a>`;
         }
 
         function renderThread(post) {
@@ -997,7 +1045,7 @@
             html += `
                 <div class="thread-item student">
                     <div class="thread-header">
-                        <span class="thread-role">👤 學員提問 (${post.email})</span>
+                        <div class="thread-role"><span class="role-badge student-badge">學員提問</span> <span class="thread-email">${post.email}</span></div>
                         <span class="thread-time">${post.date} ${post.time}</span>
                     </div>
                     <div class="post-excerpt">${formatText(post.desc)}</div>
@@ -1009,11 +1057,12 @@
                 if(parts.length >= 5) {
                     let rDate = parts[0], rTime = parts[1], rRole = parts[2], rEmail = parts[3], rContent = parts[4], rVid = parts[5] || '';
                     let itemClass = rRole === '陪跑教練' ? 'coach' : 'student'; let rVidHtml = getDriveIframe(rVid);
+                    let badgeClass = rRole === '陪跑教練' ? 'coach-badge' : 'student-badge';
                     
                     html += `
                     <div class="thread-item ${itemClass}">
                         <div class="thread-header">
-                            <span class="thread-role">${rRole === '陪跑教練' ? '👑' : '👤'} ${rRole} (${rEmail})</span>
+                            <div class="thread-role"><span class="role-badge ${badgeClass}">${rRole}</span> <span class="thread-email">${rEmail}</span></div>
                             <span class="thread-time">${rDate} ${rTime}</span>
                         </div>
                         <div class="post-excerpt">${formatText(rContent)}</div>
@@ -1039,48 +1088,48 @@
 
             if (!currentUserEmail) {
                 authWarningContainer.style.display = 'flex'; threadContentWrapper.style.display = 'none';
-                authWarningMessage.innerHTML = "🔒 這是專屬陪跑日誌<br>請先登入或加入會員以解鎖您的權限！"; authWarningBtn.style.display = 'flex';
+                authWarningMessage.innerHTML = '<div class="warning-label" style="display:inline-block; margin-bottom:10px;">專屬內容</div><br>請先登入或加入會員以解鎖您的權限！'; authWarningBtn.style.display = 'flex';
             } else if (currentUserEmail.toLowerCase() !== currentPost.email.toLowerCase() && currentUserEmail.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
                 authWarningContainer.style.display = 'flex'; threadContentWrapper.style.display = 'none';
-                authWarningMessage.innerHTML = "⛔ 這是其他學員的專屬陪跑日誌<br>為保障學員隱私，您無權觀看哦！"; authWarningBtn.style.display = 'none'; 
+                authWarningMessage.innerHTML = '<div class="warning-label" style="display:inline-block; margin-bottom:10px;">權限限制</div><br>這是其他學員的專屬日誌，為保障隱私您無權觀看。'; authWarningBtn.style.display = 'none'; 
             } else {
                 authWarningContainer.style.display = 'none'; threadContentWrapper.style.display = 'block'; renderThread(currentPost);
             }
         }
 
         function submitPost() {
-            const title = "⏳ AI 影片解析中...";
-            const desc = "⏳ 系統正在透過 AI 自動解析影片並為您總結「此篇重點」、「需求提問」、「影片描述」與「逐字稿」...請稍候。";
+            const title = "AI 影片解析中...";
+            const desc = "系統正在透過 AI 自動解析影片並為您總結「此篇重點」、「需求提問」、「影片描述」與「逐字稿」...請稍候。";
             
             const videoUrl = document.getElementById('post-video').value.trim(); const videoFileId = document.getElementById('post-video-id').value; 
             const btn = document.getElementById('btn-submit-post');
             
-            if(!videoUrl) return showAppMsg('post-msg', '⚠️ 請先完成錄影或提供影片！', true);
-            btn.disabled = true; btn.innerText = "發布中...";
+            if(!videoUrl) return showAppMsg('post-msg', '提示：請先完成錄影或提供影片！', true);
+            btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> 發布中...';
 
             fetch(GAS_LIVE_URL, {
                 method: 'POST',
                 body: JSON.stringify({ action: 'add_post', email: currentUserEmail, title: title, desc: desc, videoUrl: videoUrl, videoFileId: videoFileId })
             }).then(() => {
-                btn.disabled = false; btn.innerText = "🚀 提交並呼叫 AI 解析";
+                btn.disabled = false; btn.innerText = "提交並呼叫 AI 解析";
                 document.getElementById('post-title').value = ''; document.getElementById('post-desc').value = ''; 
                 resetRecordingUI('post'); showAppMsg('post-msg', '提問發布成功！AI 即將接手處理。'); fetchLiveData(); 
             });
         }
 
         function submitReply() {
-            const desc = "⏳ 系統正在透過 AI 自動解析您的影音回覆，為您整理五大核心重點...請稍候。";
+            const desc = "系統正在透過 AI 自動解析您的影音回覆，為您整理五大核心重點...請稍候。";
             const videoUrl = document.getElementById('reply-video').value.trim(); const videoFileId = document.getElementById('reply-video-id').value; 
             const btn = document.getElementById('btn-submit-reply');
             
-            if(!videoUrl) return showAppMsg('reply-msg', '⚠️ 請先完成錄影或提供影片！', true);
-            btn.disabled = true; btn.innerText = "傳送中...";
+            if(!videoUrl) return showAppMsg('reply-msg', '提示：請先完成錄影或提供影片！', true);
+            btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> 傳送中...';
 
             fetch(GAS_LIVE_URL, {
                 method: 'POST',
                 body: JSON.stringify({ action: 'add_reply', courseId: currentPost.courseId, email: currentUserEmail, desc: desc, videoUrl: videoUrl, videoFileId: videoFileId })
             }).then(() => {
-                btn.disabled = false; btn.innerText = "🚀 送出並呼叫 AI 解析";
+                btn.disabled = false; btn.innerText = "送出並呼叫 AI 解析";
                 document.getElementById('reply-desc').value = ''; resetRecordingUI('reply'); 
                 showAppMsg('reply-msg', '回覆成功！已交由 AI 處理。');
                 fetchLiveData(); 
