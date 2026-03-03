@@ -120,6 +120,11 @@
         .cat-btn { background: var(--input-bg); color: var(--text-muted); padding: 10px 18px; border-radius: 30px; border: 1px solid var(--glass-border); font-size: 0.9em; font-weight: bold; cursor: pointer; width: auto; margin-bottom: 0; box-shadow: none; flex-shrink: 0;}
         .cat-btn.active, .cat-btn:hover { background: var(--primary-yellow); color: #ffffff; border-color: var(--primary-yellow); transform: none;}
 
+        /* --- 新增：模式切換按鈕專用 --- */
+        .media-toggle-container { display: flex; gap: 10px; margin-bottom: 15px; background: var(--input-bg); padding: 4px; border-radius: 12px; border: 1px solid var(--glass-border); }
+        .media-toggle-btn { flex: 1; padding: 12px 10px; border-radius: 8px; border: none; background: transparent; color: var(--text-muted); font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: none; margin: 0; font-size: 0.95rem; }
+        .media-toggle-btn.active { background: #FFFFFF; color: var(--primary-yellow); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+
         .post-card { background: var(--panel-bg); border: 1px solid var(--glass-border); padding: 24px 20px; margin-bottom: 20px; border-radius: var(--radius-soft); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); transition: transform 0.2s;}
         .post-title-row { display: flex; flex-direction: column; align-items: flex-start; margin-bottom: 16px; gap: 10px; }
         .post-title { font-size: 1.35em; margin: 0; font-weight: bold; color: var(--text-dark); line-height: 1.4; }
@@ -253,8 +258,15 @@
     <div class="section" id="publish-section" style="display: none; border-left: 5px solid var(--primary-yellow);">
         <h3 style="margin-top:0;">發起新提問</h3>
         <p style="margin-bottom: 12px; font-size: 0.95rem;">
-            <span class="hint-label">系統升級</span><span style="color: var(--accent-green); font-weight: bold;">支援錄影暫停與畫面切換！</span>
+            <span class="hint-label">系統升級</span><span style="color: var(--accent-green); font-weight: bold;">支援錄影暫停與照片拍照上傳！</span>
         </p>
+
+        <div class="media-toggle-container">
+            <button class="media-toggle-btn active" id="post-mode-video-btn" onclick="switchMediaMode('post', 'video')">📹 螢幕 / 鏡頭錄影</button>
+            <button class="media-toggle-btn" id="post-mode-image-btn" onclick="switchMediaMode('post', 'image')">📸 拍照 / 圖片上傳</button>
+        </div>
+        <input type="hidden" id="post-media-type" value="video">
+
         <div id="post-recorder-container" class="recorder-box">
             <h4 style="margin: 0 0 10px 0; color: var(--slate-blue); border-bottom: 1px dashed var(--glass-border); padding-bottom: 8px;">網頁內建錄影神器</h4>
             <p id="post-desktop-msg" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">系統將同時擷取麥克風與電腦畫面聲音，若未勾選系統音訊將無法啟動錄影。</p>
@@ -284,7 +296,18 @@
             <p id="post-record-status-msg" style="font-size: 0.95rem; margin-top: 15px; display: none;"></p>
         </div>
 
-        <input type="text" id="post-video" class="input-box" placeholder="影片網址 (錄影完自動填入，或手動貼網址)" style="background: #fff;" readonly>
+        <div id="post-image-container" class="recorder-box" style="display: none;">
+            <h4 style="margin: 0 0 10px 0; color: var(--slate-blue); border-bottom: 1px dashed var(--glass-border); padding-bottom: 8px;">智慧圖像辨識神器</h4>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">您可以直接拍照或是選擇相簿/電腦中的圖片，AI 將為您辨識圖中內容與文字。</p>
+            
+            <input type="file" id="post-image-input" accept="image/*" style="display:none;" onchange="handleImageSelected('post', this)">
+            <button class="btn-outline" onclick="document.getElementById('post-image-input').click()">📸 開啟相機 / 選擇相片</button>
+            
+            <img id="post-preview-img" class="preview-video-el" style="width: 100%; object-fit: contain; border-radius: 10px; border: 1px solid var(--glass-border); margin-top: 15px; background:#fff;">
+            <p id="post-image-status-msg" style="font-size: 0.95rem; margin-top: 15px; display: none;"></p>
+        </div>
+
+        <input type="text" id="post-video" class="input-box" placeholder="影音/圖片網址 (自動填入，或手動貼網址)" style="background: #fff;" readonly>
         <input type="hidden" id="post-video-id"> 
         
         <input type="text" id="post-title" class="input-box" placeholder="AI 自動生成中..." style="display:none;">
@@ -327,8 +350,15 @@
             <div style="margin-top:32px; border-top: 2px dashed var(--glass-border); padding-top: 24px;">
                 <h3 style="margin-top:0;">新增影音回覆 / 追問</h3>
                 <p style="margin-bottom: 12px; font-size: 0.95rem;">
-                    <span class="hint-label">系統升級</span><span style="color: var(--accent-green); font-weight: bold;">支援錄影中隨時切換畫面與暫停！</span>
+                    <span class="hint-label">系統升級</span><span style="color: var(--accent-green); font-weight: bold;">支援錄影中隨時切換畫面與拍照上傳！</span>
                 </p>
+
+                <div class="media-toggle-container">
+                    <button class="media-toggle-btn active" id="reply-mode-video-btn" onclick="switchMediaMode('reply', 'video')">📹 螢幕 / 鏡頭錄影</button>
+                    <button class="media-toggle-btn" id="reply-mode-image-btn" onclick="switchMediaMode('reply', 'image')">📸 拍照 / 圖片上傳</button>
+                </div>
+                <input type="hidden" id="reply-media-type" value="video">
+
                 <div id="reply-recorder-container" class="recorder-box">
                     <h4 style="margin: 0 0 10px 0; color: var(--slate-blue); border-bottom: 1px dashed var(--glass-border); padding-bottom: 8px;">網頁內建錄影神器 (回覆專用)</h4>
                     <p id="reply-desktop-msg" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">系統將同時擷取麥克風與電腦畫面聲音，若未勾選系統音訊將無法啟動錄影。</p>
@@ -357,7 +387,18 @@
                     <p id="reply-record-status-msg" style="font-size: 0.95rem; margin-top: 15px; display: none;"></p>
                 </div>
 
-                <input type="text" id="reply-video" class="input-box" placeholder="影片網址 (錄影完自動填入，或手動貼網址)" style="background: #fff;" readonly>
+                <div id="reply-image-container" class="recorder-box" style="display: none;">
+                    <h4 style="margin: 0 0 10px 0; color: var(--slate-blue); border-bottom: 1px dashed var(--glass-border); padding-bottom: 8px;">智慧圖像辨識神器</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">您可以直接拍照或是選擇相簿/電腦中的圖片，AI 將為您辨識圖中內容與文字。</p>
+                    
+                    <input type="file" id="reply-image-input" accept="image/*" style="display:none;" onchange="handleImageSelected('reply', this)">
+                    <button class="btn-outline" onclick="document.getElementById('reply-image-input').click()">📸 開啟相機 / 選擇相片</button>
+                    
+                    <img id="reply-preview-img" class="preview-video-el" style="width: 100%; object-fit: contain; border-radius: 10px; border: 1px solid var(--glass-border); margin-top: 15px; background:#fff;">
+                    <p id="reply-image-status-msg" style="font-size: 0.95rem; margin-top: 15px; display: none;"></p>
+                </div>
+
+                <input type="text" id="reply-video" class="input-box" placeholder="影片網址 (自動填入，或手動貼網址)" style="background: #fff;" readonly>
                 <input type="hidden" id="reply-video-id"> 
                 
                 <textarea id="reply-desc" class="input-box" placeholder="AI 自動生成中..." style="display:none;"></textarea>
@@ -388,6 +429,17 @@
                     if(camLabel) camLabel.style.display = 'none';
                 });
             }
+        }
+
+        // 切換 錄影 / 拍照 模式
+        function switchMediaMode(type, mode) {
+            document.getElementById(`${type}-mode-video-btn`).classList.toggle('active', mode === 'video');
+            document.getElementById(`${type}-mode-image-btn`).classList.toggle('active', mode === 'image');
+            
+            document.getElementById(`${type}-recorder-container`).style.display = mode === 'video' ? 'block' : 'none';
+            document.getElementById(`${type}-image-container`).style.display = mode === 'image' ? 'block' : 'none';
+            
+            document.getElementById(`${type}-media-type`).value = mode;
         }
 
         // ==========================================
@@ -435,7 +487,7 @@
             let cleanText = text.replace(/\[SYS:[^\]]+\]/g, '').trim();
             
             // 處理後端傳來的 AI 處理中文字 (動態濾除 Emoji 並加上 Spinner)
-            if (cleanText.includes("影片解析中") || cleanText.includes("系統正在透過")) {
+            if (cleanText.includes("影片解析中") || cleanText.includes("系統正在透過") || cleanText.includes("圖像解析中")) {
                 let cleanWaitText = cleanText.replace(/⏳/g, '').trim();
                 return `<div class="processing-msg"><span class="spinner"></span> ${cleanWaitText}</div>`;
             }
@@ -459,8 +511,8 @@
             const sections = [
                 { id: 1, name: "此篇重點", regex: /1\.\s*此篇重點：([\s\S]*?)(?=2\.\s*需求提問|$)/ },
                 { id: 2, name: "需求提問與回應", regex: /2\.\s*需求提問\/回應或再提問：([\s\S]*?)(?=3\.\s*影片描述|$)/ },
-                { id: 3, name: "影片描述", regex: /3\.\s*影片描述：([\s\S]*?)(?=4\.\s*影音逐字稿紀錄|$)/ },
-                { id: 4, name: "影音逐字稿", regex: /4\.\s*影音逐字稿紀錄：([\s\S]*?)(?=5\.\s*總結|$)/ },
+                { id: 3, name: "影片描述 (或圖片內容)", regex: /3\.\s*影片描述：([\s\S]*?)(?=4\.\s*影音逐字稿紀錄|$)/ },
+                { id: 4, name: "影音逐字稿 (或圖片文字)", regex: /4\.\s*影音逐字稿紀錄：([\s\S]*?)(?=5\.\s*總結|$)/ },
                 { id: 5, name: "總結與建議", regex: /5\.\s*總結：([\s\S]*?)(?=<div class="ai-section-block"|$)/ }
             ];
 
@@ -501,7 +553,7 @@
         function getSummary(text) {
             if(!text) return '<span style="color:var(--text-muted);"><span class="spinner"></span> 準備中...</span>';
             let cleanText = text.replace(/\[SYS:[^\]]+\]/g, '').trim();
-            if (cleanText.includes("影片解析中") || cleanText.includes("系統正在透過")) {
+            if (cleanText.includes("影片解析中") || cleanText.includes("系統正在透過") || cleanText.includes("圖像解析中")) {
                 return `<div class="processing-msg"><span class="spinner"></span> AI 正在深度解析中...</div>`;
             }
             let safeText = cleanText.replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -535,7 +587,7 @@
             }
         }
 
-        const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbzunHuAJRARGCaIRvO-DI5CZNJ1os7oiSlu91aBer_uruUsArEllm4LyL4gbSx5PipM/exec';
+        const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbxDNY4jWn21MI6D20sBUV9QqR3zwdNCJYWhBmeSkj8ftL7snRNJDHOQjS-wTWOedSCI/exec';
         const ADMIN_EMAIL = 'alwayslucky2hand@gmail.com';
 
         let currentUserEmail = ''; 
@@ -548,7 +600,7 @@
         let pollingInterval = null; 
 
         // ==========================================
-        // GAS 中繼站接力上傳引擎 (Canvas 混流技術)
+        // GAS 中繼站接力上傳引擎 (Canvas 混流與圖片直傳技術)
         // ==========================================
         let mediaRecorder; let recordedChunks = []; 
         let combinedStream, screenStream, micStream, audioContext; 
@@ -567,7 +619,9 @@
             if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
             if (combinedStream) { combinedStream.getTracks().forEach(t => t.stop()); combinedStream = null; }
             if (audioContext && audioContext.state !== 'closed') { audioContext.close(); audioContext = null; }
-            document.querySelectorAll('.preview-video-el').forEach(v => { v.srcObject = null; });
+            document.querySelectorAll('.preview-video-el').forEach(v => { 
+                if (v.tagName.toLowerCase() === 'video') v.srcObject = null; 
+            });
             
             screenHiddenVideo = null; cameraHiddenVideo = null;
             internalCanvas = null; internalCtx = null;
@@ -576,9 +630,9 @@
             isPaused = false;
         }
 
-        // 動態生成系統提示 UI
-        function showRecorderMsg(type, text, isError = false, keep = false) {
-            const msgEl = document.getElementById(`${type}-record-status-msg`);
+        function showRecorderMsg(type, text, isError = false, keep = false, isImageMode = false) {
+            const elId = isImageMode ? `${type}-image-status-msg` : `${type}-record-status-msg`;
+            const msgEl = document.getElementById(elId);
             if(!msgEl) return;
             
             let badgeHtml = '';
@@ -599,7 +653,57 @@
             if(!keep && !isError) setTimeout(() => msgEl.style.display = 'none', 5000);
         }
 
-        // 切換畫面核心邏輯
+        // --- 圖片上傳核心邏輯 (復用分塊上傳) ---
+        async function handleImageSelected(type, inputEl) {
+            const file = inputEl.files[0];
+            if (!file) return;
+
+            // 預覽照片
+            const previewImg = document.getElementById(`${type}-preview-img`);
+            previewImg.src = URL.createObjectURL(file);
+            previewImg.style.display = 'block';
+
+            const ext = file.name.split('.').pop() || 'jpg';
+            const filename = `Temp_${Date.now()}.${ext}`;
+
+            try {
+                showRecorderMsg(type, "圖片處理中，準備建立連線通道...", false, true, true);
+                
+                const initRes = await fetch(GAS_LIVE_URL, { method: 'POST', body: JSON.stringify({ action: 'init_upload', filename: filename }) });
+                const initData = await initRes.json();
+                if (initData.status !== 'success') throw new Error(initData.message);
+                const uploadUrl = initData.uploadUrl;
+
+                const chunkSize = 3 * 1024 * 1024;
+                const fileSize = file.size;
+                let start = 0; let fileId = null;
+
+                while (start < fileSize) {
+                    const end = Math.min(start + chunkSize, fileSize); 
+                    const chunk = file.slice(start, end); 
+                    const chunkBase64 = await blobToBase64(chunk);
+                    let progress = Math.round((start / fileSize) * 100);
+                    showRecorderMsg(type, `圖片上傳中：${progress}% (請勿關閉網頁)...`, false, true, true);
+
+                    const response = await fetch(GAS_LIVE_URL, {
+                        method: 'POST', body: JSON.stringify({ action: 'upload_chunk', uploadUrl: uploadUrl, chunkBase64: chunkBase64, start: start, totalSize: fileSize })
+                    });
+                    const data = await response.json();
+                    if (data.status === 'resume') { start = end; } 
+                    else if (data.status === 'success') { fileId = data.fileId; break; } 
+                    else { throw new Error(data.message); }
+                }
+
+                document.getElementById(`${type}-video`).value = `https://drive.google.com/file/d/${fileId}/view`;
+                document.getElementById(`${type}-video-id`).value = fileId;
+                showRecorderMsg(type, "圖片上傳成功！網址已自動填入。", false, true, true);
+
+            } catch(err) {
+                showRecorderMsg(type, "圖片上傳失敗：" + err.message, true, true, true);
+            }
+        }
+
+        // --- 切換畫面核心邏輯 (錄影用) ---
         async function switchVideoSource(type) {
             if (isMobileDevice()) {
                 currentFacingMode = (currentFacingMode === 'user') ? 'environment' : 'user';
@@ -866,9 +970,15 @@
             document.getElementById(`${type}-active-controls`).style.display = 'none';
             document.getElementById(`${type}-btn-cancel-record`).style.display = 'none'; 
             document.getElementById(`${type}-preview-video`).style.display = 'none';
-            document.getElementById(`${type}-preview-video`).src = ''; document.getElementById(`${type}-record-status-msg`).style.display = 'none';
+            document.getElementById(`${type}-preview-video`).src = ''; 
+            document.getElementById(`${type}-preview-img`).style.display = 'none'; 
+            document.getElementById(`${type}-preview-img`).src = ''; 
+            document.getElementById(`${type}-record-status-msg`).style.display = 'none';
+            document.getElementById(`${type}-image-status-msg`).style.display = 'none';
             document.getElementById(`${type}-recorder-container`).classList.remove('recording');
             document.getElementById(`${type}-video`).value = ''; document.getElementById(`${type}-video-id`).value = '';
+            const fileInput = document.getElementById(`${type}-image-input`);
+            if(fileInput) fileInput.value = '';
         }
 
         function blobToBase64(blob) { return new Promise((resolve, _) => { const reader = new FileReader(); reader.onloadend = () => resolve(reader.result.split(',')[1]); reader.readAsDataURL(blob); }); }
@@ -1048,6 +1158,7 @@
             if (!url) return '';
             const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/\/d\/([a-zA-Z0-9_-]+)/);
             if (match && match[1]) {
+                // 原有的 Iframe 也支援 Google Drive 的圖片預覽
                 return `
                 <div class="video-wrapper">
                     <div class="video-container">
@@ -1055,7 +1166,7 @@
                     </div>
                 </div>`;
             }
-            return `<a href="${url}" target="_blank" class="btn-outline" style="display:inline-block; text-align:center; padding:10px; border-radius:8px; text-decoration:none; margin-top:10px; width:100%;">點擊觀看外部影片</a>`;
+            return `<a href="${url}" target="_blank" class="btn-outline" style="display:inline-block; text-align:center; padding:10px; border-radius:8px; text-decoration:none; margin-top:10px; width:100%;">點擊觀看外部影片/圖片</a>`;
         }
 
         // 滿意度回饋按鈕功能
@@ -1088,7 +1199,7 @@
                 lowConfidenceHtml = `<div class="warning-label" style="display:block; padding:12px; border-radius:8px; margin-bottom:16px; font-weight:bold; text-align:center; border:1px solid #FCA5A5; font-size:0.95rem; line-height:1.5;">系統判別歷史資料匹配度不佳，已通知教練盡快為您人工回覆。<br><span style="font-weight:normal; font-size:0.85rem; color:var(--text-muted);">在此之前，您仍可先參考下方 AI 彙整的初步資訊。</span></div>`;
             }
 
-            // 處理滿意度調查區塊 (當狀態為 AI已推薦解答 或 待回覆(低匹配但有資料)，才顯示給用戶評分)
+            // 處理滿意度調查區塊
             let feedbackHtml = '';
             if (!post.desc.includes('處理中') && post.status !== '教練已回覆' && post.status !== '已結案' && post.status !== '學員追問') {
                 feedbackHtml = `
@@ -1147,7 +1258,6 @@
             const authWarningContainer = document.getElementById('auth-warning-container'); const authWarningMessage = document.getElementById('auth-warning-message');
             const authWarningBtn = document.getElementById('auth-warning-btn'); const threadContentWrapper = document.getElementById('thread-content-wrapper');
 
-            // 支援多組 Email 驗證
             const validEmails = currentPost.email.toLowerCase().split(/[\n,]+/).map(e => e.trim());
             const isAllowed = validEmails.includes(currentUserEmail.toLowerCase()) || currentUserEmail.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
@@ -1163,18 +1273,20 @@
         }
 
         function submitPost() {
-            const title = "AI 影片解析中...";
+            const title = "AI 圖像/影片解析中...";
             const desc = "[SYS:處理中] 系統正在透過 AI 自動比對歷史知識庫並為您總結精華...請稍候。";
             
-            const videoUrl = document.getElementById('post-video').value.trim(); const videoFileId = document.getElementById('post-video-id').value; 
+            const videoUrl = document.getElementById('post-video').value.trim(); 
+            const videoFileId = document.getElementById('post-video-id').value; 
+            const mediaType = document.getElementById('post-media-type').value; 
             const btn = document.getElementById('btn-submit-post');
             
-            if(!videoUrl) return showAppMsg('post-msg', '提示：請先完成錄影或提供影片！', true);
+            if(!videoUrl) return showAppMsg('post-msg', '提示：請先完成錄影或上傳圖片！', true);
             btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> 發布中...';
 
             fetch(GAS_LIVE_URL, {
                 method: 'POST',
-                body: JSON.stringify({ action: 'add_post', email: currentUserEmail, title: title, desc: desc, videoUrl: videoUrl, videoFileId: videoFileId })
+                body: JSON.stringify({ action: 'add_post', email: currentUserEmail, title: title, desc: desc, videoUrl: videoUrl, videoFileId: videoFileId, mediaType: mediaType })
             }).then(() => {
                 btn.disabled = false; btn.innerText = "提交並呼叫 AI 解析";
                 document.getElementById('post-title').value = ''; document.getElementById('post-desc').value = ''; 
@@ -1183,16 +1295,18 @@
         }
 
         function submitReply() {
-            const desc = "[SYS:處理中] 系統正在透過 AI 自動解析您的影音回覆...請稍候。";
-            const videoUrl = document.getElementById('reply-video').value.trim(); const videoFileId = document.getElementById('reply-video-id').value; 
+            const desc = "[SYS:處理中] 系統正在透過 AI 自動解析您的影音/圖像回覆...請稍候。";
+            const videoUrl = document.getElementById('reply-video').value.trim(); 
+            const videoFileId = document.getElementById('reply-video-id').value; 
+            const mediaType = document.getElementById('reply-media-type').value;
             const btn = document.getElementById('btn-submit-reply');
             
-            if(!videoUrl) return showAppMsg('reply-msg', '提示：請先完成錄影或提供影片！', true);
+            if(!videoUrl) return showAppMsg('reply-msg', '提示：請先完成錄影或上傳圖片！', true);
             btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> 傳送中...';
 
             fetch(GAS_LIVE_URL, {
                 method: 'POST',
-                body: JSON.stringify({ action: 'add_reply', courseId: currentPost.courseId, email: currentUserEmail, desc: desc, videoUrl: videoUrl, videoFileId: videoFileId })
+                body: JSON.stringify({ action: 'add_reply', courseId: currentPost.courseId, email: currentUserEmail, desc: desc, videoUrl: videoUrl, videoFileId: videoFileId, mediaType: mediaType })
             }).then(() => {
                 btn.disabled = false; btn.innerText = "送出並呼叫 AI 解析";
                 document.getElementById('reply-desc').value = ''; resetRecordingUI('reply'); 
