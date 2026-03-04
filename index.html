@@ -1232,6 +1232,244 @@
             killMediaTracks(); resetRecordingUI('post'); resetRecordingUI('reply'); window.scrollTo({ top: 0, behavior: 'smooth' }); filterPosts();
         }
 
+        // ==========================================
+        // 1. 系統提示與畫面滾動工具
+        // ==========================================
+        // 說明：用來在按鈕下方顯示成功或錯誤的文字提示
+        function showAppMsg(elId, msg, isError = false) {
+            const el = document.getElementById(elId);
+            if (!el) return;
+            el.innerText = msg;
+            el.className = isError ? 'inline-msg' : 'inline-msg success';
+            setTimeout(() => { el.innerText = ''; }, 5000);
+        }
+
+        function scrollToLogin() {
+            document.getElementById('login-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // ==========================================
+        // 2. 登入驗證流程
+        // ==========================================
+        // 說明：向 GAS 後端請求寄送 Email 驗證碼
+        function requestOTP() {
+            const email = document.getElementById('email').value.trim();
+            if (!email) return showAppMsg('otp-msg', '請輸入 Email', true);
+            
+            const btn = document.getElementById('btn-otp');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> 發送中...';
+
+            fetch(GAS_LIVE_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'request_otp', email: email })
+            })
+            .then(res => res.json())
+            .then(data => {
+                btn.disabled = false;
+                btn.innerText = '寄送驗證碼';
+                if (data.status === 'success') {
+                    document.getElementById('step-1').style.display = 'none';
+                    document.getElementById('step-2').style.display = 'block';
+                    showAppMsg('login-msg', '驗證碼已發送至您的信箱，請查收！');
+                } else {
+                    showAppMsg('otp-msg', data.message || '發送失敗，請重試', true);
+                }
+            })
+            .catch(err => {
+                btn.disabled = false;
+                btn.innerText = '寄送驗證碼';
+                showAppMsg('otp-msg', '系統連線錯誤，請稍後再試', true);
+            });
+        }
+
+        // 說明：驗證使用者輸入的驗證碼是否正確
+        function verifyLogin() {
+            const email = document.getElementById('email').value.trim();
+            const otp = document.getElementById('otp-code').value.trim();
+            if (!otp) return showAppMsg('login-msg', '請輸入驗證碼', true);
+
+            const btn = document.getElementById('btn-login');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> 驗證中...';
+
+            fetch(GAS_LIVE_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'verify_otp', email: email, otp: otp })
+            })
+            .then(res => res.json())
+            .then(data => {
+                btn.disabled = false;
+                btn.innerText = '登入通行';
+                if (data.status === 'success') {
+                    currentUserEmail = email;
+                    document.getElementById('login-status').innerText = `目前狀態：已登入 (${email})`;
+                    document.getElementById('login-status').style.color = 'var(--accent-green)';
+                    document.getElementById('step-2').style.display = 'none';
+                    document.getElementById('btn-logout').style.display = 'block';
+                    
+                    // 登入成功後，開啟發布新提問區塊
+                    document.getElementById('publish-section').style.display = 'block';
+                    fetchLiveData(); // 重新載入列表以顯示專屬內容
+                } else {
+                    showAppMsg('login-msg', data.message || '驗證碼錯誤', true);
+                }
+            })
+            .catch(err => {
+                btn.disabled = false;
+                btn.innerText = '登入通行';
+                showAppMsg('login-msg', '系統連線錯誤', true);
+            });
+        }
+
+        function cancelLogin() {
+            document.getElementById('step-2').style.display = 'none';
+            document.getElementById('step-1').style.display = 'flex';
+            document.getElementById('otp-code').value = '';
+        }
+
+        function logout() {
+            currentUserEmail = '';
+            document.getElementById('login-status').innerText = '目前狀態：未登入 (訪客)';
+            document.getElementById('login-status').style.color = 'var(--primary-yellow)';
+            document.getElementById('btn-logout').style.display = 'none';
+            document.getElementById('step-1').style.display = 'flex';
+            document.getElementById('email').value = '';
+            document.getElementById('publish-section').style.display = 'none';
+            fetchLiveData(); // 登出後刷新列表，隱藏權限內容
+        }
+
+        // ==========================================
+        // 3. 列表載入與渲染流程 (從工作表讀取資料)
+        // ==========================================
+        // 說明：向後端請求最新的所有陪跑紀錄資料
+        function fetchLiveData() {
+            document.getElementById('list-section').style.display = 'block';
+            document.getElementById('loading-list').style.display = 'block';
+            document.getElementById('post-list').innerHTML = '';
+            
+            fetch(GAS_LIVE_URL + '?action=get_live_data')
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('loading-list').style.display = 'none';
+                if (data.status === 'success') {
+                    allLiveData = data.data || [];
+                    generateTypeNav(); // 建立分類按鈕
+                    filterPosts();     // 將資料渲染到畫面上
+                } else {
+                    document.getElementById('post-list').innerHTML = `<div class="system-msg">載入失敗：${data.message}</div>`;
+                }
+            })
+            .catch(err => {
+                document.getElementById('loading-list').style.display = 'none';
+                document.getElementById('post-list').innerHTML = '<div class="system-msg">連線發生錯誤，無法載入日誌清單。請確認 GAS 網址是否正確部屬。</div>';
+            });
+        }
+
+        // 說明：根據資料庫中的所有狀態，動態產生上方「處理狀態」的分類按鈕
+        function generateTypeNav() {
+            const container = document.getElementById('type-container');
+            const types = ['全部', ...new Set(allLiveData.map(item => item.status))];
+            container.innerHTML = types.map(type => 
+                `<button class="cat-btn ${currentStatus === type ? 'active' : ''}" onclick="setStatusFilter('${type}')">${type}</button>`
+            ).join('');
+        }
+
+        function setStatusFilter(status) {
+            currentStatus = status;
+            currentPage = 1;
+            generateTypeNav(); 
+            filterPosts();
+        }
+
+        function clearDateFilter() {
+            document.getElementById('datePicker').value = '';
+            filterPosts();
+        }
+
+        // 說明：處理搜尋與篩選邏輯，並將結果送給 renderList 繪製
+        function filterPosts() {
+            currentSearchQuery = document.getElementById('searchInput').value.toLowerCase();
+            const selectedDate = document.getElementById('datePicker').value;
+
+            let filtered = allLiveData.filter(post => {
+                const matchSearch = post.title.toLowerCase().includes(currentSearchQuery) || post.desc.toLowerCase().includes(currentSearchQuery);
+                const matchStatus = currentStatus === '全部' || post.status === currentStatus;
+                // 假設後端來的日期格式是 YYYY/MM/DD，而 input date 是 YYYY-MM-DD
+                const matchDate = !selectedDate || post.date === selectedDate.replace(/-/g, '/'); 
+                return matchSearch && matchStatus && matchDate;
+            });
+
+            renderList(filtered);
+        }
+
+        // 說明：將篩選後的資料變成 HTML 卡片顯示在網頁上
+        function renderList(data) {
+            const listContainer = document.getElementById('post-list');
+            listContainer.innerHTML = '';
+            
+            if (data.length === 0) {
+                listContainer.innerHTML = '<div class="system-msg">目前沒有符合條件的陪跑紀錄。</div>';
+                document.getElementById('pagination-container').innerHTML = '';
+                return;
+            }
+
+            // 分頁邏輯計算
+            const totalPages = Math.ceil(data.length / itemsPerPage);
+            const start = (currentPage - 1) * itemsPerPage;
+            const pagedData = data.slice(start, start + itemsPerPage);
+
+            pagedData.forEach(post => {
+                let statusTagClass = 'tag-pending';
+                if (post.status.includes('已回覆') || post.status.includes('完成')) statusTagClass = 'tag-replied';
+
+                const card = document.createElement('div');
+                card.className = 'post-card';
+                card.innerHTML = `
+                    <div class="post-title-row">
+                        <span class="tag-badge ${statusTagClass}">${post.status}</span>
+                        <h3 class="post-title">${post.title}</h3>
+                    </div>
+                    <div class="post-meta">
+                        <span>學員: ${post.email.split('@')[0]}***</span>
+                        <span>發布於: ${post.date} ${post.time}</span>
+                    </div>
+                    ${getSummary(post.desc)}
+                    <button onclick="enterClass('${post.courseId}')" style="margin-top: 16px; background: var(--slate-blue);">查看詳細對話紀錄</button>
+                `;
+                listContainer.appendChild(card);
+            });
+
+            renderPagination(totalPages);
+        }
+
+        function renderPagination(totalPages) {
+            const container = document.getElementById('pagination-container');
+            container.innerHTML = '';
+            if (totalPages <= 1) return;
+
+            for (let i = 1; i <= totalPages; i++) {
+                const btn = document.createElement('button');
+                btn.className = `page-btn ${currentPage === i ? 'active' : ''}`;
+                btn.innerText = i;
+                btn.onclick = () => { 
+                    currentPage = i; 
+                    filterPosts(); 
+                    window.scrollTo({ top: document.getElementById('list-section').offsetTop - 50, behavior: 'smooth' }); 
+                };
+                container.appendChild(btn);
+            }
+        }
+
+        // ==========================================
+        // 4. 網頁初始啟動設定
+        // ==========================================
+        // 當網頁載入完成時，自動初始化並嘗試拉取清單
+        window.onload = function() {
+            initDeviceUI();
+            fetchLiveData();
+        };
+
     </script>
 </body>
 </html>
