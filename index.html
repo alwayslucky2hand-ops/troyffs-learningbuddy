@@ -359,7 +359,7 @@
                     <video id="reply-preview-video" class="preview-video-el" autoplay playsinline></video>
                     
                     <div class="controls-row">
-                        <button id="reply-btn-setup-record" onclick="setupRecording('reply')" class="btn-outline">1. 啟 মিডি影音錄製權限</button>
+                        <button id="reply-btn-setup-record" onclick="setupRecording('reply')" class="btn-outline">1. 啟動影音錄製權限</button>
                         
                         <div id="reply-ready-controls" style="display:none; gap: 10px; width: 100%;">
                             <button id="reply-btn-start-record" onclick="startRecording('reply')" class="btn-danger" style="flex:2; margin:0;"><span class="record-dot"></span>開始錄製</button>
@@ -405,7 +405,7 @@
         // ==========================================
         // 全局狀態管理 
         // ==========================================
-        const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbzgGS0HPJpiCBb1wPXd1YZP9T6AyIjG-Sq68uZrgk48dM3jNQrhD8pmhTTgCNch_tqR/exec'; 
+        const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbwoXc67e5iQ-QqUIcalAMp_tVNNw5vYqiWuKnywfhOk08IkqLw_Cs1Gy-KHIgPmvLzc/exec'; 
         const ADMIN_EMAIL = 'alwayslucky2hand@gmail.com';
 
         let currentUserEmail = ''; 
@@ -604,36 +604,40 @@
             return { urls: uploadedUrls.join(','), ids: uploadedIds.join(',') };
         }
 
-        // --- 核心優化：雙軌切塊上傳 ---
+        // --- 核心優化：雙軌切塊上傳 (Drive + Gemini) ---
         async function uploadMediaDualTrack(blob, type) {
-            const initRes = await fetch(GAS_LIVE_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'init_upload', filename: `Clip_${Date.now()}.webm`, totalSize: blob.size, mediaType: 'video' }) });
+            const emailInput = document.getElementById('email') ? document.getElementById('email').value.trim() : currentUserEmail;
+            const prefix = emailInput ? emailInput.split('@')[0] : 'User';
+            const filename = `${prefix}_Clip_${Date.now()}.webm`;
+
+            const initRes = await fetch(GAS_LIVE_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'init_upload', filename: filename, totalSize: blob.size, mediaType: 'video' }) });
             const initData = await initRes.json();
             if (initData.status !== 'success') throw new Error(initData.message);
             
             const isDualTrack = initData.isDualTrack;
-            const uploadUrlYT = initData.uploadUrlYT;
+            const uploadUrlDrive = initData.uploadUrlDrive;
             const uploadUrlGemini = initData.uploadUrlGemini;
 
             const chunkSize = 8 * 1024 * 1024; 
-            const fileSize = blob.size; let start = 0; let ytId = null; let geminiUri = null; let geminiName = null;
+            const fileSize = blob.size; let start = 0; let driveId = null; let geminiUri = null; let geminiName = null;
 
             while (start < fileSize) {
                 const end = Math.min(start + chunkSize, fileSize); const chunk = blob.slice(start, end); const chunkBase64 = await blobToBase64(chunk);
                 let progress = Math.round((start / fileSize) * 100);
-                showRecorderMsg(type, `雙軌同步中：${progress}% (不佔用 Drive 空間)...`, false, true);
+                showRecorderMsg(type, `雙軌同步中：${progress}% (上傳至雲端)...`, false, true);
 
-                const response = await fetch(GAS_LIVE_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'upload_chunk', isDualTrack, uploadUrlYT, uploadUrlGemini, chunkBase64, start, totalSize: fileSize }) });
+                const response = await fetch(GAS_LIVE_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'upload_chunk', isDualTrack, uploadUrlDrive, uploadUrlGemini, chunkBase64, start, totalSize: fileSize }) });
                 const data = await response.json();
-                if (data.status === 'resume') { start = end; } else if (data.status === 'success') { ytId = data.ytId; geminiUri = data.geminiUri; geminiName = data.geminiName; break; } else { throw new Error(data.message); }
+                if (data.status === 'resume') { start = end; } else if (data.status === 'success') { driveId = data.driveId; geminiUri = data.geminiUri; geminiName = data.geminiName; break; } else { throw new Error(data.message); }
             }
-            return { ytId, geminiUri, geminiName };
+            return { driveId, geminiUri, geminiName };
         }
 
         // ==========================================
         // 無縫錄影與預覽引擎 (1080p防卡頓版 + 視窗切換)
         // ==========================================
         function killMediaTracks() {
-            if (drawLoopId) { clearTimeout(drawLoopId); drawLoopId = null; } // 👇 修改為 clearTimeout
+            if (drawLoopId) { clearTimeout(drawLoopId); drawLoopId = null; } 
             if (screenStream) { screenStream.getTracks().forEach(t => t.stop()); screenStream = null; }
             if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
             if (combinedStream) { combinedStream.getTracks().forEach(t => t.stop()); combinedStream = null; }
@@ -712,7 +716,6 @@
                     if (micStream.getAudioTracks().length > 0) audioContext.createMediaStreamSource(micStream).connect(dest);
                     cameraHiddenVideo.srcObject = new MediaStream([micStream.getVideoTracks()[0]]);
 
-                    // 👇 優化：使用 setTimeout 取代 requestAnimationFrame 避免背景凍結
                     function drawMobileFrame() {
                         if (!internalCtx) return; drawLoopId = setTimeout(drawMobileFrame, fpsInterval);
                         internalCtx.fillStyle = '#111'; internalCtx.fillRect(0, 0, internalCanvas.width, internalCanvas.height);
@@ -732,7 +735,6 @@
                     try { micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: useCamera ? { width: { ideal: 1920 }, height: { ideal: 1080 } } : false });
                     } catch(e) { showRecorderMsg(type, "麥克風/相機被封鎖", true, true); return; }
                     
-                    // 👇 優化：加入 preferCurrentTab: false 強烈暗示瀏覽器預設停留在「整個螢幕」選項
                     try { screenStream = await navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: "monitor", width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: { systemAudio: "include" }, preferCurrentTab: false });
                     } catch(e) { killMediaTracks(); return; }
                     
@@ -745,7 +747,6 @@
                     if (useCamera && micStream.getVideoTracks().length > 0) cameraHiddenVideo.srcObject = new MediaStream([micStream.getVideoTracks()[0]]);
                     else cameraHiddenVideo = null;
 
-                    // 👇 優化：使用 setTimeout 取代 requestAnimationFrame 避免背景凍結
                     function drawPcFrame() {
                         if (!internalCtx) return; drawLoopId = setTimeout(drawPcFrame, fpsInterval);
                         internalCtx.fillStyle = '#111'; internalCtx.fillRect(0, 0, internalCanvas.width, internalCanvas.height);
@@ -1154,10 +1155,10 @@
                     
                     showRecorderMsg('post', "正在啟動雙軌雲端引擎...", false, true);
                     const fileData = await uploadMediaDualTrack(currentLocalBlob['post'], 'post');
-                    finalVideoUrls.push(`https://youtu.be/${fileData.ytId}`);
-                    finalVideoIds.push(fileData.ytId); 
+                    finalVideoUrls.push(`https://drive.google.com/file/d/${fileData.driveId}/view`);
+                    finalVideoIds.push(fileData.driveId); 
                     let geminiFileData = `${fileData.geminiUri}|#|${fileData.geminiName}`;
-                    finalDesc += `\n\n[SYS:處理中] 影片已安全備份至 YouTube，AI 正在進行深度解析...\n[SYS:GEMINI_FILE=${geminiFileData}]`;
+                    finalDesc += `\n\n[SYS:處理中] 影片已安全備份至雲端硬碟，AI 正在進行深度解析...\n[SYS:GEMINI_FILE=${geminiFileData}]`;
                 }
 
                 await fetch(GAS_LIVE_URL, {
@@ -1200,10 +1201,10 @@
                     
                     showRecorderMsg('reply', "正在啟動雙軌雲端引擎...", false, true);
                     const fileData = await uploadMediaDualTrack(currentLocalBlob['reply'], 'reply');
-                    finalVideoUrls.push(`https://youtu.be/${fileData.ytId}`);
-                    finalVideoIds.push(fileData.ytId);
+                    finalVideoUrls.push(`https://drive.google.com/file/d/${fileData.driveId}/view`);
+                    finalVideoIds.push(fileData.driveId);
                     let geminiFileData = `${fileData.geminiUri}|#|${fileData.geminiName}`;
-                    finalDesc += `\n\n[SYS:處理中] 影片已安全備份至 YouTube，AI 正在進行深度解析...\n[SYS:GEMINI_FILE=${geminiFileData}]`;
+                    finalDesc += `\n\n[SYS:處理中] 影片已安全備份至雲端硬碟，AI 正在進行深度解析...\n[SYS:GEMINI_FILE=${geminiFileData}]`;
                 }
 
                 await fetch(GAS_LIVE_URL, {
