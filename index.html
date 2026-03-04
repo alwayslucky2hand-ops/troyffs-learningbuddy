@@ -628,6 +628,7 @@
             if (audioContext && audioContext.state !== 'closed') { audioContext.close(); audioContext = null; }
             document.querySelectorAll('.preview-video-el').forEach(v => { if (v.tagName.toLowerCase() === 'video') v.srcObject = null; });
             screenHiddenVideo = null; cameraHiddenVideo = null;
+            if (internalCanvas && internalCanvas.parentNode) { internalCanvas.parentNode.removeChild(internalCanvas); }
             internalCanvas = null; internalCtx = null;
             activeVideoSource = 'screen'; currentFacingMode = 'user'; isPaused = false;
         }
@@ -672,7 +673,6 @@
             if (wasRecording) togglePauseRecording(type); 
 
             try {
-                // 👇 畫質優化：切換視窗時明確要求 1080p 解析度
                 const newScreenStream = await navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: "monitor", width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: { systemAudio: "include" } });
                 if (screenStream) screenStream.getTracks().forEach(t => t.stop());
                 screenStream = newScreenStream;
@@ -706,7 +706,9 @@
             try {
                 audioContext = new (window.AudioContext || window.webkitAudioContext)(); const dest = audioContext.createMediaStreamDestination();
                 internalCanvas = document.createElement('canvas'); internalCanvas.width = 1920; internalCanvas.height = 1080;
-                internalCtx = internalCanvas.getContext('2d');
+                internalCanvas.style.position = 'fixed'; internalCanvas.style.top = '-9999px'; internalCanvas.style.opacity = '0'; document.body.appendChild(internalCanvas);
+                internalCtx = internalCanvas.getContext('2d', { alpha: false });
+                internalCtx.imageSmoothingEnabled = true; internalCtx.imageSmoothingQuality = 'high';
                 cameraHiddenVideo = document.createElement('video'); cameraHiddenVideo.muted = true; cameraHiddenVideo.autoplay = true; cameraHiddenVideo.playsInline = true;
                 lastDrawTime = 0;
 
@@ -736,7 +738,6 @@
                 } else {
                     try { micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: useCamera ? { width: { ideal: 1920 }, height: { ideal: 1080 } } : false });
                     } catch(e) { showRecorderMsg(type, "麥克風/相機被封鎖", true, true); return; }
-                    // 👇 畫質優化：啟動螢幕分享時明確要求 1080p 解析度
                     try { screenStream = await navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: "monitor", width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: { systemAudio: "include" } });
                     } catch(e) { killMediaTracks(); return; }
                     
@@ -781,11 +782,9 @@
 
         function startRecording(type) {
             recordedChunks = []; let options;
-            // 👇 畫質優化：優先使用 VP9，並將碼率提升至 8 Mbps (8000000)
-            if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')) options = { mimeType: 'video/webm;codecs=vp9,opus', videoBitsPerSecond: 8000000 };
-            else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')) options = { mimeType: 'video/webm;codecs=vp8,opus', videoBitsPerSecond: 8000000 };
-            else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) options = { mimeType: 'video/webm;codecs=vp8', videoBitsPerSecond: 8000000 };
-            else options = { videoBitsPerSecond: 8000000 };
+            if (MediaRecorder.isTypeSupported('video/webm;codecs=h264,opus')) options = { mimeType: 'video/webm;codecs=h264,opus', videoBitsPerSecond: 10000000 };
+            else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')) options = { mimeType: 'video/webm;codecs=vp8,opus', videoBitsPerSecond: 10000000 };
+            else options = { videoBitsPerSecond: 10000000 };
 
             mediaRecorder = new MediaRecorder(combinedStream, options);
             mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
@@ -941,27 +940,13 @@
                 if (isYT) {
                     let ytId = url.split('/').pop().replace('watch?v=', '').split('?')[0];
                     let uid = Math.random().toString(36).substr(2, 9);
+                    
+                    // 👇 策略二與策略三：加入全螢幕提示框，並釋放 YouTube 原生控制列 (移除了客製化的控制列與遮罩)
                     html += `
+                    <p style="font-size:0.85rem; color:var(--accent-green); font-weight:bold; margin-bottom:8px; background:#ECFDF5; padding:6px 10px; border-radius:6px; border:1px solid #A7F3D0;">💡 畫質優化提示：若畫面模糊，請點擊播放器右下角「⛶全螢幕」或「⚙️齒輪」手動切換至 1080p</p>
                     <div class="custom-player-container" id="container-${uid}" oncontextmenu="return false;">
                         <div class="player-video-wrapper">
                             <div id="player-${uid}" class="yt-placeholder" data-vid="${ytId}"></div>
-                            <div class="overlay-mask" onclick="togglePlayerPlay('${uid}')"></div>
-                        </div>
-                        <div class="custom-controls" id="controls-${uid}">
-                            <button class="player-btn" id="play-btn-${uid}" onclick="togglePlayerPlay('${uid}')">▶</button>
-                            <span class="player-time-display" id="time-${uid}">0:00 / 0:00</span>
-                            <span class="player-percentage-display" id="pct-${uid}">0%</span>
-                            
-                            <div class="player-progress-container" id="prog-container-${uid}" onclick="seekPlayerVideo(event, '${uid}')">
-                                <div class="player-progress-bar" id="prog-bar-${uid}"></div>
-                            </div>
-
-                            <div class="player-volume-container">
-                                <button class="player-btn" id="mute-btn-${uid}" onclick="togglePlayerMute('${uid}')" title="靜音">🔊</button>
-                                <input type="range" class="player-volume-slider" id="vol-${uid}" min="0" max="100" value="100" oninput="changePlayerVolume(event, '${uid}')">
-                            </div>
-
-                            <button class="player-btn" onclick="togglePlayerFullscreen('${uid}')" title="全螢幕">⛶</button>
                         </div>
                     </div>`;
                 } else if (matchDrive && matchDrive[1]) {
@@ -977,7 +962,8 @@
                 if(!ytPlayers[uid]) {
                     ytPlayers[uid] = new YT.Player(el.id, {
                         videoId: vid,
-                        playerVars: { 'controls': 0, 'disablekb': 1, 'rel': 0, 'modestbranding': 1, 'playsinline': 1, 'iv_load_policy': 3 },
+                        // 👇 策略一與策略三：加入 vq=hd1080 暗示參數，並將 controls 設為 1 釋放控制權
+                        playerVars: { 'controls': 1, 'disablekb': 0, 'rel': 0, 'modestbranding': 1, 'playsinline': 1, 'iv_load_policy': 3, 'vq': 'hd1080' },
                         events: {
                             'onReady': (e) => onPlayerReady(uid, e),
                             'onStateChange': (e) => onPlayerStateChange(uid, e)
@@ -994,6 +980,12 @@
         }
 
         function onPlayerReady(uid, event) {
+            // 👇 策略一：盡人事聽天命，嘗試強制設定高畫質 (部分環境下仍有幫助)
+            try { if (ytPlayers[uid].setPlaybackQuality) ytPlayers[uid].setPlaybackQuality('hd1080'); } catch(e) {}
+            
+            // 安全防護機制：如果切換成原生 YouTube 控制列，客製化控制列的 DOM 會不存在，這裡必須擋掉避免報錯
+            if (!document.getElementById(`vol-${uid}`)) return; 
+
             updatePlayerTime(uid);
             const currentVol = ytPlayers[uid].getVolume();
             document.getElementById(`vol-${uid}`).value = currentVol;
@@ -1002,6 +994,8 @@
 
         function onPlayerStateChange(uid, event) {
             const playBtn = document.getElementById(`play-btn-${uid}`);
+            if (!playBtn) return; // 安全防護機制：相容 YouTube 原生控制列模式
+
             if (event.data === YT.PlayerState.PLAYING) {
                 playBtn.innerText = '⏸';
                 ytUpdateTimers[uid] = setInterval(() => updatePlayerTime(uid), 100);
@@ -1012,6 +1006,7 @@
             resetPlayerControlsTimeout(uid);
         }
 
+        // --- 以下為相容性保留的客製化播放器邏輯 (已做防護) ---
         function togglePlayerPlay(uid) {
             if (!ytPlayers[uid] || !ytPlayers[uid].getPlayerState) return;
             const state = ytPlayers[uid].getPlayerState();
@@ -1024,8 +1019,11 @@
             const current = ytPlayers[uid].getCurrentTime();
             const duration = ytPlayers[uid].getDuration();
             if (duration === 0) return;
+            
+            const timeEl = document.getElementById(`time-${uid}`);
+            if (!timeEl) return;
 
-            document.getElementById(`time-${uid}`).innerText = formatTime(current) + ' / ' + formatTime(duration);
+            timeEl.innerText = formatTime(current) + ' / ' + formatTime(duration);
             const percentage = (current / duration) * 100;
             document.getElementById(`prog-bar-${uid}`).style.width = percentage + '%';
             document.getElementById(`pct-${uid}`).innerText = Math.round(percentage) + '%';
@@ -1034,6 +1032,7 @@
         function seekPlayerVideo(event, uid) {
             if (!ytPlayers[uid] || !ytPlayers[uid].getDuration) return;
             const container = document.getElementById(`prog-container-${uid}`);
+            if (!container) return;
             const clickX = event.clientX - container.getBoundingClientRect().left;
             const percentage = clickX / container.getBoundingClientRect().width;
             ytPlayers[uid].seekTo(percentage * ytPlayers[uid].getDuration(), true);
@@ -1066,6 +1065,7 @@
 
         function updatePlayerVolumeIcon(uid, vol, isMuted) {
             const muteBtn = document.getElementById(`mute-btn-${uid}`);
+            if (!muteBtn) return;
             if (isMuted || vol == 0) muteBtn.innerText = '🔇';
             else if (vol < 50) muteBtn.innerText = '🔉';
             else muteBtn.innerText = '🔊';
@@ -1079,6 +1079,8 @@
         function resetPlayerControlsTimeout(uid) {
             const controls = document.getElementById(`controls-${uid}`);
             const container = document.getElementById(`container-${uid}`);
+            if (!controls || !container) return; // 安全防護機制
+            
             controls.classList.add('show-controls');
             container.classList.remove('hide-cursor');
             
@@ -1094,6 +1096,7 @@
 
         function togglePlayerFullscreen(uid) {
             const container = document.getElementById(`container-${uid}`);
+            if (!container) return;
             if (!document.fullscreenElement && !document.webkitFullscreenElement) {
                 if (container.requestFullscreen) container.requestFullscreen();
                 else if (container.webkitRequestFullscreen) container.webkitRequestFullscreen();
@@ -1330,10 +1333,9 @@
             .then(res => res.json())
             .then(data => {
                 btn.disabled = false;
-                btn.innerText = '進入日誌'; // 👇 按鈕狀態恢復時同步更新文字
+                btn.innerText = '進入日誌'; 
                 if (data.status === 'success') {
                     currentUserEmail = email;
-                    // 🔥 寫入 localStorage 保存 6 小時
                     localStorage.setItem('user_email', email);
                     localStorage.setItem('login_timestamp', Date.now().toString());
 
@@ -1350,7 +1352,7 @@
             })
             .catch(err => {
                 btn.disabled = false;
-                btn.innerText = '進入日誌'; // 👇 按鈕狀態恢復時同步更新文字
+                btn.innerText = '進入日誌'; 
                 showAppMsg('login-msg', '系統連線錯誤', true);
             });
         }
@@ -1363,7 +1365,6 @@
 
         function logout() {
             currentUserEmail = '';
-            // 🔥 清除登入狀態
             localStorage.removeItem('user_email');
             localStorage.removeItem('login_timestamp');
 
@@ -1379,7 +1380,6 @@
         // ==========================================
         // 3. 列表載入與靜默渲染流程
         // ==========================================
-        // 👇 新增 silent 參數，預設為 false，開啟背景無縫載入
         function fetchLiveData(silent = false) {
             if (!silent) {
                 document.getElementById('list-section').style.display = 'block';
@@ -1394,10 +1394,17 @@
                 if (data.status === 'success') {
                     allLiveData = data.data || [];
                     
-                    // 如果目前正在看詳細頁面，同步更新背景的記憶體資料 (防止切換回列表時資料還是舊的)
                     if (currentPost) {
                         const updatedPost = allLiveData.find(p => p.courseId === currentPost.courseId);
-                        if (updatedPost) currentPost = updatedPost;
+                        if (updatedPost) {
+                            const isChanged = (currentPost.status !== updatedPost.status || currentPost.desc !== updatedPost.desc || currentPost.replies.length !== updatedPost.replies.length);
+                            currentPost = updatedPost;
+                            
+                            if (isChanged && document.getElementById('detail-section').style.display === 'block') {
+                                renderThread(currentPost); 
+                                document.getElementById('detail-meta').innerHTML = `<span>編號: ${currentPost.courseId}</span> <span>狀態: ${currentPost.status}</span>`;
+                            }
+                        }
                     }
 
                     if (!silent) generateTypeNav(); 
@@ -1414,11 +1421,10 @@
             });
         }
 
-        // 👇 靜默輪詢引擎：每 15 秒背景拉取一次最新進度
         function startSilentPolling() {
             if (pollingInterval) clearInterval(pollingInterval);
             pollingInterval = setInterval(() => {
-                fetchLiveData(true); // 傳入 true 啟動靜默模式
+                fetchLiveData(true); 
             }, 15000); 
         }
 
@@ -1459,14 +1465,12 @@
         function renderList(data) {
             const listContainer = document.getElementById('post-list');
             
-            // 由於採用靜默更新，我們只在沒有資料時才顯示空狀態
             if (data.length === 0) {
                 listContainer.innerHTML = '<div class="system-msg">目前沒有符合條件的陪跑紀錄。</div>';
                 document.getElementById('pagination-container').innerHTML = '';
                 return;
             }
 
-            // 保存目前的 DOM，以便如果資料相同時不需要完全重新繪製 (避免畫面閃爍)
             listContainer.innerHTML = '';
 
             const totalPages = Math.ceil(data.length / itemsPerPage);
@@ -1520,10 +1524,10 @@
         // ==========================================
         window.onload = function() {
             initDeviceUI();
-            checkLogin(); // 載入時自動檢查登入狀態 (6小時機制)
-            setupAutoSave(); // 載入時自動恢復草稿
-            fetchLiveData(); // 首次執行完整載入
-            startSilentPolling(); // 👇 啟動靜默輪詢引擎
+            checkLogin(); 
+            setupAutoSave(); 
+            fetchLiveData(); 
+            startSilentPolling(); 
         };
 
     </script>
