@@ -108,14 +108,14 @@
         button:disabled { background: #E5E7EB; color: var(--text-muted); cursor: not-allowed; box-shadow: none; transform: none;}
         .btn-outline { background: var(--input-bg); color: var(--slate-blue); border: 2px solid var(--glass-border); box-shadow: none; }
         .btn-outline:hover { 
-    background: var(--primary-yellow); 
-    color: #ffffff; 
-    border-color: var(--primary-yellow); 
-}
+            background: var(--primary-yellow); 
+            color: #ffffff; 
+            border-color: var(--primary-yellow); 
+        }
         .media-toggle-btn:hover:not(.active) { 
-    background: var(--primary-yellow); 
-    color: #ffffff; 
-}
+            background: var(--primary-yellow); 
+            color: #ffffff; 
+        }
         .btn-danger { background: var(--danger-color); box-shadow: 0 4px 6px rgba(239, 68, 68, 0.2); } 
         
         .search-box { width: 100%; padding: 14px 16px; border: 1px solid var(--glass-border); border-radius: 10px; font-size: 1rem; background: var(--input-bg); margin-bottom: 24px; }
@@ -459,7 +459,7 @@
         // ==========================================
         // 全局狀態管理 (包含跨裝置草稿與暫存影片)
         // ==========================================
-        const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbz_ds3_W3r46bCEbwuVDyz5H0QqdVtsSXn05akCIOzdj9MNW4qBc6KY8fJC0PLAcFBI/exec'; 
+        const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbyaioKFhGt619tYrua4YicEgOI8I8bQG0rBndMqi9lc2DVSh5zkQnpJJOFz9YzznVsc/exec'; 
         const ADMIN_EMAIL = 'alwayslucky2hand@gmail.com';
 
         let currentUserEmail = ''; 
@@ -561,7 +561,7 @@
                 showRecorderMsg(type, `正在上傳圖片 (${i+1}/${files.length})，請勿關閉網頁...`, false, true, true);
                 
                 try {
-                    const initRes = await fetch(GAS_LIVE_URL, { method: 'POST', body: JSON.stringify({ action: 'init_upload', filename: filename }) });
+                    const initRes = await fetch(GAS_LIVE_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'init_upload', filename: filename }) });
                     const initData = await initRes.json();
                     if (initData.status !== 'success') throw new Error(initData.message);
                     const uploadUrl = initData.uploadUrl;
@@ -569,7 +569,7 @@
 
                     while (start < fileSize) {
                         const end = Math.min(start + chunkSize, fileSize); const chunk = file.slice(start, end); const chunkBase64 = await blobToBase64(chunk);
-                        const response = await fetch(GAS_LIVE_URL, { method: 'POST', body: JSON.stringify({ action: 'upload_chunk', uploadUrl: uploadUrl, chunkBase64: chunkBase64, start: start, totalSize: fileSize }) });
+                        const response = await fetch(GAS_LIVE_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'upload_chunk', uploadUrl: uploadUrl, chunkBase64: chunkBase64, start: start, totalSize: fileSize }) });
                         const data = await response.json();
                         if (data.status === 'resume') { start = end; } else if (data.status === 'success') { fileId = data.fileId; break; } else { throw new Error(data.message); }
                     }
@@ -586,7 +586,7 @@
             if(!currentUserEmail) return;
             ['post', 'reply'].forEach(async (type) => {
                 try {
-                    const res = await fetch(GAS_LIVE_URL, { method: 'POST', body: JSON.stringify({ action: 'get_draft', email: currentUserEmail, draftType: type }) });
+                    const res = await fetch(GAS_LIVE_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'get_draft', email: currentUserEmail, draftType: type }) });
                     const data = await res.json();
                     if(data.status === 'success' && data.draftData) {
                         draftState[type] = data.draftData;
@@ -639,7 +639,7 @@
                 draftState[type].mediaType = document.getElementById(`${type}-media-type`).value;
 
                 await fetch(GAS_LIVE_URL, {
-                    method: 'POST', body: JSON.stringify({ action: 'save_draft', email: currentUserEmail, draftType: type, draftData: draftState[type] })
+                    method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'save_draft', email: currentUserEmail, draftType: type, draftData: draftState[type] })
                 });
 
                 showAppMsg(`${type}-msg`, '片段已暫存雲端！您可以用其他裝置登入繼續錄製。', false);
@@ -653,7 +653,7 @@
         }
 
         async function uploadBlobToDrive(blob, type) {
-            const initRes = await fetch(GAS_LIVE_URL, { method: 'POST', body: JSON.stringify({ action: 'init_upload', filename: `Clip_${Date.now()}.webm` }) });
+            const initRes = await fetch(GAS_LIVE_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'init_upload', filename: `Clip_${Date.now()}.webm` }) });
             const initData = await initRes.json();
             if (initData.status !== 'success') throw new Error(initData.message);
             
@@ -665,7 +665,7 @@
                 let progress = Math.round((start / fileSize) * 100);
                 showRecorderMsg(type, `雲端同步中：${progress}% (請勿關閉網頁)...`, false, true);
 
-                const response = await fetch(GAS_LIVE_URL, { method: 'POST', body: JSON.stringify({ action: 'upload_chunk', uploadUrl: uploadUrl, chunkBase64: chunkBase64, start: start, totalSize: fileSize }) });
+                const response = await fetch(GAS_LIVE_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'upload_chunk', uploadUrl: uploadUrl, chunkBase64: chunkBase64, start: start, totalSize: fileSize }) });
                 const data = await response.json();
                 if (data.status === 'resume') { start = end; } else if (data.status === 'success') { fileId = data.fileId; break; } else { throw new Error(data.message); }
             }
@@ -1024,11 +1024,11 @@
                 }
 
                 await fetch(GAS_LIVE_URL, {
-                    method: 'POST',
+                    method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({ action: 'add_post', email: currentUserEmail, title: finalTitle, desc: finalDesc, videoUrl: finalVideoUrls.join(','), videoFileId: finalVideoIds.join(','), mediaType: mediaType })
                 });
 
-                fetch(GAS_LIVE_URL, { method: 'POST', body: JSON.stringify({ action: 'clear_draft', email: currentUserEmail, draftType: 'post' }) });
+                fetch(GAS_LIVE_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'clear_draft', email: currentUserEmail, draftType: 'post' }) });
 
                 btn.disabled = false; btn.innerText = "確認發布並呼叫 AI 解析";
                 document.getElementById('post-title').value = ''; document.getElementById('post-desc').value = ''; 
@@ -1074,11 +1074,11 @@
                 }
 
                 await fetch(GAS_LIVE_URL, {
-                    method: 'POST',
+                    method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({ action: 'add_reply', courseId: currentPost.courseId, email: currentUserEmail, desc: finalDesc, videoUrl: finalVideoUrls.join(','), videoFileId: finalVideoIds.join(','), mediaType: mediaType })
                 });
 
-                fetch(GAS_LIVE_URL, { method: 'POST', body: JSON.stringify({ action: 'clear_draft', email: currentUserEmail, draftType: 'reply' }) });
+                fetch(GAS_LIVE_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'clear_draft', email: currentUserEmail, draftType: 'reply' }) });
 
                 btn.disabled = false; btn.innerText = "確認發布並呼叫 AI 解析";
                 document.getElementById('reply-desc').value = ''; 
@@ -1132,7 +1132,7 @@
             const email = document.getElementById('email').value.trim();
             if (!email) return showAppMsg('otp-msg', '請先輸入 Email', true);
             document.getElementById('btn-otp').innerHTML = '<span class="spinner"></span> 寄送中...';
-            fetch(GAS_LIVE_URL, { method: 'POST', body: JSON.stringify({ action: 'requestOTP', email: email }) })
+            fetch(GAS_LIVE_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'requestOTP', email: email }) })
             .then(res => res.json()).then(data => {
                 document.getElementById('btn-otp').innerText = "寄送驗證碼";
                 if (data.status === "error") return showAppMsg('otp-msg', data.message, true);
@@ -1144,7 +1144,7 @@
             const email = document.getElementById('email').value.trim(); const otp = document.getElementById('otp-code').value.trim();
             if (!otp) return showAppMsg('login-msg', '請輸入驗證碼', true);
             document.getElementById('btn-login').innerHTML = '<span class="spinner"></span> 驗證中...';
-            fetch(GAS_LIVE_URL, { method: 'POST', body: JSON.stringify({ action: 'verifyOTP', email: email, otp: otp }) })
+            fetch(GAS_LIVE_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'verifyOTP', email: email, otp: otp }) })
             .then(res => res.json()).then(data => {
                 document.getElementById('btn-login').innerText = "登入通行";
                 if (data.status === "error") return showAppMsg('login-msg', data.message, true);
@@ -1211,8 +1211,22 @@
 
         function sendFeedback(courseId, satisfaction) {
             const box = document.getElementById(`feedback-box-${courseId}`); if(box) box.innerHTML = '<span class="spinner"></span> 正在記錄您的回饋...';
-            fetch(GAS_LIVE_URL, { method: 'POST', body: JSON.stringify({ action: 'submit_feedback', courseId: courseId, satisfaction: satisfaction }) }).then(res => res.json()).then(data => {
-                if(data.status === 'success') { if(satisfaction === 'yes') { showAppMsg('reply-msg', '感謝回饋！教練會繼續陪您一起成長！', false); } else { showAppMsg('reply-msg', '已收到您的不滿意反饋，教練會盡快再次親自協助您！', true); } fetchLiveData(); }
+            fetch(GAS_LIVE_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'submit_feedback', courseId: courseId, satisfaction: satisfaction }) })
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === 'success') { 
+                    if(satisfaction === 'yes') { showAppMsg('reply-msg', '感謝回饋！教練會繼續陪您一起成長！', false); } 
+                    else { showAppMsg('reply-msg', '已收到您的不滿意反饋，教練會盡快再次親自協助您！', true); } 
+                    fetchLiveData(); 
+                } else {
+                    if(box) box.innerHTML = `<span style="color:red; font-weight:bold;">錯誤: ${data.message}</span>`;
+                    showAppMsg('reply-msg', '紀錄失敗：' + data.message, true);
+                }
+            })
+            .catch(err => {
+                console.error('Fetch 錯誤:', err);
+                if(box) box.innerHTML = `<span style="color:red; font-weight:bold;">網路連線或伺服器異常，請稍後再試</span>`;
+                showAppMsg('reply-msg', '系統連線異常', true);
             });
         }
 
