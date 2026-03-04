@@ -280,7 +280,7 @@
     <div class="section" id="publish-section" style="display: none; border-left: 5px solid var(--primary-yellow);">
         <h3 style="margin-top:0;">發起新提問</h3>
         <p style="margin-bottom: 12px; font-size: 0.95rem;">
-            <span class="hint-label">系統升級</span><span style="color: var(--accent-green); font-weight: bold;">支援錄影暫停切換視窗與預覽！</span>
+            <span class="hint-label">系統升級</span><span style="color: var(--accent-green); font-weight: bold;">支援錄影暫停、切換視窗與上傳前預覽！</span>
         </p>
 
         <div class="media-toggle-container">
@@ -433,9 +433,6 @@
                     <p id="reply-image-status-msg" style="font-size: 0.95rem; margin-top: 15px; display: none;"></p>
                 </div>
 
-                <input type="hidden" id="reply-video" readonly>
-                <input type="hidden" id="reply-video-id"> 
-                
                 <button onclick="submitReply()" id="btn-submit-reply" style="margin-top:15px;">確認發布並呼叫 AI 解析</button>
                 <span id="reply-msg" class="inline-msg"></span>
             </div>
@@ -1086,6 +1083,7 @@
             try {
                 let finalVideoUrls = [];
                 let finalVideoIds = [];
+                // 自動補上預設文字
                 let finalTitle = titleInput || "AI 正在分析您的提問...";
                 let finalDesc = descInput || "";
 
