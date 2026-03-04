@@ -19,7 +19,7 @@
             --input-bg: #F8FAFC;       
             --text-dark: #111827;          
             --text-muted: #6B7280;     
-            --glass-border: #E2E8F0;       
+            --glass-border: #E2E8F0;        
             --radius-soft: 16px; 
             --danger-color: #EF4444;   
             --pill-bg: #E0F2FE; 
@@ -142,8 +142,8 @@
         .sop-box ol { margin-top: 8px; margin-bottom: 0; padding-left: 20px; color: var(--text-dark); font-size: 0.95rem; line-height: 1.6;}
         .stack-group { display: flex; flex-direction: column; gap: 12px; width: 100%; }
         .stack-group input, .stack-group button { margin-bottom: 0; }
-        hr { border: 0; border-top: 1px dashed var(--glass-border); margin: 24px 0; }
         .hidden-fields { display: none !important; }
+        hr { border: 0; border-top: 1px dashed var(--glass-border); margin: 24px 0; }
         .video-wrapper { margin-top: 15px; border-radius: 12px; overflow: hidden; background: #000; border: 1px solid var(--glass-border); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .video-container { position: relative; padding-bottom: 56.25%; height: 0; }
         .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
@@ -216,7 +216,7 @@
         <div id="step-2" style="display: none; margin-top: 10px;">
             <div class="stack-group">
                 <input type="text" id="otp-code" class="input-box" placeholder="輸入 6 位數驗證碼">
-                <button onclick="verifyLogin()" id="btn-login">登入通行</button>
+                <button onclick="verifyLogin()" id="btn-login">進入日誌</button>
                 <button onclick="cancelLogin()" class="btn-outline">返回上一步</button>
             </div>
             <span id="login-msg" class="inline-msg"></span>
@@ -393,7 +393,7 @@
         // ==========================================
         // 全局狀態管理 
         // ==========================================
-        const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbxxck5pHkldErGWsbZylelOU8_dLa1jEMxH5OrZFxmCVSAzNxK2I1e2wo-xlKcgB_VU/exec'; 
+        const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbwOblvsyt6rk2y0SRu536ePZaxH5JbjEGMs1X-DQ8g_Yb75iCLwErjqkgutyIX83wKP/exec'; 
         const ADMIN_EMAIL = 'alwayslucky2hand@gmail.com';
 
         let currentUserEmail = ''; 
@@ -577,7 +577,6 @@
                     if (initData.status !== 'success') throw new Error(initData.message);
                     const uploadUrl = initData.uploadUrl;
                     
-                    // 👇 同樣將這裡改為 8 * 1024 * 1024
                     const chunkSize = 8 * 1024 * 1024; 
                     const fileSize = file.size; let start = 0; let fileId = null;
 
@@ -603,7 +602,6 @@
             const uploadUrlYT = initData.uploadUrlYT;
             const uploadUrlGemini = initData.uploadUrlGemini;
 
-            // 👇 將原本的 3 * 1024 * 1024 改為 8 * 1024 * 1024 (精確符合 Gemini 8MB 的規範)
             const chunkSize = 8 * 1024 * 1024; 
             const fileSize = blob.size; let start = 0; let ytId = null; let geminiUri = null; let geminiName = null;
 
@@ -674,7 +672,8 @@
             if (wasRecording) togglePauseRecording(type); 
 
             try {
-                const newScreenStream = await navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: "monitor" }, audio: { systemAudio: "include" } });
+                // 👇 畫質優化：切換視窗時明確要求 1080p 解析度
+                const newScreenStream = await navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: "monitor", width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: { systemAudio: "include" } });
                 if (screenStream) screenStream.getTracks().forEach(t => t.stop());
                 screenStream = newScreenStream;
                 screenHiddenVideo.srcObject = screenStream;
@@ -737,7 +736,8 @@
                 } else {
                     try { micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: useCamera ? { width: { ideal: 1920 }, height: { ideal: 1080 } } : false });
                     } catch(e) { showRecorderMsg(type, "麥克風/相機被封鎖", true, true); return; }
-                    try { screenStream = await navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: "monitor" }, audio: { systemAudio: "include" } });
+                    // 👇 畫質優化：啟動螢幕分享時明確要求 1080p 解析度
+                    try { screenStream = await navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: "monitor", width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: { systemAudio: "include" } });
                     } catch(e) { killMediaTracks(); return; }
                     
                     if (micStream.getAudioTracks().length > 0) audioContext.createMediaStreamSource(micStream).connect(dest);
@@ -781,9 +781,11 @@
 
         function startRecording(type) {
             recordedChunks = []; let options;
-            if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')) options = { mimeType: 'video/webm;codecs=vp8,opus', videoBitsPerSecond: 3500000 };
-            else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) options = { mimeType: 'video/webm;codecs=vp8', videoBitsPerSecond: 3500000 };
-            else options = { videoBitsPerSecond: 3500000 };
+            // 👇 畫質優化：優先使用 VP9，並將碼率提升至 8 Mbps (8000000)
+            if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')) options = { mimeType: 'video/webm;codecs=vp9,opus', videoBitsPerSecond: 8000000 };
+            else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')) options = { mimeType: 'video/webm;codecs=vp8,opus', videoBitsPerSecond: 8000000 };
+            else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) options = { mimeType: 'video/webm;codecs=vp8', videoBitsPerSecond: 8000000 };
+            else options = { videoBitsPerSecond: 8000000 };
 
             mediaRecorder = new MediaRecorder(combinedStream, options);
             mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
@@ -1328,7 +1330,7 @@
             .then(res => res.json())
             .then(data => {
                 btn.disabled = false;
-                btn.innerText = '登入通行';
+                btn.innerText = '進入日誌'; // 👇 按鈕狀態恢復時同步更新文字
                 if (data.status === 'success') {
                     currentUserEmail = email;
                     // 🔥 寫入 localStorage 保存 6 小時
@@ -1348,7 +1350,7 @@
             })
             .catch(err => {
                 btn.disabled = false;
-                btn.innerText = '登入通行';
+                btn.innerText = '進入日誌'; // 👇 按鈕狀態恢復時同步更新文字
                 showAppMsg('login-msg', '系統連線錯誤', true);
             });
         }
@@ -1375,29 +1377,49 @@
         }
 
         // ==========================================
-        // 3. 列表載入與渲染流程
+        // 3. 列表載入與靜默渲染流程
         // ==========================================
-        function fetchLiveData() {
-            document.getElementById('list-section').style.display = 'block';
-            document.getElementById('loading-list').style.display = 'block';
-            document.getElementById('post-list').innerHTML = '';
+        // 👇 新增 silent 參數，預設為 false，開啟背景無縫載入
+        function fetchLiveData(silent = false) {
+            if (!silent) {
+                document.getElementById('list-section').style.display = 'block';
+                document.getElementById('loading-list').style.display = 'block';
+                document.getElementById('post-list').innerHTML = '';
+            }
             
             fetch(GAS_LIVE_URL + '?action=get_live_data')
             .then(res => res.json())
             .then(data => {
-                document.getElementById('loading-list').style.display = 'none';
+                if (!silent) document.getElementById('loading-list').style.display = 'none';
                 if (data.status === 'success') {
                     allLiveData = data.data || [];
-                    generateTypeNav(); 
+                    
+                    // 如果目前正在看詳細頁面，同步更新背景的記憶體資料 (防止切換回列表時資料還是舊的)
+                    if (currentPost) {
+                        const updatedPost = allLiveData.find(p => p.courseId === currentPost.courseId);
+                        if (updatedPost) currentPost = updatedPost;
+                    }
+
+                    if (!silent) generateTypeNav(); 
                     filterPosts();     
                 } else {
-                    document.getElementById('post-list').innerHTML = `<div class="system-msg">載入失敗：${data.message}</div>`;
+                    if (!silent) document.getElementById('post-list').innerHTML = `<div class="system-msg">載入失敗：${data.message}</div>`;
                 }
             })
             .catch(err => {
-                document.getElementById('loading-list').style.display = 'none';
-                document.getElementById('post-list').innerHTML = '<div class="system-msg">連線發生錯誤，無法載入日誌清單。請確認 GAS 網址是否正確部屬。</div>';
+                if (!silent) {
+                    document.getElementById('loading-list').style.display = 'none';
+                    document.getElementById('post-list').innerHTML = '<div class="system-msg">連線發生錯誤，無法載入日誌清單。請確認 GAS 網址是否正確部屬。</div>';
+                }
             });
+        }
+
+        // 👇 靜默輪詢引擎：每 15 秒背景拉取一次最新進度
+        function startSilentPolling() {
+            if (pollingInterval) clearInterval(pollingInterval);
+            pollingInterval = setInterval(() => {
+                fetchLiveData(true); // 傳入 true 啟動靜默模式
+            }, 15000); 
         }
 
         function generateTypeNav() {
@@ -1436,13 +1458,16 @@
 
         function renderList(data) {
             const listContainer = document.getElementById('post-list');
-            listContainer.innerHTML = '';
             
+            // 由於採用靜默更新，我們只在沒有資料時才顯示空狀態
             if (data.length === 0) {
                 listContainer.innerHTML = '<div class="system-msg">目前沒有符合條件的陪跑紀錄。</div>';
                 document.getElementById('pagination-container').innerHTML = '';
                 return;
             }
+
+            // 保存目前的 DOM，以便如果資料相同時不需要完全重新繪製 (避免畫面閃爍)
+            listContainer.innerHTML = '';
 
             const totalPages = Math.ceil(data.length / itemsPerPage);
             const start = (currentPage - 1) * itemsPerPage;
@@ -1497,7 +1522,8 @@
             initDeviceUI();
             checkLogin(); // 載入時自動檢查登入狀態 (6小時機制)
             setupAutoSave(); // 載入時自動恢復草稿
-            fetchLiveData();
+            fetchLiveData(); // 首次執行完整載入
+            startSilentPolling(); // 👇 啟動靜默輪詢引擎
         };
 
     </script>
