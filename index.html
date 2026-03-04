@@ -136,7 +136,9 @@
         .recorder-box.recording { border-color: var(--danger-color); background: #fef2f2; }
         .preview-video-el { width: 100%; border-radius: 10px; background: #111; margin-top: 15px; display: none; aspect-ratio: 16/9; }
         .controls-row { display: flex; flex-direction: column; gap: 10px; justify-content: center; margin-top: 15px; width: 100%;}
-        .record-hint { font-size: 0.85rem; color: var(--danger-color); margin-bottom: 10px; display: inline-block; padding: 8px 12px; background: #fef2f2; border-radius: 8px; line-height: 1.5; text-align: left; width: 100%;}
+        
+        .record-hint { font-size: 0.9rem; color: #991B1B; margin-bottom: 10px; display: inline-block; padding: 12px; background: #FEF2F2; border: 2px solid #FCA5A5; border-radius: 8px; line-height: 1.6; text-align: left; width: 100%;}
+        
         .sop-box { background: #FFFBEB; border-left: 4px solid var(--primary-yellow); padding: 16px; margin-bottom: 20px; border-radius: 8px; text-align: left;}
         .sop-title { color: var(--slate-blue); font-size: 1.05rem; font-weight: bold; }
         .sop-box ol { margin-top: 8px; margin-bottom: 0; padding-left: 20px; color: var(--text-dark); font-size: 0.95rem; line-height: 1.6;}
@@ -156,22 +158,21 @@
         .custom-player-container.hide-cursor .overlay-mask { cursor: none !important; }
         .player-video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; }
         
-        /* 👇 重新加回 pointer-events: none; 讓底層無法被右鍵複製，由外層遮罩控制 */
         .yt-placeholder { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; } 
-        
         .overlay-mask { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; cursor: pointer; background: transparent; }
-        .custom-controls { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; padding: 20px 15px 12px 15px; box-sizing: border-box; z-index: 20; gap: 12px; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        
+        .custom-controls { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0,0,0,0.75); display: flex; align-items: center; padding: 12px 10px 10px 10px; box-sizing: border-box; z-index: 999; gap: 8px; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; flex-wrap: nowrap; overflow: hidden;}
         .custom-controls.show-controls { opacity: 1; pointer-events: auto; }
-        .player-btn { background: none; border: none; color: white; font-size: 18px; cursor: pointer; padding: 4px; transition: color 0.2s, transform 0.1s; display: flex; align-items: center; justify-content: center; margin:0; box-shadow:none; width:auto; }
+        .player-btn { background: none; border: none; color: white; font-size: 18px; cursor: pointer; padding: 2px; transition: color 0.2s, transform 0.1s; display: flex; align-items: center; justify-content: center; margin:0; box-shadow:none; width:auto; }
         .player-btn:hover { background:none; color: var(--primary-yellow); transform: scale(1.1); }
-        .player-time-display { color: white; font-size: 0.85rem; font-family: monospace; min-width: 85px; text-align: center; }
-        .player-percentage-display { color: var(--primary-yellow); font-size: 0.85rem; font-family: monospace; font-weight: bold; min-width: 40px; text-align: right; }
-        .player-progress-container { flex-grow: 1; height: 12px; background: rgba(255,255,255,0.2); border-radius: 4px; cursor: pointer; position: relative; }
+        .player-time-display { color: white; font-size: 0.75rem; font-family: monospace; min-width: 65px; text-align: center; }
+        .player-percentage-display { color: var(--primary-yellow); font-size: 0.75rem; font-family: monospace; font-weight: bold; min-width: 30px; text-align: right; }
+        .player-progress-container { flex-grow: 1; height: 12px; background: rgba(255,255,255,0.2); border-radius: 4px; cursor: pointer; position: relative; min-width: 50px;}
         .player-progress-bar { position: absolute; top: 0; left: 0; height: 100%; background: var(--primary-yellow); border-radius: 4px; width: 0%; pointer-events: none; transition: width 0.1s linear; }
-        .player-volume-container { display: flex; align-items: center; gap: 5px; }
-        .player-volume-slider { -webkit-appearance: none; width: 70px; background: transparent; cursor: pointer; margin:0; padding:0; border:none; }
+        .player-volume-container { display: flex; align-items: center; gap: 2px; }
+        .player-volume-slider { -webkit-appearance: none; width: 50px; background: transparent; cursor: pointer; margin:0; padding:0; border:none; }
         .player-volume-slider::-webkit-slider-runnable-track { width: 100%; height: 6px; background: rgba(255,255,255,0.3); border-radius: 3px; }
-        .player-volume-slider::-webkit-slider-thumb { -webkit-appearance: none; height: 20px; width: 20px; border-radius: 50%; background: #ffffff; margin-top: -7px; transition: background 0.2s, transform 0.1s; }
+        .player-volume-slider::-webkit-slider-thumb { -webkit-appearance: none; height: 18px; width: 18px; border-radius: 50%; background: #ffffff; margin-top: -6px; transition: background 0.2s, transform 0.1s; }
         .player-volume-slider:hover::-webkit-slider-thumb { background: var(--primary-yellow); transform: scale(1.2); }
     </style>
 </head>
@@ -230,7 +231,7 @@
     <div class="section" id="publish-section" style="display: none; border-left: 5px solid var(--primary-yellow);">
         <h3 style="margin-top:0;">發起新提問</h3>
         <p style="margin-bottom: 12px; font-size: 0.95rem;">
-            <span class="hint-label">系統升級</span><span style="color: var(--accent-green); font-weight: bold;">支援錄影暫停、切換視窗與上傳前預覽！</span>
+            <span class="hint-label">系統升級</span><span style="color: var(--accent-green); font-weight: bold;">支援錄影暫停、切換攝影機與上傳前預覽！</span>
         </p>
 
         <div class="media-toggle-container">
@@ -250,7 +251,12 @@
             <label id="post-camera-label" style="cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px; font-weight: bold; color: var(--slate-blue);">
                 <input type="checkbox" id="post-use-camera-cb" checked style="width: 18px; height: 18px;"> 同時開啟視訊鏡頭 (露臉)
             </label><br>
-            <span class="record-hint" id="post-record-hint"><span class="warning-label">操作提示</span>選擇分享畫面時：強烈建議選擇「整個螢幕畫面」，並務必勾選「一併分享系統音訊」。</span>
+            
+            <span class="record-hint" id="post-record-hint">
+                <span class="warning-label">強烈警告</span>
+                <b>如果您在錄影時會「切換不同的網頁分頁」或「開啟其他軟體」</b>，請務必在分享畫面時選擇 <strong>「整個螢幕畫面」</strong>！若選擇「分頁」或「視窗」，您切換畫面時將無法被錄製到。<br>
+                ※ 分享螢幕時，請記得勾選「一併分享系統音訊」！
+            </span>
 
             <video id="post-preview-video" class="preview-video-el" autoplay playsinline></video>
             
@@ -264,7 +270,6 @@
 
                 <div id="post-active-controls" style="display:none; gap: 10px; width: 100%; flex-wrap: wrap;">
                     <button id="post-btn-pause-record" onclick="togglePauseRecording('post')" class="btn-outline" style="flex:1; margin:0; padding: 10px;">暫停錄影</button>
-                    <button onclick="changeScreenSource('post')" class="btn-outline" style="flex:1; margin:0; padding: 10px;">換分享視窗</button>
                     <button class="switch-btn" onclick="switchVideoSource('post')" class="btn-outline" style="flex:1; margin:0; padding: 10px;">切換畫面</button>
                     <button id="post-btn-stop-record" onclick="stopRecording('post')" style="flex:100%; margin-top:5px; background: var(--slate-blue); padding: 10px;">結束錄製並預覽</button>
                 </div>
@@ -345,11 +350,16 @@
                     <label id="reply-camera-label" style="cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px; font-weight: bold; color: var(--slate-blue);">
                         <input type="checkbox" id="reply-use-camera-cb" checked style="width: 18px; height: 18px;"> 同時開啟視訊鏡頭 (露臉)
                     </label><br>
-                    <span class="record-hint" id="reply-record-hint"><span class="warning-label">操作提示</span>選擇分享畫面時：強烈建議選擇「整個螢幕畫面」，並務必勾選「一併分享系統音訊」。</span>
+                    
+                    <span class="record-hint" id="reply-record-hint">
+                        <span class="warning-label">強烈警告</span>
+                        <b>如果您在錄影時會「切換不同的網頁分頁」或「開啟其他軟體」</b>，請務必在分享畫面時選擇 <strong>「整個螢幕畫面」</strong>！若選擇「分頁」或「視窗」，您切換畫面時將無法被錄製到。<br>
+                        ※ 分享螢幕時，請記得勾選「一併分享系統音訊」！
+                    </span>
                     <video id="reply-preview-video" class="preview-video-el" autoplay playsinline></video>
                     
                     <div class="controls-row">
-                        <button id="reply-btn-setup-record" onclick="setupRecording('reply')" class="btn-outline">1. 啟動影音錄製權限</button>
+                        <button id="reply-btn-setup-record" onclick="setupRecording('reply')" class="btn-outline">1. 啟 মিডি影音錄製權限</button>
                         
                         <div id="reply-ready-controls" style="display:none; gap: 10px; width: 100%;">
                             <button id="reply-btn-start-record" onclick="startRecording('reply')" class="btn-danger" style="flex:2; margin:0;"><span class="record-dot"></span>開始錄製</button>
@@ -358,7 +368,6 @@
 
                         <div id="reply-active-controls" style="display:none; gap: 10px; width: 100%; flex-wrap: wrap;">
                             <button id="reply-btn-pause-record" onclick="togglePauseRecording('reply')" class="btn-outline" style="flex:1; margin:0; padding: 10px;">暫停錄影</button>
-                            <button onclick="changeScreenSource('reply')" class="btn-outline" style="flex:1; margin:0; padding: 10px;">換分享視窗</button>
                             <button class="switch-btn" onclick="switchVideoSource('reply')" class="btn-outline" style="flex:1; margin:0; padding: 10px;">切換畫面</button>
                             <button id="reply-btn-stop-record" onclick="stopRecording('reply')" style="flex:100%; margin-top:5px; background: var(--slate-blue); padding: 10px;">結束錄製並預覽</button>
                         </div>
@@ -396,7 +405,7 @@
         // ==========================================
         // 全局狀態管理 
         // ==========================================
-        const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbxeu6DEEm4jctLtft66kyZFPU53DFg5uX7lB9jxscXo4p1G6Xb0UvJ7FcPDz075nM7i/exec'; 
+        const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbx2zjU1o6HI4K64UazHngmuN9otDUpm024qyI43b0yY620u-M-0MKL0M9Kpd_Gq2bfn/exec'; 
         const ADMIN_EMAIL = 'alwayslucky2hand@gmail.com';
 
         let currentUserEmail = ''; 
@@ -624,7 +633,7 @@
         // 無縫錄影與預覽引擎 (1080p防卡頓版 + 視窗切換)
         // ==========================================
         function killMediaTracks() {
-            if (drawLoopId) { cancelAnimationFrame(drawLoopId); drawLoopId = null; }
+            if (drawLoopId) { clearTimeout(drawLoopId); drawLoopId = null; } // 👇 修改為 clearTimeout
             if (screenStream) { screenStream.getTracks().forEach(t => t.stop()); screenStream = null; }
             if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
             if (combinedStream) { combinedStream.getTracks().forEach(t => t.stop()); combinedStream = null; }
@@ -669,25 +678,6 @@
             }
         }
 
-        async function changeScreenSource(type) {
-            if (isMobileDevice()) return showRecorderMsg(type, "手機模式不支援螢幕分享", true, false);
-            
-            const wasRecording = (mediaRecorder && mediaRecorder.state === 'recording' && !isPaused);
-            if (wasRecording) togglePauseRecording(type); 
-
-            try {
-                const newScreenStream = await navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: "monitor", width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: { systemAudio: "include" } });
-                if (screenStream) screenStream.getTracks().forEach(t => t.stop());
-                screenStream = newScreenStream;
-                screenHiddenVideo.srcObject = screenStream;
-                screenStream.getVideoTracks()[0].onended = () => { if(mediaRecorder && mediaRecorder.state === "recording") stopRecording(type); else cancelRecording(type); };
-                activeVideoSource = 'screen';
-                showRecorderMsg(type, "視窗已切換，請點擊「繼續錄影」開始接續！", false, true);
-            } catch(e) {
-                showRecorderMsg(type, "取消切換視窗", true, false);
-            }
-        }
-
         function togglePauseRecording(type) {
             if (!mediaRecorder) return;
             const pauseBtn = document.getElementById(`${type}-btn-pause-record`);
@@ -722,9 +712,9 @@
                     if (micStream.getAudioTracks().length > 0) audioContext.createMediaStreamSource(micStream).connect(dest);
                     cameraHiddenVideo.srcObject = new MediaStream([micStream.getVideoTracks()[0]]);
 
-                    function drawMobileFrame(now) {
-                        if (!internalCtx) return; drawLoopId = requestAnimationFrame(drawMobileFrame);
-                        const elapsed = now - lastDrawTime; if (elapsed < fpsInterval) return; lastDrawTime = now - (elapsed % fpsInterval);
+                    // 👇 優化：使用 setTimeout 取代 requestAnimationFrame 避免背景凍結
+                    function drawMobileFrame() {
+                        if (!internalCtx) return; drawLoopId = setTimeout(drawMobileFrame, fpsInterval);
                         internalCtx.fillStyle = '#111'; internalCtx.fillRect(0, 0, internalCanvas.width, internalCanvas.height);
                         if (cameraHiddenVideo.readyState >= 2 && cameraHiddenVideo.videoWidth > 0) {
                             const vRatio = cameraHiddenVideo.videoWidth / cameraHiddenVideo.videoHeight; const cRatio = internalCanvas.width / internalCanvas.height;
@@ -737,11 +727,13 @@
                             internalCtx.restore();
                         }
                     }
-                    drawMobileFrame(performance.now()); showRecorderMsg(type, "鏡頭已就緒！點擊開始錄製。", false, true);
+                    drawMobileFrame(); showRecorderMsg(type, "鏡頭已就緒！點擊開始錄製。", false, true);
                 } else {
                     try { micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: useCamera ? { width: { ideal: 1920 }, height: { ideal: 1080 } } : false });
                     } catch(e) { showRecorderMsg(type, "麥克風/相機被封鎖", true, true); return; }
-                    try { screenStream = await navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: "monitor", width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: { systemAudio: "include" } });
+                    
+                    // 👇 優化：加入 preferCurrentTab: false 強烈暗示瀏覽器預設停留在「整個螢幕」選項
+                    try { screenStream = await navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: "monitor", width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: { systemAudio: "include" }, preferCurrentTab: false });
                     } catch(e) { killMediaTracks(); return; }
                     
                     if (micStream.getAudioTracks().length > 0) audioContext.createMediaStreamSource(micStream).connect(dest);
@@ -753,9 +745,9 @@
                     if (useCamera && micStream.getVideoTracks().length > 0) cameraHiddenVideo.srcObject = new MediaStream([micStream.getVideoTracks()[0]]);
                     else cameraHiddenVideo = null;
 
-                    function drawPcFrame(now) {
-                        if (!internalCtx) return; drawLoopId = requestAnimationFrame(drawPcFrame);
-                        const elapsed = now - lastDrawTime; if (elapsed < fpsInterval) return; lastDrawTime = now - (elapsed % fpsInterval);
+                    // 👇 優化：使用 setTimeout 取代 requestAnimationFrame 避免背景凍結
+                    function drawPcFrame() {
+                        if (!internalCtx) return; drawLoopId = setTimeout(drawPcFrame, fpsInterval);
                         internalCtx.fillStyle = '#111'; internalCtx.fillRect(0, 0, internalCanvas.width, internalCanvas.height);
                         let sourceVid = (activeVideoSource === 'screen') ? screenHiddenVideo : cameraHiddenVideo;
                         
@@ -772,7 +764,7 @@
                             internalCtx.restore();
                         }
                     }
-                    drawPcFrame(performance.now());
+                    drawPcFrame();
                     screenStream.getVideoTracks()[0].onended = () => { if(mediaRecorder && mediaRecorder.state === "recording") stopRecording(type); else cancelRecording(type); };
                     showRecorderMsg(type, "視窗已連接！點擊開始錄製。", false, true);
                 }
@@ -944,7 +936,6 @@
                     let ytId = url.split('/').pop().replace('watch?v=', '').split('?')[0];
                     let uid = Math.random().toString(36).substr(2, 9);
                     
-                    // 👇 策略二與策略三：加入全螢幕提示框，並釋放 YouTube 原生控制列 (移除了客製化的控制列與遮罩)
                     html += `
                     <p style="font-size:0.85rem; color:var(--accent-green); font-weight:bold; margin-bottom:8px; background:#ECFDF5; padding:6px 10px; border-radius:6px; border:1px solid #A7F3D0;">💡 畫質優化提示：本系統具備防護遮罩，若畫面模糊，請點擊右下角「⛶全螢幕」，系統將於 2~3 秒後自動為您切換至 1080p 高畫質！</p>
                     <div class="custom-player-container" id="container-${uid}" oncontextmenu="return false;">
@@ -982,7 +973,6 @@
                 if(!ytPlayers[uid]) {
                     ytPlayers[uid] = new YT.Player(el.id, {
                         videoId: vid,
-                        // 👇 策略一：加入 vq=hd1080 暗示參數，維持 controls: 0 (防護模式)
                         playerVars: { 'controls': 0, 'disablekb': 1, 'rel': 0, 'modestbranding': 1, 'playsinline': 1, 'iv_load_policy': 3, 'vq': 'hd1080' },
                         events: {
                             'onReady': (e) => onPlayerReady(uid, e),
@@ -1002,7 +992,6 @@
         }
 
         function onPlayerReady(uid, event) {
-            // 👇 策略一：盡人事聽天命，嘗試強制設定高畫質 (部分環境下仍有幫助)
             try { if (ytPlayers[uid].setPlaybackQuality) ytPlayers[uid].setPlaybackQuality('hd1080'); } catch(e) {}
             
             if (!document.getElementById(`vol-${uid}`)) return; 
@@ -1121,7 +1110,6 @@
                 if (container.requestFullscreen) container.requestFullscreen();
                 else if (container.webkitRequestFullscreen) container.webkitRequestFullscreen();
                 
-                // 👇 策略二：在點擊全螢幕放大後，等待 2.5 秒，強制向 YouTube 請求 1080p 高畫質
                 setTimeout(() => {
                     try {
                         if (ytPlayers[uid] && ytPlayers[uid].setPlaybackQuality) {
@@ -1255,20 +1243,49 @@
         }
 
         function renderThread(post) {
-            let html = ''; let vidHtml = getMediaIframe(post.videoUrl);
-            html += `<div class="thread-item student"><div class="thread-header"><div class="thread-role"><span class="role-badge student-badge">學員發問</span> <span class="thread-email">${post.email}</span></div><span class="thread-time">${post.date} ${post.time}</span></div><div class="post-excerpt">${formatText(post.desc)}</div>${vidHtml}</div>`;
+            let items = [];
+            
+            items.push({
+                roleHtml: `<span class="role-badge student-badge">學員發問 (首發)</span> <span class="thread-email">${post.email}</span>`,
+                timeHtml: `${post.date} ${post.time}`,
+                contentHtml: `<div class="post-excerpt">${formatText(post.desc)}</div>${getMediaIframe(post.videoUrl)}`,
+                itemClass: 'student'
+            });
+
             post.replies.forEach(reply => {
                 let parts = reply.split('|||');
                 if(parts.length >= 5) {
                     let rDate = parts[0], rTime = parts[1], rRole = parts[2], rEmail = parts[3], rContent = parts[4], rVid = parts[5] || '';
-                    let itemClass = rRole === '陪跑教練' ? 'coach' : 'student'; let rVidHtml = getMediaIframe(rVid); let badgeClass = rRole === '陪跑教練' ? 'coach-badge' : 'student-badge';
-                    html += `<div class="thread-item ${itemClass}"><div class="thread-header"><div class="thread-role"><span class="role-badge ${badgeClass}">${rRole}</span> <span class="thread-email">${rEmail}</span></div><span class="thread-time">${rDate} ${rTime}</span></div><div class="post-excerpt">${formatText(rContent)}</div>${rVidHtml}</div>`;
+                    let isCoach = rRole === '陪跑教練';
+                    items.push({
+                        roleHtml: `<span class="role-badge ${isCoach ? 'coach-badge' : 'student-badge'}">${rRole}</span> <span class="thread-email">${rEmail}</span>`,
+                        timeHtml: `${rDate} ${rTime}`,
+                        contentHtml: `<div class="post-excerpt">${formatText(rContent)}</div>${getMediaIframe(rVid)}`,
+                        itemClass: isCoach ? 'coach' : 'student'
+                    });
                 }
             });
+
+            items.reverse();
+
+            let html = '';
+
             let hasFeedback = post.desc.includes('系統紀錄：學員');
             if (post.status === '教練已回覆' && !hasFeedback) {
-                html += `<div id="feedback-box-${post.courseId}" class="thread-item" style="background: #F8FAFC; border: 2px dashed var(--primary-yellow); text-align: center; margin-top: 10px; padding: 25px 20px;"><p style="font-size:1.1rem; color:var(--slate-blue); margin-bottom:15px; font-weight:bold;">請問教練的解答有幫助您解決問題嗎？</p><div style="display:flex; gap:12px; justify-content:center; max-width: 300px; margin: 0 auto;"><button onclick="sendFeedback('${post.courseId}', 'yes')" style="margin:0; flex:1; background:#10B981; color:#fff; border:none; box-shadow:0 4px 6px rgba(16,185,129,0.2);">滿意</button><button onclick="sendFeedback('${post.courseId}', 'no')" style="margin:0; flex:1; background:#EF4444; color:#fff; border:none; box-shadow:0 4px 6px rgba(239,68,68,0.2);">不滿意</button></div></div>`;
+                html += `<div id="feedback-box-${post.courseId}" class="thread-item" style="background: #F8FAFC; border: 2px dashed var(--primary-yellow); text-align: center; margin-bottom: 24px; padding: 25px 20px;"><p style="font-size:1.1rem; color:var(--slate-blue); margin-bottom:15px; font-weight:bold;">請問教練最新的解答有幫助您解決問題嗎？</p><div style="display:flex; gap:12px; justify-content:center; max-width: 300px; margin: 0 auto;"><button onclick="sendFeedback('${post.courseId}', 'yes')" style="margin:0; flex:1; background:#10B981; color:#fff; border:none; box-shadow:0 4px 6px rgba(16,185,129,0.2);">滿意</button><button onclick="sendFeedback('${post.courseId}', 'no')" style="margin:0; flex:1; background:#EF4444; color:#fff; border:none; box-shadow:0 4px 6px rgba(239,68,68,0.2);">不滿意</button></div></div>`;
             }
+
+            items.forEach(item => {
+                html += `
+                <div class="thread-item ${item.itemClass}">
+                    <div class="thread-header">
+                        <div class="thread-role">${item.roleHtml}</div>
+                        <span class="thread-time">${item.timeHtml}</span>
+                    </div>
+                    ${item.contentHtml}
+                </div>`;
+            });
+
             document.getElementById('thread-container').innerHTML = html;
             
             setTimeout(initAllYTPlayers, 100);
@@ -1422,7 +1439,7 @@
             .then(data => {
                 if (!silent) document.getElementById('loading-list').style.display = 'none';
                 if (data.status === 'success') {
-                    allLiveData = data.data || [];
+                    allLiveData = (data.data || []).reverse();
                     
                     if (currentPost) {
                         const updatedPost = allLiveData.find(p => p.courseId === currentPost.courseId);
