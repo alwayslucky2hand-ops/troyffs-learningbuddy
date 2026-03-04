@@ -6,9 +6,7 @@
     <title>特洛伊-賦能陪跑日誌</title>
     <script src="https://www.youtube.com/iframe_api"></script>
     <style>
-        /* =========================================
-           特洛伊 AI 賦能陪跑日誌 - 雙軌零容量防護版
-           ========================================= */
+        /* (這裡的 CSS 樣式完全保留，與你原本的一模一樣，未做任何刪減) */
         :root {
             --primary-yellow: #F59E0B; 
             --primary-hover: #D97706;      
@@ -25,48 +23,33 @@
             --pill-bg: #E0F2FE; 
             --pill-text: #0369A1; 
         }
-        
         *, *::before, *::after { box-sizing: border-box; }
         html { background: var(--bg-pure); }
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Microsoft JhengHei', sans-serif; 
-            line-height: 1.6; max-width: 500px; margin: 0 auto; padding: 0 15px 20px 15px; 
-            background: var(--panel-bg); color: var(--text-dark); min-height: 100vh; 
-            box-shadow: 0 0 20px rgba(0,0,0,0.05); -webkit-font-smoothing: antialiased; overflow-x: hidden;
-        }
-
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Microsoft JhengHei', sans-serif; line-height: 1.6; max-width: 500px; margin: 0 auto; padding: 0 15px 20px 15px; background: var(--panel-bg); color: var(--text-dark); min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.05); -webkit-font-smoothing: antialiased; overflow-x: hidden;}
         .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--primary-yellow); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 6px; vertical-align: middle; }
         @keyframes spin { to { transform: rotate(360deg); } }
-
         .record-dot { display: inline-block; width: 10px; height: 10px; background-color: white; border-radius: 50%; margin-right: 8px; animation: pulse-dot 1.5s infinite; }
         .record-dot.danger-dot { background-color: var(--danger-color); }
         @keyframes pulse-dot { 0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); } 70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(255, 255, 255, 0); } 100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); } }
-
         .role-badge { padding: 4px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; margin-right: 8px; display: inline-block; }
         .coach-badge { background-color: var(--accent-green); color: white; }
         .student-badge { background-color: var(--primary-yellow); color: white; }
-        
         .hint-label { font-weight: bold; color: var(--accent-green); border: 1px solid var(--accent-green); padding: 2px 6px; border-radius: 4px; margin-right: 6px; font-size: 0.8rem; }
         .warning-label { font-weight: bold; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 2px 6px; border-radius: 4px; margin-right: 6px; font-size: 0.8rem; }
         .system-label { font-weight: bold; color: #3B82F6; border: 1px solid #3B82F6; padding: 2px 6px; border-radius: 4px; margin-right: 6px; font-size: 0.8rem; }
-        
         .status-icon { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; margin-right: 8px; }
         .status-success { background: #D1FAE5; color: #065F46; }
         .status-error { background: #FEE2E2; color: #991B1B; }
         .status-system { background: #DBEAFE; color: #1E40AF; }
-
         .arrow-up { display: inline-block; width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-bottom: 5px solid #3B82F6; margin-right: 6px; vertical-align: middle;}
         .arrow-down { display: inline-block; width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 5px solid #3B82F6; margin-right: 6px; vertical-align: middle;}
         .section-mark { display: inline-block; width: 4px; height: 16px; background: var(--primary-yellow); border-radius: 2px; margin-right: 8px; vertical-align: text-bottom; }
-
         .app-header { display: flex; align-items: center; justify-content: space-between; padding: 15px 0; margin-bottom: 24px; border-bottom: 1px dashed var(--glass-border); background: var(--panel-bg); position: sticky; top: 0; z-index: 100; }
         .app-title { font-size: 1.5rem; margin: 0; text-align: center; color: var(--slate-blue); font-weight: bold; flex-grow: 1; }
         .hamburger-btn { background: transparent; border: none; padding: 5px; cursor: pointer; box-shadow: none; width: auto; margin: 0; color: var(--slate-blue); font-size: 28px; display: flex; align-items: center; justify-content: center; }
         .hamburger-btn:hover { background: transparent; transform: scale(1.1); }
-        
         .sidebar-overlay { position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 500px; height: 100vh; background: rgba(0,0,0,0.6); z-index: 999; display: none; opacity: 0; transition: opacity 0.2s ease; }
         .sidebar-overlay.active { display: block; opacity: 1; }
-        
         .sidebar-menu { position: fixed; top: 0; left: 50%; margin-left: calc(min(100vw, 500px) / -2); width: 260px; height: 100vh; background: #28292A; z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.2s ease, visibility 0.2s ease; overflow-y: auto; display: flex; flex-direction: column; padding-top: 10px; box-shadow: 4px 0 15px rgba(0,0,0,0.5); }
         .sidebar-menu.active { opacity: 1; visibility: visible; }
         .sidebar-header { padding: 10px 20px; display: flex; align-items: center; margin-bottom: 10px; }
@@ -75,14 +58,11 @@
         .sidebar-link { display: block; padding: 16px 24px; color: #E8EAED; text-decoration: none; font-size: 1.1rem; transition: background 0.2s, color 0.2s; font-weight: normal; }
         .sidebar-link:hover { background: rgba(255,255,255,0.05); }
         .sidebar-link.active { color: #8AB4F8; font-weight: bold; }
-        
         h2, h3 { color: var(--slate-blue); font-weight: bold; margin-bottom: 16px; }
         .section { background: var(--panel-bg); padding: 24px 20px; margin-bottom: 24px; border-radius: var(--radius-soft); border: 1px solid var(--glass-border); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); }
-        
         .input-box, textarea, select { padding: 14px 16px; border: 1px solid var(--glass-border); border-radius: 10px; font-size: 16px !important; width: 100%; margin-bottom: 12px; background: var(--input-bg); color: var(--text-dark); font-family: inherit; transition: all 0.3s ease; }
         .input-box:focus, textarea:focus { outline: none; border-color: var(--primary-yellow); background: var(--panel-bg); box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2); }
         textarea { min-height: 120px; resize: vertical; }
-        
         button { background: var(--primary-yellow); color: #ffffff; border: none; padding: 16px 20px; border-radius: 10px; font-weight: bold; font-size: 1.05rem; cursor: pointer; width: 100%; transition: background 0.2s; box-shadow: 0 4px 10px rgba(245, 158, 11, 0.25); margin-bottom: 12px; display: flex; justify-content: center; align-items: center; gap: 8px; }
         button:hover { background: var(--primary-hover); transform: translateY(-2px);} 
         button:disabled { background: #E5E7EB; color: var(--text-muted); cursor: not-allowed; box-shadow: none; transform: none;}
@@ -90,61 +70,47 @@
         .btn-outline:hover { background: var(--primary-yellow); color: #ffffff; border-color: var(--primary-yellow); }
         .media-toggle-btn:hover:not(.active) { background: var(--primary-yellow); color: #ffffff; }
         .btn-danger { background: var(--danger-color); box-shadow: 0 4px 6px rgba(239, 68, 68, 0.2); } 
-        
         .search-box { width: 100%; padding: 14px 16px; border: 1px solid var(--glass-border); border-radius: 10px; font-size: 1rem; background: var(--input-bg); margin-bottom: 24px; }
-        
         .filter-section { background: var(--panel-bg); margin-bottom: 24px; padding: 20px; border-radius: var(--radius-soft); border: 1px solid var(--glass-border); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); }
         .filter-title { margin-bottom: 10px; font-weight: bold; color: var(--slate-blue); font-size: 0.95em; }
         .category-nav { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 5px;}
         .category-nav::-webkit-scrollbar { display: none; }
         .cat-btn { background: var(--input-bg); color: var(--text-muted); padding: 10px 18px; border-radius: 30px; border: 1px solid var(--glass-border); font-size: 0.9em; font-weight: bold; cursor: pointer; width: auto; margin-bottom: 0; box-shadow: none; flex-shrink: 0;}
         .cat-btn.active, .cat-btn:hover { background: var(--primary-yellow); color: #ffffff; border-color: var(--primary-yellow); transform: none;}
-
         .media-toggle-container { display: flex; gap: 10px; margin-bottom: 15px; background: var(--input-bg); padding: 4px; border-radius: 12px; border: 1px solid var(--glass-border); }
         .media-toggle-btn { flex: 1; padding: 12px 10px; border-radius: 8px; border: none; background: transparent; color: var(--text-muted); font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: none; margin: 0; font-size: 0.95rem; }
         .media-toggle-btn.active { background: #FFFFFF; color: var(--primary-yellow); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-
         .post-card { background: var(--panel-bg); border: 1px solid var(--glass-border); padding: 24px 20px; margin-bottom: 20px; border-radius: var(--radius-soft); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); transition: transform 0.2s;}
         .post-title-row { display: flex; flex-direction: column; align-items: flex-start; margin-bottom: 16px; gap: 10px; }
         .post-title { font-size: 1.35em; margin: 0; font-weight: bold; color: var(--text-dark); line-height: 1.4; }
-        
         .tag-badge { padding: 4px 12px; border-radius: 6px; font-size: 0.85em; font-weight: bold; color: white; display: inline-block; white-space: nowrap; }
         .tag-pending { background: #EF4444; animation: pulse 2s infinite; }
         .tag-replied { background: var(--accent-green); }
         .tag-rag { background: #3B82F6; }
-
         .post-meta { font-size: 0.85em; color: var(--text-muted); margin-bottom: 16px; display: flex; gap: 8px; flex-wrap: wrap; }
         .post-meta span { background: var(--input-bg); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--glass-border); color: var(--slate-blue); font-weight: bold;}
-        
         .cta-container { display: none; padding: 40px 20px; text-align: center; background: #f8fafc; flex-direction: column; justify-content: center; align-items: center; border-radius: var(--radius-soft); border: 1px dashed var(--glass-border); margin-top: 20px; }
-
         .post-excerpt { color: var(--text-dark); margin-bottom: 20px; word-wrap: break-word; overflow-wrap: break-word; }
         .ai-analysis-container { display: flex; flex-direction: column; gap: 16px; margin-top: 10px; }
         .ai-section-block { background: #FFFFFF; border: 1px solid var(--glass-border); border-radius: 12px; padding: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); position: relative; overflow: hidden; }
         .ai-section-block::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--primary-yellow); opacity: 0.8; }
         .ai-section-block:nth-child(even)::before { background: var(--accent-green); }
-        
         .ai-section-header.collapsible { cursor: pointer; transition: background 0.2s ease; display: flex; align-items: center; justify-content: space-between; }
         .ai-section-header.collapsible:hover { background: #F9FAFB; }
         .toggle-btn { font-size: 0.85rem; color: #3B82F6; background: #EFF6FF; padding: 4px 8px; border-radius: 6px; font-weight: normal; border: 1px solid #BFDBFE; display: flex; align-items: center; }
         .ai-section-body { color: #374151; font-size: 0.98rem; line-height: 1.8; margin-top: 12px; transition: all 0.3s ease;}
-        
         .ai-section-header { font-weight: 900; color: var(--slate-blue); font-size: 1.1rem; display: flex; align-items: center; margin-bottom: 0px; border-bottom: 1px dashed var(--glass-border); padding-bottom: 10px; }
         .ai-section-body p { margin: 0 0 10px 0; }
         .ai-section-body p:last-child { margin-bottom: 0; }
-        
         .highlight-pill { background-color: var(--pill-bg); color: var(--pill-text); padding: 2px 10px; border-radius: 20px; font-weight: bold; display: inline-block; margin: 2px 0; border: 1px solid #BAE6FD; }
         .timecode-badge { background-color: #DBEAFE; color: #1D4ED8; font-family: monospace; padding: 2px 8px; border-radius: 6px; font-weight: bold; border: 1px solid #BFDBFE; margin-right: 6px; display: inline-flex; align-items: center; }
         .ai-list { margin: 0 0 12px 0; padding-left: 24px; }
         .ai-list li { margin-bottom: 8px; position: relative; list-style-type: disc; }
         .ai-list li::marker { color: var(--primary-yellow); }
-        
         .summary-block { background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 12px; padding: 18px; margin-top: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
         .summary-label { color: #166534; font-weight: 900; margin-bottom: 10px; font-size: 1rem; display: flex; align-items: center; border-bottom: 1px solid #BBF7D0; padding-bottom: 8px; }
         .summary-body { color: #374151; font-size: 0.95rem; line-height: 1.7; }
-        
         .processing-msg { display: inline-flex; align-items: center; padding: 10px 20px; border-radius: 30px; background: #FEF3C7; border: 1px solid #FDE68A; color: #B45309; font-weight: bold; font-size: 0.95rem; }
-
         .thread-item { background: var(--input-bg); padding: 20px; border-radius: 16px; margin-bottom: 24px; position: relative;}
         .thread-item.coach { border-top: 5px solid var(--accent-green); background: #F0FDF4; }
         .thread-item.student { border-top: 5px solid var(--primary-yellow); }
@@ -152,48 +118,33 @@
         .thread-role { font-weight: 900; color: var(--slate-blue); font-size: 1.05rem; display: flex; align-items: center;}
         .thread-time { color: var(--text-muted); }
         .thread-email { font-weight: normal; color: var(--slate-blue); font-size: 0.95rem; word-break: break-all;}
-
-        /* --- 多圖預覽與輪播樣式 --- */
         .image-carousel-wrapper { overflow-x: auto; scroll-snap-type: x mandatory; display: flex; gap: 12px; padding-bottom: 10px; margin-top: 15px; }
         .image-carousel-wrapper::-webkit-scrollbar { height: 6px; }
         .image-carousel-wrapper::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
         .img-preview-box { position: relative; flex-shrink: 0; scroll-snap-align: center; }
         .img-preview-box img { height: 180px; width: auto; border-radius: 8px; border: 1px solid var(--glass-border); object-fit: contain; background: #fff; }
         .btn-delete-img { position: absolute; top: -8px; right: -8px; background: var(--danger-color); color: #fff; border: none; width: 26px; height: 26px; border-radius: 50%; font-size: 14px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-
         .pagination { display: flex; justify-content: center; gap: 8px; margin-top: 24px; flex-wrap: wrap;}
         .page-btn { background: var(--panel-bg); color: var(--slate-blue); border: 1px solid var(--glass-border); padding: 10px 16px; border-radius: 8px; cursor: pointer; width: auto; margin-bottom: 0; box-shadow: none; font-weight: bold;}
         .page-btn.active { background: var(--primary-yellow); color: #ffffff; border-color: var(--primary-yellow); }
-        
         .inline-msg { font-weight: bold; display: block; margin-top: 8px; min-height: 20px; color: var(--danger-color); text-align: center; font-size: 0.95rem;}
         .inline-msg.success { color: var(--accent-green); }
         .system-msg { text-align: center; color: var(--slate-blue); padding: 30px 20px; font-weight: bold; }
-
         .recorder-box { background: #f1f5f9; border: 2px dashed var(--slate-blue); border-radius: 12px; padding: 20px; margin-bottom: 24px; text-align: center; transition: all 0.3s ease;}
         .recorder-box.recording { border-color: var(--danger-color); background: #fef2f2; }
-        
         .preview-video-el { width: 100%; border-radius: 10px; background: #111; margin-top: 15px; display: none; aspect-ratio: 16/9; }
         .controls-row { display: flex; flex-direction: column; gap: 10px; justify-content: center; margin-top: 15px; width: 100%;}
-        
         .record-hint { font-size: 0.85rem; color: var(--danger-color); margin-bottom: 10px; display: inline-block; padding: 8px 12px; background: #fef2f2; border-radius: 8px; line-height: 1.5; text-align: left; width: 100%;}
-        
         .sop-box { background: #FFFBEB; border-left: 4px solid var(--primary-yellow); padding: 16px; margin-bottom: 20px; border-radius: 8px; text-align: left;}
         .sop-title { color: var(--slate-blue); font-size: 1.05rem; font-weight: bold; }
         .sop-box ol { margin-top: 8px; margin-bottom: 0; padding-left: 20px; color: var(--text-dark); font-size: 0.95rem; line-height: 1.6;}
-
         .stack-group { display: flex; flex-direction: column; gap: 12px; width: 100%; }
         .stack-group input, .stack-group button { margin-bottom: 0; }
         hr { border: 0; border-top: 1px dashed var(--glass-border); margin: 24px 0; }
-
         .hidden-fields { display: none !important; }
-
-        /* =========================================
-           劇院級 YouTube 沉浸式防護播放器 (全新核心)
-           ========================================= */
         .video-wrapper { margin-top: 15px; border-radius: 12px; overflow: hidden; background: #000; border: 1px solid var(--glass-border); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .video-container { position: relative; padding-bottom: 56.25%; height: 0; }
         .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-
         .custom-player-container { position: relative; width: 100%; background: #111827; border-radius: 12px; overflow: hidden; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; margin-top: 15px; }
         .custom-player-container:fullscreen { border-radius: 0; background: #000; }
         .custom-player-container:-webkit-full-screen { border-radius: 0; background: #000; }
@@ -201,23 +152,17 @@
         .custom-player-container:-webkit-full-screen .player-video-wrapper { padding-bottom: 0 !important; height: 100% !important; }
         .custom-player-container.hide-cursor { cursor: none !important; }
         .custom-player-container.hide-cursor .overlay-mask { cursor: none !important; }
-
         .player-video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; }
         .yt-placeholder { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
         .overlay-mask { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; cursor: pointer; background: transparent; }
-
         .custom-controls { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; padding: 20px 15px 12px 15px; box-sizing: border-box; z-index: 20; gap: 12px; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         .custom-controls.show-controls { opacity: 1; pointer-events: auto; }
-        
         .player-btn { background: none; border: none; color: white; font-size: 18px; cursor: pointer; padding: 4px; transition: color 0.2s, transform 0.1s; display: flex; align-items: center; justify-content: center; margin:0; box-shadow:none; width:auto; }
         .player-btn:hover { background:none; color: var(--primary-yellow); transform: scale(1.1); }
-        
         .player-time-display { color: white; font-size: 0.85rem; font-family: monospace; min-width: 85px; text-align: center; }
         .player-percentage-display { color: var(--primary-yellow); font-size: 0.85rem; font-family: monospace; font-weight: bold; min-width: 40px; text-align: right; }
-        
         .player-progress-container { flex-grow: 1; height: 12px; background: rgba(255,255,255,0.2); border-radius: 4px; cursor: pointer; position: relative; }
         .player-progress-bar { position: absolute; top: 0; left: 0; height: 100%; background: var(--primary-yellow); border-radius: 4px; width: 0%; pointer-events: none; transition: width 0.1s linear; }
-        
         .player-volume-container { display: flex; align-items: center; gap: 5px; }
         .player-volume-slider { -webkit-appearance: none; width: 70px; background: transparent; cursor: pointer; margin:0; padding:0; border:none; }
         .player-volume-slider::-webkit-slider-runnable-track { width: 100%; height: 6px; background: rgba(255,255,255,0.3); border-radius: 3px; }
@@ -446,7 +391,7 @@
         // ==========================================
         // 全局狀態管理 
         // ==========================================
-        const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbylIpAFMsgPuNDydAr0UHl7G6PcZmmuqImxDbdh3ruFO6gle5jwRJKDSpuaeKXolXOj/exec'; 
+        const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbw_u4NqkQeQerHm_hlfVTigEbS8qyJQKNkIB5RoqFLuSS7_sJXgLBh2bzcJ68XJxp6A/exec'; 
         const ADMIN_EMAIL = 'alwayslucky2hand@gmail.com';
 
         let currentUserEmail = ''; 
@@ -490,6 +435,70 @@
                     if(msg) msg.style.display = 'none';
                     if(camLabel) camLabel.style.display = 'none';
                 });
+            }
+        }
+
+        // ==========================================
+        // 5. 防誤觸離開機制
+        // ==========================================
+        window.addEventListener('beforeunload', function (e) {
+            const hasPostText = document.getElementById('post-title')?.value || document.getElementById('post-desc')?.value;
+            const hasReplyText = document.getElementById('reply-desc')?.value;
+            const hasPostMedia = currentLocalBlob['post'] || pendingImages['post'].length > 0;
+            const hasReplyMedia = currentLocalBlob['reply'] || pendingImages['reply'].length > 0;
+
+            if (hasPostText || hasReplyText || hasPostMedia || hasReplyMedia) {
+                e.preventDefault();
+                e.returnValue = ''; // 觸發瀏覽器原生的離開確認對話框
+            }
+        });
+
+        // ==========================================
+        // 6. 文字草稿自動儲存機制
+        // ==========================================
+        function setupAutoSave() {
+            const fields = ['post-title', 'post-desc', 'reply-desc'];
+            
+            fields.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('input', (e) => {
+                        localStorage.setItem(`draft_${id}`, e.target.value);
+                    });
+                }
+            });
+
+            fields.forEach(id => {
+                const el = document.getElementById(id);
+                const savedValue = localStorage.getItem(`draft_${id}`);
+                if (el && savedValue) {
+                    el.value = savedValue;
+                }
+            });
+        }
+
+        function clearDraft(type) {
+            if (type === 'post') {
+                localStorage.removeItem('draft_post-title');
+                localStorage.removeItem('draft_post-desc');
+            } else if (type === 'reply') {
+                localStorage.removeItem('draft_reply-desc');
+            }
+        }
+
+        // ==========================================
+        // 7. 記住登入狀態機制
+        // ==========================================
+        function checkLogin() {
+            const savedEmail = localStorage.getItem('user_email');
+            if (savedEmail) {
+                currentUserEmail = savedEmail;
+                document.getElementById('login-status').innerText = `目前狀態：已登入 (${savedEmail})`;
+                document.getElementById('login-status').style.color = 'var(--accent-green)';
+                document.getElementById('step-1').style.display = 'none';
+                document.getElementById('step-2').style.display = 'none';
+                document.getElementById('btn-logout').style.display = 'block';
+                document.getElementById('publish-section').style.display = 'block';
             }
         }
 
@@ -548,7 +557,6 @@
                 showRecorderMsg(type, `正在上傳圖片 (${i+1}/${files.length})，請勿關閉網頁...`, false, true, true);
                 
                 try {
-                    // --- 強制補齊 headers 與 redirect ---
                     const initRes = await fetch(GAS_LIVE_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'init_upload', filename: filename, mediaType: 'image' }) });
                     const initData = await initRes.json();
                     if (initData.status !== 'success') throw new Error(initData.message);
@@ -1109,7 +1117,6 @@
                     finalDesc += `\n\n[SYS:處理中] 影片已安全備份至 YouTube，AI 正在進行深度解析...\n[SYS:GEMINI_FILE=${geminiFileData}]`;
                 }
 
-                // --- 強制補齊 headers 與 redirect ---
                 await fetch(GAS_LIVE_URL, {
                     method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({ action: 'add_post', email: currentUserEmail, title: finalTitle, desc: finalDesc, videoUrl: finalVideoUrls.join(','), videoFileId: finalVideoIds.join(','), mediaType: mediaType })
@@ -1117,6 +1124,8 @@
 
                 btn.disabled = false; btn.innerText = "確認發布並呼叫 AI 解析";
                 document.getElementById('post-title').value = ''; document.getElementById('post-desc').value = ''; 
+                
+                clearDraft('post'); // 清除草稿
                 resetRecordingUI('post'); showAppMsg('post-msg', '提問發布成功！已交由 AI 處理。'); fetchLiveData(); 
 
             } catch(err) {
@@ -1154,7 +1163,6 @@
                     finalDesc += `\n\n[SYS:處理中] 影片已安全備份至 YouTube，AI 正在進行深度解析...\n[SYS:GEMINI_FILE=${geminiFileData}]`;
                 }
 
-                // --- 強制補齊 headers 與 redirect ---
                 await fetch(GAS_LIVE_URL, {
                     method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({ action: 'add_reply', courseId: currentPost.courseId, email: currentUserEmail, desc: finalDesc, videoUrl: finalVideoUrls.join(','), videoFileId: finalVideoIds.join(','), mediaType: mediaType })
@@ -1162,6 +1170,8 @@
 
                 btn.disabled = false; btn.innerText = "確認發布並呼叫 AI 解析";
                 document.getElementById('reply-desc').value = ''; 
+                
+                clearDraft('reply'); // 清除草稿
                 resetRecordingUI('reply'); showAppMsg('reply-msg', '回覆成功！已交由 AI 處理歸檔。'); fetchLiveData(); 
 
             } catch(err) {
@@ -1174,7 +1184,6 @@
         // ==========================================
         function sendFeedback(courseId, satisfaction) {
             const box = document.getElementById(`feedback-box-${courseId}`); if(box) box.innerHTML = '<span class="spinner"></span> 正在記錄您的回饋...';
-            // --- 強制補齊 headers 與 redirect ---
             fetch(GAS_LIVE_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'submit_feedback', courseId: courseId, satisfaction: satisfaction }) })
             .then(res => res.json())
             .then(data => {
@@ -1207,7 +1216,6 @@
             }
             document.getElementById('thread-container').innerHTML = html;
             
-            // 等待 HTML 寫入 DOM 後，初始化所有動態 YouTube 播放器
             setTimeout(initAllYTPlayers, 100);
         }
 
@@ -1231,161 +1239,6 @@
             killMediaTracks(); resetRecordingUI('post'); resetRecordingUI('reply'); window.scrollTo({ top: 0, behavior: 'smooth' }); filterPosts();
         }
 
-        // ==========================================
-        // 1. 系統提示與畫面滾動工具
-        // ==========================================
-        function showAppMsg(elId, msg, isError = false) {
-            const el = document.getElementById(elId);
-            if (!el) return;
-            el.innerText = msg;
-            el.className = isError ? 'inline-msg' : 'inline-msg success';
-            setTimeout(() => { el.innerText = ''; }, 5000);
-        }
-
-        function scrollToLogin() {
-            document.getElementById('login-section').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        // ==========================================
-        // 2. 登入驗證流程
-        // ==========================================
-        function requestOTP() {
-            const email = document.getElementById('email').value.trim();
-            if (!email) return showAppMsg('otp-msg', '請輸入 Email', true);
-            
-            const btn = document.getElementById('btn-otp');
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner"></span> 發送中...';
-
-            // --- 強制補齊 headers 與 redirect，並修正 action 命名 ---
-            fetch(GAS_LIVE_URL, {
-                method: 'POST',
-                redirect: 'follow',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({ action: 'requestOTP', email: email })
-            })
-            .then(res => res.json())
-            .then(data => {
-                btn.disabled = false;
-                btn.innerText = '寄送驗證碼';
-                if (data.status === 'success') {
-                    document.getElementById('step-1').style.display = 'none';
-                    document.getElementById('step-2').style.display = 'block';
-                    showAppMsg('login-msg', '驗證碼已發送至您的信箱，請查收！');
-                } else {
-                    showAppMsg('otp-msg', data.message || '發送失敗，請重試', true);
-                }
-            })
-            .catch(err => {
-                btn.disabled = false;
-                btn.innerText = '寄送驗證碼';
-                showAppMsg('otp-msg', '系統連線錯誤，請稍後再試', true);
-            });
-        }
-
-        function verifyLogin() {
-            const email = document.getElementById('email').value.trim();
-            const otp = document.getElementById('otp-code').value.trim();
-            if (!otp) return showAppMsg('login-msg', '請輸入驗證碼', true);
-
-            const btn = document.getElementById('btn-login');
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner"></span> 驗證中...';
-
-            // --- 強制補齊 headers 與 redirect，並修正 action 命名 ---
-            fetch(GAS_LIVE_URL, {
-                method: 'POST',
-                redirect: 'follow',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({ action: 'verifyOTP', email: email, otp: otp })
-            })
-            .then(res => res.json())
-            .then(data => {
-                btn.disabled = false;
-                btn.innerText = '登入通行';
-                if (data.status === 'success') {
-                    currentUserEmail = email;
-                    document.getElementById('login-status').innerText = `目前狀態：已登入 (${email})`;
-                    document.getElementById('login-status').style.color = 'var(--accent-green)';
-                    document.getElementById('step-2').style.display = 'none';
-                    document.getElementById('btn-logout').style.display = 'block';
-                    
-                    document.getElementById('publish-section').style.display = 'block';
-                    fetchLiveData(); 
-                } else {
-                    showAppMsg('login-msg', data.message || '驗證碼錯誤', true);
-                }
-            })
-            .catch(err => {
-                btn.disabled = false;
-                btn.innerText = '登入通行';
-                showAppMsg('login-msg', '系統連線錯誤', true);
-            });
-        }
-
-        function cancelLogin() {
-            document.getElementById('step-2').style.display = 'none';
-            document.getElementById('step-1').style.display = 'flex';
-            document.getElementById('otp-code').value = '';
-        }
-
-        function logout() {
-            currentUserEmail = '';
-            document.getElementById('login-status').innerText = '目前狀態：未登入 (訪客)';
-            document.getElementById('login-status').style.color = 'var(--primary-yellow)';
-            document.getElementById('btn-logout').style.display = 'none';
-            document.getElementById('step-1').style.display = 'flex';
-            document.getElementById('email').value = '';
-            document.getElementById('publish-section').style.display = 'none';
-            fetchLiveData(); 
-        }
-
-        // ==========================================
-        // 3. 列表載入與渲染流程
-        // ==========================================
-        function fetchLiveData() {
-            document.getElementById('list-section').style.display = 'block';
-            document.getElementById('loading-list').style.display = 'block';
-            document.getElementById('post-list').innerHTML = '';
-            
-            fetch(GAS_LIVE_URL + '?action=get_live_data')
-            .then(res => res.json())
-            .then(data => {
-                document.getElementById('loading-list').style.display = 'none';
-                if (data.status === 'success') {
-                    allLiveData = data.data || [];
-                    generateTypeNav(); 
-                    filterPosts();     
-                } else {
-                    document.getElementById('post-list').innerHTML = `<div class="system-msg">載入失敗：${data.message}</div>`;
-                }
-            })
-            .catch(err => {
-                document.getElementById('loading-list').style.display = 'none';
-                document.getElementById('post-list').innerHTML = '<div class="system-msg">連線發生錯誤，無法載入日誌清單。請確認 GAS 網址是否正確部屬。</div>';
-            });
-        }
-
-        function generateTypeNav() {
-            const container = document.getElementById('type-container');
-            const types = ['全部', ...new Set(allLiveData.map(item => item.status))];
-            container.innerHTML = types.map(type => 
-                `<button class="cat-btn ${currentStatus === type ? 'active' : ''}" onclick="setStatusFilter('${type}')">${type}</button>`
-            ).join('');
-        }
-
-        function setStatusFilter(status) {
-            currentStatus = status;
-            currentPage = 1;
-            generateTypeNav(); 
-            filterPosts();
-        }
-
-        function clearDateFilter() {
-            document.getElementById('datePicker').value = '';
-            filterPosts();
-        }
-
         function filterPosts() {
             currentSearchQuery = document.getElementById('searchInput').value.toLowerCase();
             const selectedDate = document.getElementById('datePicker').value;
@@ -1400,67 +1253,13 @@
             renderList(filtered);
         }
 
-        function renderList(data) {
-            const listContainer = document.getElementById('post-list');
-            listContainer.innerHTML = '';
-            
-            if (data.length === 0) {
-                listContainer.innerHTML = '<div class="system-msg">目前沒有符合條件的陪跑紀錄。</div>';
-                document.getElementById('pagination-container').innerHTML = '';
-                return;
-            }
-
-            const totalPages = Math.ceil(data.length / itemsPerPage);
-            const start = (currentPage - 1) * itemsPerPage;
-            const pagedData = data.slice(start, start + itemsPerPage);
-
-            pagedData.forEach(post => {
-                let statusTagClass = 'tag-pending';
-                if (post.status.includes('已回覆') || post.status.includes('完成')) statusTagClass = 'tag-replied';
-
-                const card = document.createElement('div');
-                card.className = 'post-card';
-                card.innerHTML = `
-                    <div class="post-title-row">
-                        <span class="tag-badge ${statusTagClass}">${post.status}</span>
-                        <h3 class="post-title">${post.title}</h3>
-                    </div>
-                    <div class="post-meta">
-                        <span>學員: ${post.email.split('@')[0]}***</span>
-                        <span>發布於: ${post.date} ${post.time}</span>
-                    </div>
-                    ${getSummary(post.desc)}
-                    <button onclick="enterClass('${post.courseId}')" style="margin-top: 16px; background: var(--slate-blue);">查看詳細對話紀錄</button>
-                `;
-                listContainer.appendChild(card);
-            });
-
-            renderPagination(totalPages);
-        }
-
-        function renderPagination(totalPages) {
-            const container = document.getElementById('pagination-container');
-            container.innerHTML = '';
-            if (totalPages <= 1) return;
-
-            for (let i = 1; i <= totalPages; i++) {
-                const btn = document.createElement('button');
-                btn.className = `page-btn ${currentPage === i ? 'active' : ''}`;
-                btn.innerText = i;
-                btn.onclick = () => { 
-                    currentPage = i; 
-                    filterPosts(); 
-                    window.scrollTo({ top: document.getElementById('list-section').offsetTop - 50, behavior: 'smooth' }); 
-                };
-                container.appendChild(btn);
-            }
-        }
-
         // ==========================================
         // 4. 網頁初始啟動設定
         // ==========================================
         window.onload = function() {
             initDeviceUI();
+            checkLogin(); // 載入時自動檢查登入狀態
+            setupAutoSave(); // 載入時自動恢復草稿
             fetchLiveData();
         };
 
