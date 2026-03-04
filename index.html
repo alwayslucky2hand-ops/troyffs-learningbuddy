@@ -446,7 +446,7 @@
         // ==========================================
         // 全局狀態管理 
         // ==========================================
-        const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbwirEX8OTVfaTKtDd-SFQxTjFBOnNkNaqA5TyAIcYZKkitARB-mtxjq-e81Jmb3MdG6/exec'; 
+        const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbylIpAFMsgPuNDydAr0UHl7G6PcZmmuqImxDbdh3ruFO6gle5jwRJKDSpuaeKXolXOj/exec'; 
         const ADMIN_EMAIL = 'alwayslucky2hand@gmail.com';
 
         let currentUserEmail = ''; 
@@ -548,6 +548,7 @@
                 showRecorderMsg(type, `正在上傳圖片 (${i+1}/${files.length})，請勿關閉網頁...`, false, true, true);
                 
                 try {
+                    // --- 強制補齊 headers 與 redirect ---
                     const initRes = await fetch(GAS_LIVE_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'init_upload', filename: filename, mediaType: 'image' }) });
                     const initData = await initRes.json();
                     if (initData.status !== 'success') throw new Error(initData.message);
@@ -1086,7 +1087,6 @@
             try {
                 let finalVideoUrls = [];
                 let finalVideoIds = [];
-                // 自動補上預設文字
                 let finalTitle = titleInput || "AI 正在分析您的提問...";
                 let finalDesc = descInput || "";
 
@@ -1095,9 +1095,7 @@
                     if (pendingImages['post'].length > 0) {
                         const uploadResult = await uploadPendingImages('post'); 
                         finalVideoUrls.push(uploadResult.urls); finalVideoIds.push(uploadResult.ids);
-                    } else {
-                        throw new Error('提示：請先拍攝或選擇圖片！');
-                    }
+                    } else { throw new Error('提示：請先拍攝或選擇圖片！'); }
                     finalTitle = titleInput;
                     finalDesc += "\n\n[SYS:處理中] AI 正在準備解析並建立專屬資料夾...";
                 } else {
@@ -1111,6 +1109,7 @@
                     finalDesc += `\n\n[SYS:處理中] 影片已安全備份至 YouTube，AI 正在進行深度解析...\n[SYS:GEMINI_FILE=${geminiFileData}]`;
                 }
 
+                // --- 強制補齊 headers 與 redirect ---
                 await fetch(GAS_LIVE_URL, {
                     method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({ action: 'add_post', email: currentUserEmail, title: finalTitle, desc: finalDesc, videoUrl: finalVideoUrls.join(','), videoFileId: finalVideoIds.join(','), mediaType: mediaType })
@@ -1142,9 +1141,7 @@
                     if (pendingImages['reply'].length > 0) {
                         const uploadResult = await uploadPendingImages('reply');
                         finalVideoUrls.push(uploadResult.urls); finalVideoIds.push(uploadResult.ids);
-                    } else {
-                        throw new Error('提示：請先拍攝或選擇圖片！');
-                    }
+                    } else { throw new Error('提示：請先拍攝或選擇圖片！'); }
                     finalDesc += "\n\n[SYS:處理中] AI 正在歸檔您的圖片並進行解析...";
                 } else {
                     if (!currentLocalBlob['reply']) throw new Error('提示：請先完成錄影！');
@@ -1157,6 +1154,7 @@
                     finalDesc += `\n\n[SYS:處理中] 影片已安全備份至 YouTube，AI 正在進行深度解析...\n[SYS:GEMINI_FILE=${geminiFileData}]`;
                 }
 
+                // --- 強制補齊 headers 與 redirect ---
                 await fetch(GAS_LIVE_URL, {
                     method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({ action: 'add_reply', courseId: currentPost.courseId, email: currentUserEmail, desc: finalDesc, videoUrl: finalVideoUrls.join(','), videoFileId: finalVideoIds.join(','), mediaType: mediaType })
@@ -1176,6 +1174,7 @@
         // ==========================================
         function sendFeedback(courseId, satisfaction) {
             const box = document.getElementById(`feedback-box-${courseId}`); if(box) box.innerHTML = '<span class="spinner"></span> 正在記錄您的回饋...';
+            // --- 強制補齊 headers 與 redirect ---
             fetch(GAS_LIVE_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'submit_feedback', courseId: courseId, satisfaction: satisfaction }) })
             .then(res => res.json())
             .then(data => {
@@ -1235,7 +1234,6 @@
         // ==========================================
         // 1. 系統提示與畫面滾動工具
         // ==========================================
-        // 說明：用來在按鈕下方顯示成功或錯誤的文字提示
         function showAppMsg(elId, msg, isError = false) {
             const el = document.getElementById(elId);
             if (!el) return;
@@ -1251,7 +1249,6 @@
         // ==========================================
         // 2. 登入驗證流程
         // ==========================================
-        // 說明：向 GAS 後端請求寄送 Email 驗證碼
         function requestOTP() {
             const email = document.getElementById('email').value.trim();
             if (!email) return showAppMsg('otp-msg', '請輸入 Email', true);
@@ -1260,9 +1257,12 @@
             btn.disabled = true;
             btn.innerHTML = '<span class="spinner"></span> 發送中...';
 
+            // --- 強制補齊 headers 與 redirect，並修正 action 命名 ---
             fetch(GAS_LIVE_URL, {
                 method: 'POST',
-                body: JSON.stringify({ action: 'request_otp', email: email })
+                redirect: 'follow',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ action: 'requestOTP', email: email })
             })
             .then(res => res.json())
             .then(data => {
@@ -1283,7 +1283,6 @@
             });
         }
 
-        // 說明：驗證使用者輸入的驗證碼是否正確
         function verifyLogin() {
             const email = document.getElementById('email').value.trim();
             const otp = document.getElementById('otp-code').value.trim();
@@ -1293,9 +1292,12 @@
             btn.disabled = true;
             btn.innerHTML = '<span class="spinner"></span> 驗證中...';
 
+            // --- 強制補齊 headers 與 redirect，並修正 action 命名 ---
             fetch(GAS_LIVE_URL, {
                 method: 'POST',
-                body: JSON.stringify({ action: 'verify_otp', email: email, otp: otp })
+                redirect: 'follow',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ action: 'verifyOTP', email: email, otp: otp })
             })
             .then(res => res.json())
             .then(data => {
@@ -1308,9 +1310,8 @@
                     document.getElementById('step-2').style.display = 'none';
                     document.getElementById('btn-logout').style.display = 'block';
                     
-                    // 登入成功後，開啟發布新提問區塊
                     document.getElementById('publish-section').style.display = 'block';
-                    fetchLiveData(); // 重新載入列表以顯示專屬內容
+                    fetchLiveData(); 
                 } else {
                     showAppMsg('login-msg', data.message || '驗證碼錯誤', true);
                 }
@@ -1336,13 +1337,12 @@
             document.getElementById('step-1').style.display = 'flex';
             document.getElementById('email').value = '';
             document.getElementById('publish-section').style.display = 'none';
-            fetchLiveData(); // 登出後刷新列表，隱藏權限內容
+            fetchLiveData(); 
         }
 
         // ==========================================
-        // 3. 列表載入與渲染流程 (從工作表讀取資料)
+        // 3. 列表載入與渲染流程
         // ==========================================
-        // 說明：向後端請求最新的所有陪跑紀錄資料
         function fetchLiveData() {
             document.getElementById('list-section').style.display = 'block';
             document.getElementById('loading-list').style.display = 'block';
@@ -1354,8 +1354,8 @@
                 document.getElementById('loading-list').style.display = 'none';
                 if (data.status === 'success') {
                     allLiveData = data.data || [];
-                    generateTypeNav(); // 建立分類按鈕
-                    filterPosts();     // 將資料渲染到畫面上
+                    generateTypeNav(); 
+                    filterPosts();     
                 } else {
                     document.getElementById('post-list').innerHTML = `<div class="system-msg">載入失敗：${data.message}</div>`;
                 }
@@ -1366,7 +1366,6 @@
             });
         }
 
-        // 說明：根據資料庫中的所有狀態，動態產生上方「處理狀態」的分類按鈕
         function generateTypeNav() {
             const container = document.getElementById('type-container');
             const types = ['全部', ...new Set(allLiveData.map(item => item.status))];
@@ -1387,7 +1386,6 @@
             filterPosts();
         }
 
-        // 說明：處理搜尋與篩選邏輯，並將結果送給 renderList 繪製
         function filterPosts() {
             currentSearchQuery = document.getElementById('searchInput').value.toLowerCase();
             const selectedDate = document.getElementById('datePicker').value;
@@ -1395,7 +1393,6 @@
             let filtered = allLiveData.filter(post => {
                 const matchSearch = post.title.toLowerCase().includes(currentSearchQuery) || post.desc.toLowerCase().includes(currentSearchQuery);
                 const matchStatus = currentStatus === '全部' || post.status === currentStatus;
-                // 假設後端來的日期格式是 YYYY/MM/DD，而 input date 是 YYYY-MM-DD
                 const matchDate = !selectedDate || post.date === selectedDate.replace(/-/g, '/'); 
                 return matchSearch && matchStatus && matchDate;
             });
@@ -1403,7 +1400,6 @@
             renderList(filtered);
         }
 
-        // 說明：將篩選後的資料變成 HTML 卡片顯示在網頁上
         function renderList(data) {
             const listContainer = document.getElementById('post-list');
             listContainer.innerHTML = '';
@@ -1414,7 +1410,6 @@
                 return;
             }
 
-            // 分頁邏輯計算
             const totalPages = Math.ceil(data.length / itemsPerPage);
             const start = (currentPage - 1) * itemsPerPage;
             const pagedData = data.slice(start, start + itemsPerPage);
@@ -1464,7 +1459,6 @@
         // ==========================================
         // 4. 網頁初始啟動設定
         // ==========================================
-        // 當網頁載入完成時，自動初始化並嘗試拉取清單
         window.onload = function() {
             initDeviceUI();
             fetchLiveData();
