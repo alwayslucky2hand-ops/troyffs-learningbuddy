@@ -576,7 +576,10 @@
                     const initData = await initRes.json();
                     if (initData.status !== 'success') throw new Error(initData.message);
                     const uploadUrl = initData.uploadUrl;
-                    const chunkSize = 3 * 1024 * 1024; const fileSize = file.size; let start = 0; let fileId = null;
+                    
+                    // 👇 同樣將這裡改為 8 * 1024 * 1024
+                    const chunkSize = 8 * 1024 * 1024; 
+                    const fileSize = file.size; let start = 0; let fileId = null;
 
                     while (start < fileSize) {
                         const end = Math.min(start + chunkSize, fileSize); const chunk = file.slice(start, end); const chunkBase64 = await blobToBase64(chunk);
@@ -600,7 +603,9 @@
             const uploadUrlYT = initData.uploadUrlYT;
             const uploadUrlGemini = initData.uploadUrlGemini;
 
-            const chunkSize = 3 * 1024 * 1024; const fileSize = blob.size; let start = 0; let ytId = null; let geminiUri = null; let geminiName = null;
+            // 👇 將原本的 3 * 1024 * 1024 改為 8 * 1024 * 1024 (精確符合 Gemini 8MB 的規範)
+            const chunkSize = 8 * 1024 * 1024; 
+            const fileSize = blob.size; let start = 0; let ytId = null; let geminiUri = null; let geminiName = null;
 
             while (start < fileSize) {
                 const end = Math.min(start + chunkSize, fileSize); const chunk = blob.slice(start, end); const chunkBase64 = await blobToBase64(chunk);
