@@ -31,7 +31,7 @@
         .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--primary-yellow); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 6px; vertical-align: middle; }
         @keyframes spin { to { transform: rotate(360deg); } }
         .record-dot { display: inline-block; width: 12px; height: 12px; background-color: white; border-radius: 50%; margin: 0 auto; animation: pulse-dot 1.5s infinite; }
-        .record-dot.danger-dot { background-color: #FFFFFF; } /* Inside red button, keep it white */
+        .record-dot.danger-dot { background-color: #FFFFFF; }
         @keyframes pulse-dot { 0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); } 70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(255, 255, 255, 0); } 100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); } }
         
         .role-badge { padding: 4px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; margin-right: 8px; display: inline-block; }
@@ -162,15 +162,33 @@
         .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
         
         /* === UI/UX 新增：劇院級 Glassmorphism 錄影預覽區塊 === */
-        .recorder-video-wrapper { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #111; margin-top: 15px; aspect-ratio: 16/9; display: none; box-shadow: 0 6px 16px rgba(0,0,0,0.15); cursor: pointer; -webkit-tap-highlight-color: transparent; }
-        .recorder-video-wrapper:fullscreen { border-radius: 0; }
-        .recorder-video-wrapper:-webkit-full-screen { border-radius: 0; }
+        .recorder-video-wrapper { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #111; margin-top: 15px; aspect-ratio: 16/9; display: none; box-shadow: 0 6px 16px rgba(0,0,0,0.15); -webkit-tap-highlight-color: transparent; }
         .recorder-video-wrapper video { width: 100%; height: 100%; object-fit: contain; display: block; background: transparent; pointer-events: none; }
+        
+        /* 針對全螢幕與偽全螢幕的極致排版修復 */
+        .recorder-video-wrapper:fullscreen { border-radius: 0; background: #000; width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .recorder-video-wrapper:-webkit-full-screen { border-radius: 0; background: #000; width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; }
+        
+        .recorder-video-wrapper.pseudo-fullscreen { position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; z-index: 99999 !important; border-radius: 0 !important; background: #000 !important; margin: 0 !important; display: flex; align-items: center; justify-content: center; }
         
         /* 沉浸式浮動控制列 */
         .glass-control-bar { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px); display: flex; align-items: center; justify-content: center; gap: 14px; background: rgba(30, 41, 59, 0.65); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.2); padding: 10px 22px; border-radius: 40px; z-index: 30; opacity: 0; pointer-events: none; transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1); width: max-content; max-width: 90%; }
         .glass-control-bar.show { opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0); }
         
+        /* 全螢幕時，控制列必須改為 fixed 以避免被畫面擠壓或定位偏移 */
+        .recorder-video-wrapper:fullscreen .glass-control-bar,
+        .recorder-video-wrapper:-webkit-full-screen .glass-control-bar,
+        .recorder-video-wrapper.pseudo-fullscreen .glass-control-bar {
+            position: fixed !important;
+            bottom: 40px !important;
+            transform: translateX(-50%) translateY(20px);
+        }
+        .recorder-video-wrapper:fullscreen .glass-control-bar.show,
+        .recorder-video-wrapper:-webkit-full-screen .glass-control-bar.show,
+        .recorder-video-wrapper.pseudo-fullscreen .glass-control-bar.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
         /* 毛玻璃風格按鈕 */
         .glass-btn { background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; transition: all 0.2s ease; margin: 0; padding: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .glass-btn:hover { background: rgba(255, 255, 255, 0.25); transform: translateY(-2px); border-color: rgba(255, 255, 255, 0.4); }
@@ -183,6 +201,7 @@
         .glass-btn.btn-stop:hover { background: var(--primary-hover); box-shadow: 0 0 15px rgba(245, 158, 11, 0.5); }
         .glass-divider { width: 1px; height: 24px; background: rgba(255,255,255,0.2); margin: 0 4px; border-radius: 1px; }
 
+        /* 播放器控制列 */
         .custom-player-container { position: relative; width: 100%; background: #111827; border-radius: 12px; overflow: hidden; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; margin-top: 15px; }
         .custom-player-container:fullscreen { border-radius: 0; background: #000; }
         .custom-player-container:-webkit-full-screen { border-radius: 0; background: #000; }
@@ -312,12 +331,12 @@
 
             <button id="post-btn-setup-record" onclick="setupRecording('post')" class="btn-outline">1. 啟動影音錄製權限</button>
 
-            <div id="post-recorder-wrapper" class="recorder-video-wrapper" onmousemove="wakeUpRecorderControls('post')" ontouchstart="wakeUpRecorderControls('post', {passive:true})" onclick="wakeUpRecorderControls('post')">
+            <div id="post-recorder-wrapper" class="recorder-video-wrapper" onmousemove="wakeUpRecorderControls('post')" ontouchstart="wakeUpRecorderControls('post')" onclick="wakeUpRecorderControls('post')">
                 <video id="post-preview-video" autoplay playsinline></video>
                 
                 <div id="post-overlay-controls" class="glass-control-bar">
                     <button id="post-btn-glass-start" class="glass-btn btn-record" onclick="startRecording('post'); event.stopPropagation();" title="開始錄製">
-                        <div class="record-dot danger-dot"></div>
+                        <div class="record-dot danger-dot" style="margin:0;"></div>
                     </button>
                     
                     <button id="post-btn-glass-pause" class="glass-btn" onclick="togglePauseRecording('post'); event.stopPropagation();" style="display:none;" title="暫停/繼續">⏸️</button>
@@ -326,7 +345,7 @@
                     <div class="glass-divider"></div>
                     
                     <button id="post-btn-glass-switch" class="glass-btn" onclick="switchVideoSource('post'); event.stopPropagation();" title="切換畫面">🔄</button>
-                    <button id="post-btn-glass-fullscreen" class="glass-btn" onclick="toggleRecorderFullscreen('post'); event.stopPropagation();" title="全螢幕">⛶</button>
+                    <button id="post-btn-glass-fullscreen" class="glass-btn" onclick="toggleRecorderFullscreen('post', event);" title="全螢幕切換">⛶</button>
                 </div>
             </div>
             
@@ -422,12 +441,12 @@
 
                     <button id="reply-btn-setup-record" onclick="setupRecording('reply')" class="btn-outline">1. 啟動影音錄製權限</button>
 
-                    <div id="reply-recorder-wrapper" class="recorder-video-wrapper" onmousemove="wakeUpRecorderControls('reply')" ontouchstart="wakeUpRecorderControls('reply', {passive:true})" onclick="wakeUpRecorderControls('reply')">
+                    <div id="reply-recorder-wrapper" class="recorder-video-wrapper" onmousemove="wakeUpRecorderControls('reply')" ontouchstart="wakeUpRecorderControls('reply')" onclick="wakeUpRecorderControls('reply')">
                         <video id="reply-preview-video" autoplay playsinline></video>
                         
                         <div id="reply-overlay-controls" class="glass-control-bar">
                             <button id="reply-btn-glass-start" class="glass-btn btn-record" onclick="startRecording('reply'); event.stopPropagation();" title="開始錄製">
-                                <div class="record-dot danger-dot"></div>
+                                <div class="record-dot danger-dot" style="margin:0;"></div>
                             </button>
                             
                             <button id="reply-btn-glass-pause" class="glass-btn" onclick="togglePauseRecording('reply'); event.stopPropagation();" style="display:none;" title="暫停/繼續">⏸️</button>
@@ -436,7 +455,7 @@
                             <div class="glass-divider"></div>
                             
                             <button id="reply-btn-glass-switch" class="glass-btn" onclick="switchVideoSource('reply'); event.stopPropagation();" title="切換畫面">🔄</button>
-                            <button id="reply-btn-glass-fullscreen" class="glass-btn" onclick="toggleRecorderFullscreen('reply'); event.stopPropagation();" title="全螢幕">⛶</button>
+                            <button id="reply-btn-glass-fullscreen" class="glass-btn" onclick="toggleRecorderFullscreen('reply', event);" title="全螢幕切換">⛶</button>
                         </div>
                     </div>
                     
@@ -536,7 +555,6 @@
                 else window.updateTroyCarouselUI(uid); 
             };
 
-            // 綁定觸控與滑鼠事件
             track.addEventListener('touchstart', e => startDrag(e.touches[0].clientX), {passive: true});
             track.addEventListener('touchmove', e => moveDrag(e.touches[0].clientX), {passive: true});
             track.addEventListener('touchend', endDrag);
@@ -545,7 +563,6 @@
             window.addEventListener('mousemove', e => { if(isDragging) moveDrag(e.clientX); });
             window.addEventListener('mouseup', e => { if(isDragging) endDrag(); });
 
-            // 初始化時喚醒控制列
             wakeUpCarouselControls(uid);
         };
 
@@ -559,7 +576,6 @@
 
             if (carouselHideTimers[uid]) clearTimeout(carouselHideTimers[uid]);
 
-            // 靜置 3 秒後隱藏
             carouselHideTimers[uid] = setTimeout(function() {
                 controls.classList.remove('show-controls');
                 container.classList.add('hide-cursor');
@@ -582,7 +598,6 @@
             let state = troyCarousels[uid];
             if(!state) return;
             state.current += dir;
-            // 無縫迴圈邏輯
             if (state.current >= state.total) state.current = 0;
             else if (state.current < 0) state.current = state.total - 1;
             window.updateTroyCarouselUI(uid);
@@ -620,7 +635,7 @@
         }
 
         // ==========================================
-        // 浮動控制列智能喚醒引擎 & 全螢幕
+        // 浮動控制列智能喚醒引擎 & 完美全螢幕相容
         // ==========================================
         window.wakeUpRecorderControls = function(type) {
             const overlay = document.getElementById(`${type}-overlay-controls`);
@@ -638,17 +653,56 @@
             }, 3000);
         };
 
-        window.toggleRecorderFullscreen = function(type) {
+        window.toggleRecorderFullscreen = function(type, event) {
+            if(event) event.stopPropagation();
             const container = document.getElementById(`${type}-recorder-wrapper`);
+            const fsBtn = document.getElementById(`${type}-btn-glass-fullscreen`);
             if (!container) return;
+
+            // 處理 iOS 偽全螢幕的復原
+            if (container.classList.contains('pseudo-fullscreen')) {
+                container.classList.remove('pseudo-fullscreen');
+                if(fsBtn) fsBtn.innerHTML = '⛶';
+                wakeUpRecorderControls(type);
+                return;
+            }
+
+            // 執行原生全螢幕
             if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-                if (container.requestFullscreen) container.requestFullscreen();
-                else if (container.webkitRequestFullscreen) container.webkitRequestFullscreen();
+                if (container.requestFullscreen) {
+                    container.requestFullscreen().catch(err => {
+                        container.classList.add('pseudo-fullscreen'); 
+                        if(fsBtn) fsBtn.innerHTML = '✖';
+                    });
+                }
+                else if (container.webkitRequestFullscreen) {
+                    container.webkitRequestFullscreen();
+                } else {
+                    container.classList.add('pseudo-fullscreen');
+                    if(fsBtn) fsBtn.innerHTML = '✖';
+                }
             } else {
                 if (document.exitFullscreen) document.exitFullscreen();
                 else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
             }
+            wakeUpRecorderControls(type);
         };
+
+        // 監聽原生全螢幕變化以更新按鈕 Icon
+        document.addEventListener('fullscreenchange', () => updateFsIcon());
+        document.addEventListener('webkitfullscreenchange', () => updateFsIcon());
+        function updateFsIcon() {
+            ['post', 'reply'].forEach(type => {
+                const fsBtn = document.getElementById(`${type}-btn-glass-fullscreen`);
+                if(fsBtn) {
+                    if (document.fullscreenElement || document.webkitFullscreenElement) {
+                        fsBtn.innerHTML = '✖';
+                    } else {
+                        fsBtn.innerHTML = '⛶';
+                    }
+                }
+            });
+        }
 
         // ==========================================
         // 防誤觸離開機制
@@ -891,7 +945,7 @@
                 pauseBtn.innerHTML = '⏸️';
                 showRecorderMsg(type, "正在錄製中...", false, true);
             }
-            wakeUpRecorderControls(type); 
+            wakeUpRecorderControls(type); // 點擊時維持控制列顯示
         }
 
         async function setupRecording(type) {
@@ -1000,6 +1054,12 @@
                 document.getElementById(`${type}-overlay-controls`).style.display = 'none';
                 document.getElementById(`${type}-preview-actions`).style.display = 'block'; 
                 
+                // 防呆機制：結束錄影時自動退出全螢幕
+                const wrapper = document.getElementById(`${type}-recorder-wrapper`);
+                if (wrapper) wrapper.classList.remove('pseudo-fullscreen');
+                if (document.fullscreenElement) document.exitFullscreen().catch(()=>{});
+                else if (document.webkitFullscreenElement) document.webkitExitFullscreen();
+
                 showRecorderMsg(type, "錄製結束，您可以直接預覽。滿意請點擊下方確認發布！", false, true);
                 killMediaTracks(); 
             };
@@ -1036,6 +1096,12 @@
             document.getElementById(`${type}-overlay-controls`).style.display = 'flex';
             document.getElementById(`${type}-overlay-controls`).classList.remove('show');
             
+            // 確保 UI 重置時退出全螢幕
+            const wrapper = document.getElementById(`${type}-recorder-wrapper`);
+            if (wrapper) wrapper.classList.remove('pseudo-fullscreen');
+            if (document.fullscreenElement) document.exitFullscreen().catch(()=>{});
+            else if (document.webkitFullscreenElement) document.webkitExitFullscreen();
+
             const previewVideo = document.getElementById(`${type}-preview-video`);
             previewVideo.src = ''; 
             previewVideo.controls = false;
