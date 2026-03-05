@@ -309,6 +309,15 @@
                 <button onclick="clearDateFilter()" class="btn-outline">清除日期條件</button>
             </div>
         </div>
+        
+        <div id="guest-cta-container" class="cta-container" style="display: none; margin-bottom: 24px;">
+            <h3 style="color: var(--slate-blue); margin-bottom: 20px; line-height: 1.6; font-size: 1.2rem;">
+                <div class="warning-label" style="display:inline-block; margin-bottom:10px;">專屬內容</div><br>
+                請先登入以解鎖查看您的專屬陪跑日誌！
+            </h3>
+            <button onclick="scrollToLogin()">立即登入</button>
+        </div>
+
         <div id="loading-list" class="system-msg"><span class="spinner"></span> 正在為您準備陪跑紀錄...</div>
         <div id="post-list"></div>
         <div id="pagination-container" class="pagination"></div>
@@ -885,12 +894,14 @@
             if (hasSections) {
                 html = '<div class="ai-analysis-container">';
                 if (originalText) {
-                    html += `<div class="ai-section-block" style="border: 2px solid #E0F2FE; background: #F8FAFC; margin-bottom: 12px;"><div class="ai-section-header"><div style="display:flex; align-items:center;"><span class="section-mark" style="background: #3B82F6;"></span> 手動輸入內容</div></div><div class="ai-section-body" style="color:#0F172A; font-weight:500;">${processMarkdown(originalText)}</div></div>`;
+                    html += `<div class="ai-section-block" style="border: 2px solid #E0F2FE; background: #F8FAFC; margin-bottom: 12px;"><div class="ai-section-header collapsible" onclick="toggleAiSection(this)"><div style="display:flex; align-items:center;"><span class="section-mark" style="background: #3B82F6;"></span> 手動輸入內容</div><span class="toggle-btn"><span class="arrow-down"></span> 點擊展開</span></div><div class="ai-section-body" style="display:none; color:#0F172A; font-weight:500;">${processMarkdown(originalText)}</div></div>`;
                 }
                 sections.forEach(sec => {
                     let match = aiText.match(sec.regex);
                     if (match && match[1].trim() && match[1].trim() !== "無") {
-                        let content = processMarkdown(match[1].trim()); let isCollapsible = (sec.id === 3 || sec.id === 4);
+                        let content = processMarkdown(match[1].trim()); 
+                        // 改動點：讓所有區塊都變成可以收合/展開
+                        let isCollapsible = true; 
                         html += `<div class="ai-section-block"><div class="ai-section-header ${isCollapsible ? 'collapsible' : ''}" ${isCollapsible ? 'onclick="toggleAiSection(this)"' : ''}><div style="display:flex; align-items:center;"><span class="section-mark"></span> ${sec.name}</div>${isCollapsible ? '<span class="toggle-btn"><span class="arrow-down"></span> 點擊展開</span>' : ''}</div><div class="ai-section-body" ${isCollapsible ? 'style="display:none;"' : ''}>${content}</div></div>`;
                     }
                 });
@@ -1497,10 +1508,35 @@
         }
 
         function filterPosts() {
+            // 新增：處理登入與訪客狀態顯示邏輯
+            const guestCta = document.getElementById('guest-cta-container');
+            const listContainer = document.getElementById('post-list');
+            const pagination = document.getElementById('pagination-container');
+
+            if (!currentUserEmail) {
+                // 如果未登入，顯示 CTA，隱藏日誌列表與分頁
+                guestCta.style.display = 'flex';
+                listContainer.style.display = 'none';
+                pagination.style.display = 'none';
+                return;
+            } else {
+                // 如果已登入，隱藏 CTA，顯示日誌列表與分頁
+                guestCta.style.display = 'none';
+                listContainer.style.display = 'block';
+                pagination.style.display = 'flex';
+            }
+
             currentSearchQuery = document.getElementById('searchInput').value.toLowerCase();
             const selectedDate = document.getElementById('datePicker').value;
 
             let filtered = allLiveData.filter(post => {
+                // 權限過濾：只顯示自己的紀錄，管理員則全看
+                const isAdmin = currentUserEmail.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+                const validEmails = post.email.toLowerCase().split(/[\n,]+/).map(e => e.trim());
+                const isOwner = validEmails.includes(currentUserEmail.toLowerCase());
+
+                if (!isAdmin && !isOwner) return false;
+
                 const matchSearch = post.title.toLowerCase().includes(currentSearchQuery) || post.desc.toLowerCase().includes(currentSearchQuery);
                 const matchStatus = currentStatus === '全部' || post.status === currentStatus;
                 const matchDate = !selectedDate || post.date === selectedDate.replace(/-/g, '/'); 
