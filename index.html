@@ -7,7 +7,7 @@
     <script src="https://www.youtube.com/iframe_api"></script>
     <style>
         /* =========================================
-           特洛伊 AI 賦能陪跑日誌 - 雙軌零容量防護版
+           特洛伊 AI 賦能陪跑日誌 - 極速直傳串流版
            ========================================= */
         :root {
             --primary-yellow: #F59E0B; 
@@ -158,54 +158,52 @@
         .video-container { position: relative; padding-bottom: 56.25%; height: 0; }
         .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
         
-        /* === 優化：高質感 SVG 按鈕錄影控制列 === */
+        /* === 優化：高質感 SVG 按鈕錄影控制列 (置中顯示) === */
         .recorder-video-wrapper { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #111; margin-top: 15px; aspect-ratio: 16/9; display: none; box-shadow: 0 6px 16px rgba(0,0,0,0.15); -webkit-tap-highlight-color: transparent; }
         .recorder-video-wrapper video { width: 100%; height: 100%; object-fit: contain; display: block; background: transparent; pointer-events: none; }
         
-        /* 針對全螢幕與偽全螢幕的極致排版修復 */
         .recorder-video-wrapper:fullscreen { border-radius: 0; background: #000; width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; }
         .recorder-video-wrapper:-webkit-full-screen { border-radius: 0; background: #000; width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; }
         .recorder-video-wrapper.pseudo-fullscreen { position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; z-index: 99999 !important; border-radius: 0 !important; background: #000 !important; margin: 0 !important; display: flex; align-items: center; justify-content: center; }
         
-        /* 全新設計：暗黑質感控制列 */
+        /* 全新設計：暗黑質感控制列 (螢幕正中央) */
         .glass-control-bar { 
-            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px); 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.95); 
             display: flex; align-items: center; justify-content: center; gap: 20px; 
-            background-color: #333333; /* 暗黑背景 */
-            padding: 12px 24px; border-radius: 50px; /* 藥丸形狀 */
+            background-color: rgba(30, 30, 30, 0.85); /* 半透明暗黑背景 */
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            padding: 16px 28px; border-radius: 50px; 
             z-index: 30; opacity: 0; pointer-events: none; 
             transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5); width: max-content; max-width: 90%; 
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5); width: max-content; max-width: 90%; 
         }
-        .glass-control-bar.show { opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0); }
+        .glass-control-bar.show { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%) scale(1); }
         
-        /* 全螢幕時，控制列必須改為 fixed */
+        /* 全螢幕時，控制列依然置中 */
         .recorder-video-wrapper:fullscreen .glass-control-bar,
         .recorder-video-wrapper:-webkit-full-screen .glass-control-bar,
         .recorder-video-wrapper.pseudo-fullscreen .glass-control-bar {
-            position: fixed !important; bottom: 40px !important; transform: translateX(-50%) translateY(20px);
+            position: fixed !important; top: 50% !important; left: 50% !important; bottom: auto !important; transform: translate(-50%, -50%) scale(0.95) !important;
         }
         .recorder-video-wrapper:fullscreen .glass-control-bar.show,
         .recorder-video-wrapper:-webkit-full-screen .glass-control-bar.show,
         .recorder-video-wrapper.pseudo-fullscreen .glass-control-bar.show {
-            transform: translateX(-50%) translateY(0);
+            transform: translate(-50%, -50%) scale(1) !important;
         }
 
-        /* 按鈕樣式更新為去背無邊框 */
         .glass-btn { 
             background-color: transparent; border: none; color: white; 
-            padding: 10px; border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+            padding: 12px; border-radius: 50%; display: flex; align-items: center; justify-content: center; 
             cursor: pointer; transition: background-color 0.3s ease, transform 0.1s ease; 
             box-shadow: none; margin: 0; width: auto; height: auto; 
         }
-        .glass-btn:hover { background-color: rgba(255, 255, 255, 0.15); transform: none; border-color: transparent; }
+        .glass-btn:hover { background-color: rgba(255, 255, 255, 0.2); transform: none; border-color: transparent; }
         .glass-btn:active { transform: scale(0.9); }
         
-        .svg-icon { width: 28px; height: 28px; fill: white; pointer-events: none; }
+        .svg-icon { width: 32px; height: 32px; fill: white; pointer-events: none; }
         
-        /* 專屬錄影按鈕顏色 */
         .glass-btn.btn-record .svg-icon { fill: #ff4d4f; }
-        .glass-btn.btn-record:hover { background-color: transparent; box-shadow: none; }
+        .glass-btn.btn-record:hover { background-color: transparent; }
         .glass-btn.btn-record:hover .svg-icon { fill: #ff7875; }
 
         /* 播放器控制列 */
@@ -244,7 +242,7 @@
         
         .tc-controls-bar { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0,0,0,0.75); display: flex; align-items: center; padding: 12px 10px; box-sizing: border-box; z-index: 20; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         .tc-controls-bar.show-controls { opacity: 1; pointer-events: auto; }
-        .tc-btn { background: none; border: none; color: white; font-size: 18px; cursor: pointer; padding: 4px; transition: color 0.2s, transform 0.1s; display: flex; align-items: center; justify-content: center; margin: 0; }
+        .tc-btn { background: none; border: none; color: white; cursor: pointer; padding: 4px; transition: color 0.2s, transform 0.1s; display: flex; align-items: center; justify-content: center; margin: 0; }
         .tc-btn:hover { color: var(--primary-yellow); transform: scale(1.1); }
         .tc-indicators-wrapper { flex-grow: 1; display: flex; justify-content: center; gap: 8px; align-items: center; margin: 0 15px; }
         .tc-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.4); transition: all 0.3s ease; cursor: pointer; margin: 0;}
@@ -309,12 +307,12 @@
     <div class="section" id="publish-section" style="display: none; border-left: 5px solid var(--primary-yellow);">
         <h3 style="margin-top:0;">發起新提問</h3>
         <p style="margin-bottom: 12px; font-size: 0.95rem;">
-            <span class="hint-label">系統升級</span><span style="color: var(--accent-green); font-weight: bold;">支援錄影暫停、切換攝影機與上傳前預覽！</span>
+            <span class="hint-label">系統升級</span><span style="color: var(--accent-green); font-weight: bold;">支援極速直傳雲端、暫停錄影與切換視角！</span>
         </p>
 
         <div class="media-toggle-container">
-            <button class="media-toggle-btn active" id="post-mode-video-btn" onclick="switchMediaMode('post', 'video')">📹 螢幕 / 鏡頭錄影</button>
-            <button class="media-toggle-btn" id="post-mode-image-btn" onclick="switchMediaMode('post', 'image')">📸 多圖拍攝 / 選擇</button>
+            <button class="media-toggle-btn active" id="post-mode-video-btn" onclick="switchMediaMode('post', 'video')">錄影</button>
+            <button class="media-toggle-btn" id="post-mode-image-btn" onclick="switchMediaMode('post', 'image')">拍照</button>
         </div>
         <input type="hidden" id="post-media-type" value="video">
 
@@ -336,7 +334,7 @@
                 ※ 分享螢幕時，請記得勾選「一併分享系統音訊」！
             </span>
 
-            <button id="post-btn-setup-record" onclick="setupRecording('post')" class="btn-outline">1. 啟動影音錄製權限</button>
+            <button id="post-btn-setup-record" onclick="setupRecording('post')" class="btn-outline">啟動影音錄製權限</button>
 
             <div id="post-recorder-wrapper" class="recorder-video-wrapper" onmousemove="wakeUpRecorderControls('post')" ontouchstart="wakeUpRecorderControls('post', {passive:true})" onclick="wakeUpRecorderControls('post')">
                 <video id="post-preview-video" autoplay playsinline></video>
@@ -365,7 +363,7 @@
             </div>
             
             <div id="post-preview-actions" style="display:none; margin-top: 15px;">
-                <button onclick="discardRecording('post')" class="btn-outline">🗑️ 捨棄重錄</button>
+                <button onclick="discardRecording('post')" class="btn-outline">捨棄重錄</button>
             </div>
             
             <p id="post-record-status-msg" style="font-size: 0.95rem; margin-top: 15px; display: none;"></p>
@@ -376,7 +374,7 @@
             <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">您可以選取或拍攝多張圖片，可左右滑動檢視或刪除，確認無誤後點擊最下方發布即可。</p>
             
             <input type="file" id="post-image-input" accept="image/*" multiple style="display:none;" onchange="handleImageSelected('post', this)">
-            <button class="btn-outline" onclick="document.getElementById('post-image-input').click()">📸 開啟相機 / 批次選擇相片</button>
+            <button class="btn-outline" onclick="document.getElementById('post-image-input').click()">開啟相機 / 批次選擇相片</button>
             
             <div id="post-image-carousel" class="image-carousel-wrapper" style="display:none;"></div>
             <p id="post-image-status-msg" style="font-size: 0.95rem; margin-top: 15px; display: none;"></p>
@@ -428,12 +426,12 @@
             <div style="margin-top:32px; border-top: 2px dashed var(--glass-border); padding-top: 24px;">
                 <h3 style="margin-top:0;">新增影音回覆 / 追問</h3>
                 <p style="margin-bottom: 12px; font-size: 0.95rem;">
-                    <span class="hint-label">系統升級</span><span style="color: var(--accent-green); font-weight: bold;">支援零容量焦慮雙軌雲端引擎！</span>
+                    <span class="hint-label">系統升級</span><span style="color: var(--accent-green); font-weight: bold;">支援零容量焦慮雙軌雲端直傳引擎！</span>
                 </p>
 
                 <div class="media-toggle-container">
-                    <button class="media-toggle-btn active" id="reply-mode-video-btn" onclick="switchMediaMode('reply', 'video')">📹 螢幕 / 鏡頭錄影</button>
-                    <button class="media-toggle-btn" id="reply-mode-image-btn" onclick="switchMediaMode('reply', 'image')">📸 多圖拍攝 / 選擇</button>
+                    <button class="media-toggle-btn active" id="reply-mode-video-btn" onclick="switchMediaMode('reply', 'video')">錄影</button>
+                    <button class="media-toggle-btn" id="reply-mode-image-btn" onclick="switchMediaMode('reply', 'image')">拍照</button>
                 </div>
                 <input type="hidden" id="reply-media-type" value="video">
 
@@ -454,7 +452,7 @@
                         ※ 分享螢幕時，請記得勾選「一併分享系統音訊」！
                     </span>
 
-                    <button id="reply-btn-setup-record" onclick="setupRecording('reply')" class="btn-outline">1. 啟動影音錄製權限</button>
+                    <button id="reply-btn-setup-record" onclick="setupRecording('reply')" class="btn-outline">啟動影音錄製權限</button>
 
                     <div id="reply-recorder-wrapper" class="recorder-video-wrapper" onmousemove="wakeUpRecorderControls('reply')" ontouchstart="wakeUpRecorderControls('reply', {passive:true})" onclick="wakeUpRecorderControls('reply')">
                         <video id="reply-preview-video" autoplay playsinline></video>
@@ -483,7 +481,7 @@
                     </div>
                     
                     <div id="reply-preview-actions" style="display:none; margin-top: 15px;">
-                        <button onclick="discardRecording('reply')" class="btn-outline">🗑️ 捨棄重錄</button>
+                        <button onclick="discardRecording('reply')" class="btn-outline">捨棄重錄</button>
                     </div>
 
                     <p id="reply-record-status-msg" style="font-size: 0.95rem; margin-top: 15px; display: none;"></p>
@@ -494,7 +492,7 @@
                     <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">您可以選取或拍攝多張圖片，可左右滑動檢視或刪除，確認無誤後點擊最下方發布即可。</p>
                     
                     <input type="file" id="reply-image-input" accept="image/*" multiple style="display:none;" onchange="handleImageSelected('reply', this)">
-                    <button class="btn-outline" onclick="document.getElementById('reply-image-input').click()">📸 開啟相機 / 批次選擇相片</button>
+                    <button class="btn-outline" onclick="document.getElementById('reply-image-input').click()">開啟相機 / 批次選擇相片</button>
                     
                     <div id="reply-image-carousel" class="image-carousel-wrapper" style="display:none;"></div>
                     <p id="reply-image-status-msg" style="font-size: 0.95rem; margin-top: 15px; display: none;"></p>
@@ -525,9 +523,15 @@
         const itemsPerPage = 5;
         let pollingInterval = null; 
 
-        // 多圖與錄影暫存狀態
         let pendingImages = { post: [], reply: [] }; 
         let currentLocalBlob = { post: null, reply: null }; 
+
+        // 串流直傳狀態管理 (256KB 切塊引擎)
+        const CHUNK_SIZE_MULTIPLE = 262144;
+        let streamStates = {
+            post: { driveUrl: '', geminiUrl: '', buffer: null, offset: 0, isUploading: false, queue: [], driveId: '', geminiUri: '', geminiName: '', isFinalized: false },
+            reply: { driveUrl: '', geminiUrl: '', buffer: null, offset: 0, isUploading: false, queue: [], driveId: '', geminiUri: '', geminiName: '', isFinalized: false }
+        };
 
         // YouTube 播放器實例管理
         let ytPlayers = {};
@@ -550,6 +554,12 @@
         // --- SVG Icons Definition ---
         const pauseSvg = `<svg viewBox="0 0 24 24" class="svg-icon"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
         const playSvg = `<svg viewBox="0 0 24 24" class="svg-icon"><path d="M8 5v14l11-7z"/></svg>`;
+        const fullScreenSvg = `<svg viewBox="0 0 24 24" class="svg-icon" style="width:20px;height:20px;"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>`;
+        const muteSvg = `<svg viewBox="0 0 24 24" class="svg-icon" style="width:20px;height:20px;"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.73v2.06c2.89.86 5 3.54 5 6.67zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>`;
+        const volLowSvg = `<svg viewBox="0 0 24 24" class="svg-icon" style="width:20px;height:20px;"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>`;
+        const volHighSvg = `<svg viewBox="0 0 24 24" class="svg-icon" style="width:20px;height:20px;"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>`;
+        const prevSvg = `<svg viewBox="0 0 24 24" class="svg-icon" style="width:24px;height:24px;"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/></svg>`;
+        const nextSvg = `<svg viewBox="0 0 24 24" class="svg-icon" style="width:24px;height:24px;"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>`;
 
         // --- 多圖無限輪播器狀態與邏輯 (含底部控制列) ---
         let troyCarousels = {};
@@ -816,7 +826,7 @@
         }
 
         // ==========================================
-        // 圖片輪播與預覽管理
+        // 圖片輪播與直傳管理 (繞過 GAS 直傳)
         // ==========================================
         function handleImageSelected(type, inputEl) {
             const files = Array.from(inputEl.files);
@@ -850,56 +860,91 @@
 
             for (let i = 0; i < files.length; i++) {
                 const file = files[i]; const ext = file.name.split('.').pop() || 'jpg'; const filename = `Temp_${Date.now()}_${i}.${ext}`;
-                showRecorderMsg(type, `正在上傳圖片 (${i+1}/${files.length})，請勿關閉網頁...`, false, true, true);
+                showRecorderMsg(type, `正在直傳雲端圖片 (${i+1}/${files.length})...`, false, true, true);
                 
                 try {
+                    // 1. 取得 Drive 上傳專屬網址
                     const initRes = await fetch(GAS_LIVE_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'init_upload', filename: filename, mediaType: 'image' }) });
                     const initData = await initRes.json();
                     if (initData.status !== 'success') throw new Error(initData.message);
                     const uploadUrl = initData.uploadUrl;
                     
-                    const chunkSize = 8 * 1024 * 1024; 
-                    const fileSize = file.size; let start = 0; let fileId = null;
-
-                    while (start < fileSize) {
-                        const end = Math.min(start + chunkSize, fileSize); const chunk = file.slice(start, end); const chunkBase64 = await blobToBase64(chunk);
-                        const response = await fetch(GAS_LIVE_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'upload_chunk', isDualTrack: false, uploadUrl: uploadUrl, chunkBase64: chunkBase64, start: start, totalSize: fileSize }) });
+                    // 2. 繞過 GAS，前端直接 PUT 給 Drive
+                    const response = await fetch(uploadUrl, {
+                        method: 'PUT',
+                        headers: { 'Content-Range': `bytes 0-${file.size - 1}/${file.size}` },
+                        body: file
+                    });
+                    
+                    if (response.status === 200 || response.status === 201) {
                         const data = await response.json();
-                        if (data.status === 'resume') { start = end; } else if (data.status === 'success') { fileId = data.fileId; break; } else { throw new Error(data.message); }
+                        uploadedIds.push(data.id); 
+                        uploadedUrls.push(`https://drive.google.com/file/d/${data.id}/view`);
+                    } else {
+                        throw new Error(`HTTP Error ${response.status}`);
                     }
-                    uploadedIds.push(fileId); uploadedUrls.push(`https://drive.google.com/file/d/${fileId}/view`);
                 } catch(err) { throw new Error(`第 ${i+1} 張圖片上傳失敗: ` + err.message); }
             }
             return { urls: uploadedUrls.join(','), ids: uploadedIds.join(',') };
         }
 
-        // --- 核心優化：雙軌切塊上傳 (Drive + Gemini) ---
-        async function uploadMediaDualTrack(blob, type) {
-            const emailInput = document.getElementById('email') ? document.getElementById('email').value.trim() : currentUserEmail;
-            const prefix = emailInput ? emailInput.split('@')[0] : 'User';
-            const filename = `${prefix}_Clip_${Date.now()}.webm`;
+        // ==========================================
+        // 核心優化：前端直傳 256KB 切塊串流引擎 (取代舊雙軌)
+        // ==========================================
+        async function processUploadQueue(type) {
+            const state = streamStates[type];
+            if (state.isUploading || state.queue.length === 0) return;
+            state.isUploading = true;
 
-            const initRes = await fetch(GAS_LIVE_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'init_upload', filename: filename, totalSize: blob.size, mediaType: 'video' }) });
-            const initData = await initRes.json();
-            if (initData.status !== 'success') throw new Error(initData.message);
-            
-            const isDualTrack = initData.isDualTrack;
-            const uploadUrlDrive = initData.uploadUrlDrive;
-            const uploadUrlGemini = initData.uploadUrlGemini;
+            const chunkObj = state.queue.shift();
+            const { blob, isFinal } = chunkObj;
+            const start = state.offset;
+            const end = start + blob.size - 1;
+            const totalSize = isFinal ? start + blob.size : '*';
 
-            const chunkSize = 8 * 1024 * 1024; 
-            const fileSize = blob.size; let start = 0; let driveId = null; let geminiUri = null; let geminiName = null;
+            try {
+                // 直傳 Google Drive
+                let contentRange;
+                if (blob.size === 0) contentRange = `bytes */${totalSize}`;
+                else contentRange = `bytes ${start}-${end}/${totalSize}`;
+                
+                const driveRes = await fetch(state.driveUrl, { method: 'PUT', headers: { 'Content-Range': contentRange }, body: blob });
+                if (driveRes.status === 200 || driveRes.status === 201) {
+                    const driveData = await driveRes.json();
+                    state.driveId = driveData.id;
+                }
 
-            while (start < fileSize) {
-                const end = Math.min(start + chunkSize, fileSize); const chunk = blob.slice(start, end); const chunkBase64 = await blobToBase64(chunk);
-                let progress = Math.round((start / fileSize) * 100);
-                showRecorderMsg(type, `雙軌同步中：${progress}% (上傳至雲端)...`, false, true);
+                // 直傳 Gemini API
+                const geminiHeaders = { "X-Goog-Upload-Protocol": "resumable", "X-Goog-Upload-Command": isFinal ? "upload, finalize" : "upload", "X-Goog-Upload-Offset": start.toString() };
+                const geminiRes = await fetch(state.geminiUrl, { method: 'POST', headers: geminiHeaders, body: blob });
+                if (geminiRes.status === 200) {
+                    const text = await geminiRes.text();
+                    if (text) {
+                        const geminiData = JSON.parse(text);
+                        if (geminiData.file) {
+                            state.geminiUri = geminiData.file.uri;
+                            state.geminiName = geminiData.file.name;
+                        }
+                    }
+                }
 
-                const response = await fetch(GAS_LIVE_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'upload_chunk', isDualTrack, uploadUrlDrive, uploadUrlGemini, chunkBase64, start, totalSize: fileSize }) });
-                const data = await response.json();
-                if (data.status === 'resume') { start = end; } else if (data.status === 'success') { driveId = data.driveId; geminiUri = data.geminiUri; geminiName = data.geminiName; break; } else { throw new Error(data.message); }
+                state.offset += blob.size;
+
+                if (isFinal) {
+                    state.isFinalized = true;
+                    showRecorderMsg(type, "雲端儲存與備份已準備就緒！您可以點擊下方發布。", false, true);
+                }
+
+            } catch (e) {
+                console.error("Chunk upload error:", e);
+                // 發生錯誤退回佇列重新上傳
+                state.queue.unshift(chunkObj);
+                setTimeout(() => { state.isUploading = false; processUploadQueue(type); }, 2000);
+                return;
             }
-            return { driveId, geminiUri, geminiName };
+
+            state.isUploading = false;
+            processUploadQueue(type);
         }
 
         // ==========================================
@@ -923,9 +968,9 @@
             const msgEl = document.getElementById(elId); if(!msgEl) return;
             let badgeHtml = '';
             if (isError) badgeHtml = '<span class="status-icon status-error">錯誤</span>';
-            else if (text.includes("錄製中")) badgeHtml = '<span class="record-dot danger-dot"></span><span class="status-icon" style="background:#FEE2E2; color:#991B1B;">錄製中</span>';
+            else if (text.includes("錄製中")) badgeHtml = '<span class="status-icon" style="background:#FEE2E2; color:#991B1B;">錄製中</span>';
             else if (text.includes("暫停") || text.includes("切換")) badgeHtml = '<span class="status-icon" style="background:#FEF3C7; color:#B45309;">暫停</span>';
-            else badgeHtml = '<span class="status-icon status-success">提示</span>';
+            else badgeHtml = '<span class="status-icon status-success">系統提示</span>';
             msgEl.innerHTML = badgeHtml + text; msgEl.style.display = 'block';
             if(!keep && !isError) setTimeout(() => msgEl.style.display = 'none', 5000);
         }
@@ -946,7 +991,7 @@
                 }
             } else {
                 activeVideoSource = (activeVideoSource === 'screen') ? 'camera' : 'screen';
-                updateFullscreenBtnVisibility(type); // 更新全螢幕按鈕顯示狀態
+                updateFullscreenBtnVisibility(type); 
                 
                 showRecorderMsg(type, `已無縫切換至「${activeVideoSource === 'screen' ? '螢幕' : '鏡頭'}」畫面`, false, false);
                 if (mediaRecorder && mediaRecorder.state === 'recording' && !isPaused) setTimeout(() => showRecorderMsg(type, "正在錄製中...", false, true), 2000);
@@ -965,7 +1010,7 @@
                 pauseBtn.innerHTML = pauseSvg;
                 showRecorderMsg(type, "正在錄製中...", false, true);
             }
-            wakeUpRecorderControls(type); // 點擊時維持控制列顯示
+            wakeUpRecorderControls(type); 
         }
 
         async function setupRecording(type) {
@@ -1046,54 +1091,97 @@
                 let tracks = [...internalCanvas.captureStream(30).getVideoTracks(), ...dest.stream.getAudioTracks()]; combinedStream = new MediaStream(tracks);
                 const previewVideo = document.getElementById(`${type}-preview-video`); previewVideo.srcObject = combinedStream; previewVideo.muted = true; 
                 
-                // UI 更新：隱藏設定按鈕，顯示播放器與毛玻璃控制列
                 document.getElementById(`${type}-btn-setup-record`).style.display = 'none'; 
                 document.getElementById(`${type}-recorder-wrapper`).style.display = 'block';
                 document.getElementById(`${type}-overlay-controls`).style.display = 'flex';
                 
-                // 檢查是否需要隱藏全螢幕按鈕 (防止無限迴圈)
                 updateFullscreenBtnVisibility(type);
-
                 wakeUpRecorderControls(type);
                 
             } catch (err) { showRecorderMsg(type, "發生錯誤：" + err.message, true, true); killMediaTracks(); }
         }
 
-        function startRecording(type) {
-            recordedChunks = []; let options;
-            if (MediaRecorder.isTypeSupported('video/webm;codecs=h264,opus')) options = { mimeType: 'video/webm;codecs=h264,opus', videoBitsPerSecond: 10000000 };
-            else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')) options = { mimeType: 'video/webm;codecs=vp8,opus', videoBitsPerSecond: 10000000 };
-            else options = { videoBitsPerSecond: 10000000 };
+        async function startRecording(type) {
+            showRecorderMsg(type, "正在初始化雲端直傳通道...", false, true);
+            const emailInput = document.getElementById('email') ? document.getElementById('email').value.trim() : currentUserEmail;
+            const prefix = emailInput ? emailInput.split('@')[0] : 'User';
+            const filename = `${prefix}_Clip_${Date.now()}.webm`;
+
+            try {
+                // 1. 取得 Drive/Gemini 專屬網址
+                const initRes = await fetch(GAS_LIVE_URL, {
+                    method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'init_upload', filename: filename, totalSize: 0, mediaType: 'video' }) 
+                });
+                const initData = await initRes.json();
+                if (initData.status !== 'success') throw new Error(initData.message);
+
+                streamStates[type] = {
+                    driveUrl: initData.uploadUrlDrive, geminiUrl: initData.uploadUrlGemini,
+                    buffer: new Blob([], { type: 'video/webm' }), offset: 0, isUploading: false, queue: [],
+                    driveId: '', geminiUri: '', geminiName: '', isFinalized: false
+                };
+            } catch(e) {
+                showRecorderMsg(type, "通道建立失敗: " + e.message, true, true);
+                return;
+            }
+
+            recordedChunks = []; 
+            let options;
+            if (MediaRecorder.isTypeSupported('video/webm;codecs=h264,opus')) options = { mimeType: 'video/webm;codecs=h264,opus', videoBitsPerSecond: 5000000 };
+            else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')) options = { mimeType: 'video/webm;codecs=vp8,opus', videoBitsPerSecond: 5000000 };
+            else options = { videoBitsPerSecond: 5000000 };
 
             mediaRecorder = new MediaRecorder(combinedStream, options);
-            mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
+            
+            // 2. 邊錄邊切塊 256KB 串流上傳引擎
+            mediaRecorder.ondataavailable = (e) => { 
+                if (e.data.size > 0) { 
+                    recordedChunks.push(e.data); // 儲存供本地預覽
+                    const state = streamStates[type];
+                    state.buffer = new Blob([state.buffer, e.data], { type: 'video/webm' });
+                    if (state.buffer.size >= CHUNK_SIZE_MULTIPLE) {
+                        const bytesToUpload = Math.floor(state.buffer.size / CHUNK_SIZE_MULTIPLE) * CHUNK_SIZE_MULTIPLE;
+                        const chunkToUpload = state.buffer.slice(0, bytesToUpload);
+                        state.buffer = state.buffer.slice(bytesToUpload);
+                        state.queue.push({ blob: chunkToUpload, isFinal: false });
+                        processUploadQueue(type);
+                    }
+                } 
+            };
 
             mediaRecorder.onstop = function() {
+                const state = streamStates[type];
+                if (state.buffer && state.buffer.size > 0) {
+                    state.queue.push({ blob: state.buffer, isFinal: true });
+                } else {
+                    state.queue.push({ blob: new Blob([]), isFinal: true });
+                }
+                state.buffer = new Blob([], { type: 'video/webm' });
+                processUploadQueue(type);
+
                 currentLocalBlob[type] = new Blob(recordedChunks, { type: options.mimeType || 'video/webm' });
                 const previewVideo = document.getElementById(`${type}-preview-video`);
                 previewVideo.srcObject = null; previewVideo.src = URL.createObjectURL(currentLocalBlob[type]); 
                 previewVideo.controls = true; previewVideo.muted = false; 
                 
-                // UI 更新：隱藏內部控制列，顯示外部捨棄按鈕
                 document.getElementById(`${type}-overlay-controls`).style.display = 'none';
                 document.getElementById(`${type}-preview-actions`).style.display = 'block'; 
                 
-                // 防呆機制：結束錄影時自動退出全螢幕
                 const wrapper = document.getElementById(`${type}-recorder-wrapper`);
                 if (wrapper) wrapper.classList.remove('pseudo-fullscreen');
                 if (document.fullscreenElement) document.exitFullscreen().catch(()=>{});
                 else if (document.webkitFullscreenElement) document.webkitExitFullscreen();
 
-                showRecorderMsg(type, "錄製結束，您可以直接預覽。滿意請點擊下方確認發布！", false, true);
+                showRecorderMsg(type, "錄製結束，等待雲端同步。滿意請點擊發布！", false, true);
                 killMediaTracks(); 
             };
-            mediaRecorder.start(1000); 
+            mediaRecorder.start(2000); 
             
-            // UI 更新：進入錄製狀態，切換圖示
             document.getElementById(`${type}-btn-glass-start`).style.display = 'none';
             const pauseBtn = document.getElementById(`${type}-btn-glass-pause`);
             pauseBtn.style.display = 'flex';
-            pauseBtn.innerHTML = pauseSvg; // 確保顯示暫停圖示
+            pauseBtn.innerHTML = pauseSvg; 
             
             document.getElementById(`${type}-btn-glass-stop`).style.display = 'flex';
             isPaused = false;
@@ -1106,7 +1194,15 @@
         function cancelRecording(type) { if (mediaRecorder && (mediaRecorder.state === "recording" || mediaRecorder.state === "paused")) { mediaRecorder.stop(); mediaRecorder.onstop = () => { killMediaTracks(); resetRecordingUI(type); }; } else { killMediaTracks(); resetRecordingUI(type); } }
         
         function discardRecording(type) {
+            const state = streamStates[type];
+            if (state && state.driveUrl) {
+                // 捨棄時發送 DELETE 釋放雲端硬碟暫存空間
+                fetch(state.driveUrl, { method: 'DELETE' }).catch(e => {});
+                fetch(state.geminiUrl, { method: 'DELETE' }).catch(e => {});
+            }
+            streamStates[type] = null;
             currentLocalBlob[type] = null;
+            recordedChunks = [];
             resetRecordingUI(type);
         }
 
@@ -1122,7 +1218,6 @@
             document.getElementById(`${type}-overlay-controls`).style.display = 'flex';
             document.getElementById(`${type}-overlay-controls`).classList.remove('show');
             
-            // 確保 UI 重置時退出全螢幕
             const wrapper = document.getElementById(`${type}-recorder-wrapper`);
             if (wrapper) wrapper.classList.remove('pseudo-fullscreen');
             if (document.fullscreenElement) document.exitFullscreen().catch(()=>{});
@@ -1209,7 +1304,7 @@
             } else { if (cleanText) html = `<div class="ai-analysis-container"><div class="ai-section-block" style="border: 2px solid #E0F2FE; background: #F8FAFC;"><div class="ai-section-body">${processMarkdown(cleanText)}</div></div></div>`; }
             
             if (isProcessing) html += `<div class="processing-msg" style="margin-top: 10px; width:100%;"><span class="spinner"></span> AI 正在深度讀取您的圖文並進行解析，請稍候...</div>`;
-            if (sysLogs.length > 0) sysLogs.forEach(log => { html += `<div style="margin-top:15px; padding:12px; background:#F8FAFC; border:1px dashed #CBD5E1; border-radius:10px; font-size:0.95rem; font-weight:bold; color:#475569; text-align:center;">🔔 系統紀錄：${log}</div>`; });
+            if (sysLogs.length > 0) sysLogs.forEach(log => { html += `<div style="margin-top:15px; padding:12px; background:#F8FAFC; border:1px dashed #CBD5E1; border-radius:10px; font-size:0.95rem; font-weight:bold; color:#475569; text-align:center;"><span class="system-label">系統紀錄</span> ${log}</div>`; });
             return html;
         }
 
@@ -1257,14 +1352,14 @@
                 let uid = Math.random().toString(36).substr(2, 9);
                 
                 html += `
-                <p style="font-size:0.85rem; color:var(--accent-green); font-weight:bold; margin-bottom:8px; background:#ECFDF5; padding:6px 10px; border-radius:6px; border:1px solid #A7F3D0;">💡 畫質優化提示：本系統具備防護遮罩，若畫面模糊，請點擊右下角「⛶全螢幕」，系統將於 2~3 秒後自動為您切換至 1080p 高畫質！</p>
+                <p style="font-size:0.85rem; color:var(--accent-green); font-weight:bold; margin-bottom:8px; background:#ECFDF5; padding:6px 10px; border-radius:6px; border:1px solid #A7F3D0;"><span class="system-label" style="border-color:var(--accent-green); color:var(--accent-green);">畫質提示</span> 本系統具備防護遮罩，若畫面模糊，請點擊右下角「全螢幕」，系統將於 2~3 秒後自動為您切換至 1080p 高畫質！</p>
                 <div class="custom-player-container" id="container-${uid}" oncontextmenu="return false;">
                     <div class="player-video-wrapper">
                         <div id="player-${uid}" class="yt-placeholder" data-vid="${ytId}"></div>
                         <div class="overlay-mask" onclick="togglePlayerPlay('${uid}')"></div>
                     </div>
                     <div class="custom-controls" id="controls-${uid}">
-                        <button class="player-btn" id="play-btn-${uid}" onclick="togglePlayerPlay('${uid}')">▶</button>
+                        <button class="player-btn" id="play-btn-${uid}" onclick="togglePlayerPlay('${uid}')">${playSvg}</button>
                         <span class="player-time-display" id="time-${uid}">0:00 / 0:00</span>
                         <span class="player-percentage-display" id="pct-${uid}">0%</span>
                         
@@ -1273,11 +1368,11 @@
                         </div>
 
                         <div class="player-volume-container">
-                            <button class="player-btn" id="mute-btn-${uid}" onclick="togglePlayerMute('${uid}')" title="靜音">🔊</button>
+                            <button class="player-btn" id="mute-btn-${uid}" onclick="togglePlayerMute('${uid}')" title="靜音">${volHighSvg}</button>
                             <input type="range" class="player-volume-slider" id="vol-${uid}" min="0" max="100" value="100" oninput="changePlayerVolume(event, '${uid}')">
                         </div>
 
-                        <button class="player-btn" onclick="togglePlayerFullscreen('${uid}')" title="全螢幕">⛶</button>
+                        <button class="player-btn" onclick="togglePlayerFullscreen('${uid}')" title="全螢幕">${fullScreenSvg}</button>
                     </div>
                 </div>`;
             });
@@ -1300,12 +1395,12 @@
                     </div>
                     
                     <div class="tc-controls-bar" id="tc-controls-${uid}">
-                        <button class="tc-btn" onclick="moveTroyCarousel('${uid}', -1); event.stopPropagation();" title="上一張">◀</button>
+                        <button class="tc-btn" onclick="moveTroyCarousel('${uid}', -1); event.stopPropagation();" title="上一張">${prevSvg}</button>
                         <div class="tc-indicators-wrapper" id="tc-ind-${uid}">
                             ${dotsHtml}
                         </div>
-                        <button class="tc-btn" onclick="moveTroyCarousel('${uid}', 1); event.stopPropagation();" title="下一張">▶</button>
-                        <button class="tc-btn" onclick="toggleCarouselFullscreen('${uid}'); event.stopPropagation();" title="全螢幕" style="margin-left: 5px;">⛶</button>
+                        <button class="tc-btn" onclick="moveTroyCarousel('${uid}', 1); event.stopPropagation();" title="下一張">${nextSvg}</button>
+                        <button class="tc-btn" onclick="toggleCarouselFullscreen('${uid}'); event.stopPropagation();" title="全螢幕" style="margin-left: 5px;">${fullScreenSvg}</button>
                     </div>
 
                     <img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" onload="initTroyCarousel('${uid}', ${driveUrls.length})" style="display:none;">
@@ -1358,10 +1453,10 @@
             if (!playBtn) return;
 
             if (event.data === YT.PlayerState.PLAYING) {
-                playBtn.innerText = '⏸';
+                playBtn.innerHTML = pauseSvg;
                 ytUpdateTimers[uid] = setInterval(() => updatePlayerTime(uid), 100);
             } else {
-                playBtn.innerText = '▶';
+                playBtn.innerHTML = playSvg;
                 clearInterval(ytUpdateTimers[uid]);
             }
             resetPlayerControlsTimeout(uid);
@@ -1426,9 +1521,9 @@
         function updatePlayerVolumeIcon(uid, vol, isMuted) {
             const muteBtn = document.getElementById(`mute-btn-${uid}`);
             if (!muteBtn) return;
-            if (isMuted || vol == 0) muteBtn.innerText = '🔇';
-            else if (vol < 50) muteBtn.innerText = '🔉';
-            else muteBtn.innerText = '🔊';
+            if (isMuted || vol == 0) muteBtn.innerHTML = muteSvg;
+            else if (vol < 50) muteBtn.innerHTML = volLowSvg;
+            else muteBtn.innerHTML = volHighSvg;
         }
 
         function formatTime(seconds) {
@@ -1476,7 +1571,7 @@
         }
 
         // ==========================================
-        // 送出資料與 AI 解析整合 (雙軌上傳版)
+        // 送出資料與 AI 解析整合 (極速直傳版)
         // ==========================================
         async function submitPost() {
             const titleInput = document.getElementById('post-title').value.trim();
@@ -1501,14 +1596,20 @@
                     finalTitle = titleInput;
                     finalDesc += "\n\n[SYS:處理中] AI 正在準備解析並建立專屬資料夾...";
                 } else {
-                    if (!currentLocalBlob['post']) throw new Error('提示：請先完成錄影！');
+                    const state = streamStates['post'];
+                    if (!state || !state.driveUrl) throw new Error("提示：請先完成錄影！");
                     
-                    showRecorderMsg('post', "正在啟動雙軌雲端引擎...", false, true);
-                    const fileData = await uploadMediaDualTrack(currentLocalBlob['post'], 'post');
-                    finalVideoUrls.push(`https://drive.google.com/file/d/${fileData.driveId}/view`);
-                    finalVideoIds.push(fileData.driveId); 
-                    let geminiFileData = `${fileData.geminiUri}|#|${fileData.geminiName}`;
-                    finalDesc += `\n\n[SYS:處理中] 影片已安全備份至雲端硬碟，AI 正在進行深度解析...\n[SYS:GEMINI_FILE=${geminiFileData}]`;
+                    btn.innerHTML = '<span class="spinner"></span> 正在確認雲端檔案同步...';
+                    await new Promise(resolve => {
+                        const check = setInterval(() => {
+                            if (state.isFinalized && state.driveId) { clearInterval(check); resolve(); }
+                        }, 500);
+                    });
+                    
+                    finalVideoUrls.push(`https://drive.google.com/file/d/${state.driveId}/view`);
+                    finalVideoIds.push(state.driveId); 
+                    let geminiFileData = `${state.geminiUri}|#|${state.geminiName}`;
+                    finalDesc += `\n\n[SYS:處理中] 影片已瞬間備份至雲端硬碟，AI 正在進行深度解析...\n[SYS:GEMINI_FILE=${geminiFileData}]`;
                 }
 
                 await fetch(GAS_LIVE_URL, {
@@ -1547,14 +1648,20 @@
                     } else { throw new Error('提示：請先拍攝或選擇圖片！'); }
                     finalDesc += "\n\n[SYS:處理中] AI 正在歸檔您的圖片並進行解析...";
                 } else {
-                    if (!currentLocalBlob['reply']) throw new Error('提示：請先完成錄影！');
+                    const state = streamStates['reply'];
+                    if (!state || !state.driveUrl) throw new Error("提示：請先完成錄影！");
                     
-                    showRecorderMsg('reply', "正在啟動雙軌雲端引擎...", false, true);
-                    const fileData = await uploadMediaDualTrack(currentLocalBlob['reply'], 'reply');
-                    finalVideoUrls.push(`https://drive.google.com/file/d/${fileData.driveId}/view`);
-                    finalVideoIds.push(fileData.driveId);
-                    let geminiFileData = `${fileData.geminiUri}|#|${fileData.geminiName}`;
-                    finalDesc += `\n\n[SYS:處理中] 影片已安全備份至雲端硬碟，AI 正在進行深度解析...\n[SYS:GEMINI_FILE=${geminiFileData}]`;
+                    btn.innerHTML = '<span class="spinner"></span> 正在確認雲端檔案同步...';
+                    await new Promise(resolve => {
+                        const check = setInterval(() => {
+                            if (state.isFinalized && state.driveId) { clearInterval(check); resolve(); }
+                        }, 500);
+                    });
+                    
+                    finalVideoUrls.push(`https://drive.google.com/file/d/${state.driveId}/view`);
+                    finalVideoIds.push(state.driveId);
+                    let geminiFileData = `${state.geminiUri}|#|${state.geminiName}`;
+                    finalDesc += `\n\n[SYS:處理中] 影片已瞬間備份至雲端硬碟，AI 正在進行深度解析...\n[SYS:GEMINI_FILE=${geminiFileData}]`;
                 }
 
                 await fetch(GAS_LIVE_URL, {
