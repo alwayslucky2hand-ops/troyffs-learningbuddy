@@ -4,10 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover">
     <title>特洛伊-賦能陪跑日誌</title>
-    <script src="https://www.youtube.com/iframe_api"></script>
     <style>
         /* =========================================
-           特洛伊 AI 賦能陪跑日誌 - 極致直式播放器版
+           特洛伊 AI 賦能陪跑日誌 - 極速直傳 & 純淨播放版
            ========================================= */
         :root {
             --primary-yellow: #F59E0B; 
@@ -156,7 +155,7 @@
         hr { border: 0; border-top: 1px dashed var(--glass-border); margin: 24px 0; }
         
         /* =======================================================
-           優化：錄影器與播放器的共用架構 (全螢幕與純淨控制列)
+           核心優化：純淨直式播放器與錄影器共用架構
            ======================================================= */
         .video-wrapper, .recorder-video-wrapper { 
             position: relative; 
@@ -166,37 +165,36 @@
             background: #111; 
             margin-top: 15px; 
             box-shadow: 0 6px 16px rgba(0,0,0,0.15); 
-            -webkit-tap-highlight-color: transparent; 
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            user-select: none;
+            /* 關鍵：不再強制 16:9，讓直式影片能自然延展 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
-        /* 針對手機直式最佳化 (16:9 -> 適應性比例) */
-        .video-wrapper { padding-bottom: 56.25%; height: 0; }
-        .recorder-video-wrapper { aspect-ratio: 16/9; display: none; }
-        .recorder-video-wrapper video { width: 100%; height: 100%; object-fit: contain; display: block; background: transparent; pointer-events: none; }
+        /* 播放模式下，如果內部有 iframe 才給予預設比例，避免版面塌陷 */
+        .video-wrapper { min-height: 250px; }
+        .recorder-video-wrapper { display: none; }
+        
+        /* 確保內部影片或 iframe 寬高自適應，且不被裁切 */
+        .video-wrapper iframe, .recorder-video-wrapper video { 
+            width: 100%; 
+            max-height: 70vh; /* 避免直式影片過長吃掉整個螢幕 */
+            object-fit: contain; 
+            display: block; 
+            background: transparent; 
+        }
+
+        /* 錄影時不能點擊畫面 */
+        .recorder-video-wrapper video { pointer-events: none; }
 
         /* 全螢幕模式最佳化 (消除擋塊，背景全黑) */
-        .video-wrapper:fullscreen, .recorder-video-wrapper:fullscreen { border-radius: 0; background: #000; width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; padding-bottom: 0 !important; }
-        .video-wrapper:-webkit-full-screen, .recorder-video-wrapper:-webkit-full-screen { border-radius: 0; background: #000; width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; padding-bottom: 0 !important; }
-        .pseudo-fullscreen { position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; z-index: 99999 !important; border-radius: 0 !important; background: #000 !important; margin: 0 !important; display: flex; align-items: center; justify-content: center; padding-bottom: 0 !important; }
-        
-        /* 隱藏游標的魔法 */
-        .hide-cursor { cursor: none !important; }
-        .hide-cursor .overlay-mask { cursor: none !important; }
-        
-        /* 內嵌影音 (YT/Drive) 容器 */
-        .yt-placeholder, .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; border: none; } 
-        .overlay-mask { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; cursor: pointer; background: transparent; }
+        .video-wrapper:fullscreen, .recorder-video-wrapper:fullscreen { border-radius: 0; background: #000; width: 100vw; height: 100vh; max-height: none; }
+        .video-wrapper:-webkit-full-screen, .recorder-video-wrapper:-webkit-full-screen { border-radius: 0; background: #000; width: 100vw; height: 100vh; max-height: none; }
+        .pseudo-fullscreen { position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; z-index: 99999 !important; border-radius: 0 !important; background: #000 !important; margin: 0 !important; max-height: none !important; }
         
         /* ------------------------------------------------
-           純淨控制列 (錄影與播放共用設計)
+           純淨控制列 (錄影器專用)
            ------------------------------------------------ */
-        /* 播放器控制列 (置底) */
-        .custom-controls { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; padding: 20px 15px 12px 15px; box-sizing: border-box; z-index: 20; gap: 12px; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
-        .custom-controls.show-controls { opacity: 1; pointer-events: auto; }
-        
         /* 錄影器控制列 (置中藥丸型) */
         .glass-control-bar { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.95); display: flex; align-items: center; justify-content: center; gap: 20px; background-color: rgba(30, 30, 30, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding: 16px 28px; border-radius: 50px; z-index: 30; opacity: 0; pointer-events: none; transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 8px 32px rgba(0,0,0,0.5); width: max-content; max-width: 90%; }
         .glass-control-bar.show { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%) scale(1); }
@@ -206,28 +204,15 @@
         .recorder-video-wrapper:fullscreen .glass-control-bar.show, .recorder-video-wrapper:-webkit-full-screen .glass-control-bar.show, .pseudo-fullscreen .glass-control-bar.show { transform: translate(-50%, -50%) scale(1) !important; }
         
         /* 共用按鈕圖示設計 */
-        .glass-btn, .player-btn { background: transparent; border: none; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background-color 0.3s ease, transform 0.1s ease, color 0.2s; box-shadow: none; margin: 0; padding: 4px; width: auto; height: auto; }
-        .glass-btn { padding: 12px; border-radius: 50%; }
+        .glass-btn { background: transparent; border: none; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background-color 0.3s ease, transform 0.1s ease; box-shadow: none; margin: 0; padding: 12px; border-radius: 50%; width: auto; height: auto; }
         .glass-btn:hover { background-color: rgba(255, 255, 255, 0.2); transform: none; border-color: transparent; }
         .glass-btn:active { transform: scale(0.9); }
-        .player-btn:hover { color: var(--primary-yellow); transform: scale(1.1); }
         
         /* SVG 圖示細節 */
-        .svg-icon { width: 24px; height: 24px; fill: white; pointer-events: none; }
-        .glass-btn .svg-icon { width: 32px; height: 32px; }
+        .svg-icon { width: 32px; height: 32px; fill: white; pointer-events: none; }
         .glass-btn.btn-record .svg-icon { fill: #ff4d4f; }
         .glass-btn.btn-record:hover { background-color: transparent; }
         .glass-btn.btn-record:hover .svg-icon { fill: #ff7875; }
-
-        /* 播放器專屬 - 時間、進度與音量 */
-        .player-percentage-display { color: var(--primary-yellow); font-size: 0.85rem; font-family: monospace; font-weight: bold; min-width: 40px; text-align: right; }
-        .player-progress-container { flex-grow: 1; height: 12px; background: rgba(255,255,255,0.2); border-radius: 4px; cursor: pointer; position: relative; min-width: 50px;}
-        .player-progress-bar { position: absolute; top: 0; left: 0; height: 100%; background: var(--primary-yellow); border-radius: 4px; width: 0%; pointer-events: none; transition: width 0.1s linear; }
-        .player-volume-container { display: flex; align-items: center; gap: 5px; }
-        .player-volume-slider { -webkit-appearance: none; width: 60px; background: transparent; cursor: pointer; margin:0; padding:0; border:none; }
-        .player-volume-slider::-webkit-slider-runnable-track { width: 100%; height: 6px; background: rgba(255,255,255,0.3); border-radius: 3px; }
-        .player-volume-slider::-webkit-slider-thumb { -webkit-appearance: none; height: 18px; width: 18px; border-radius: 50%; background: #ffffff; margin-top: -6px; transition: background 0.2s, transform 0.1s; }
-        .player-volume-slider:hover::-webkit-slider-thumb { background: var(--primary-yellow); transform: scale(1.2); }
 
         /* ------------------------------------------------
            多圖無限輪播器 (統一風格)
@@ -243,6 +228,7 @@
         .tc-controls-bar.show-controls { opacity: 1; pointer-events: auto; }
         .tc-btn { background: none; border: none; color: white; cursor: pointer; padding: 4px; transition: color 0.2s, transform 0.1s; display: flex; align-items: center; justify-content: center; margin: 0; }
         .tc-btn:hover { color: var(--primary-yellow); transform: scale(1.1); }
+        .tc-btn .svg-icon { width: 24px; height: 24px; }
         .tc-indicators-wrapper { flex-grow: 1; display: flex; justify-content: center; gap: 8px; align-items: center; margin: 0 15px; }
         .tc-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.4); transition: all 0.3s ease; cursor: pointer; margin: 0;}
         .tc-dot.active { background: var(--primary-yellow); width: 18px; border-radius: 4px; box-shadow: 0 0 8px rgba(245, 158, 11, 0.6); }
@@ -306,7 +292,7 @@
     <div class="section" id="publish-section" style="display: none; border-left: 5px solid var(--primary-yellow);">
         <h3 style="margin-top:0;">發起新提問</h3>
         <p style="margin-bottom: 12px; font-size: 0.95rem;">
-            <span class="hint-label">系統升級</span><span style="color: var(--accent-green); font-weight: bold;">支援極速直傳、手機完美全螢幕！</span>
+            <span class="hint-label">系統升級</span><span style="color: var(--accent-green); font-weight: bold;">支援極速雲端儲存、暫停錄影與切換視角！</span>
         </p>
 
         <div class="media-toggle-container">
@@ -451,7 +437,7 @@
                         ※ 分享螢幕時，請記得勾選「一併分享系統音訊」！
                     </span>
 
-                    <button id="reply-btn-setup-record" onclick="setupRecording('reply')" class="btn-outline">啟動影音錄製權限</button>
+                    <button id="reply-btn-setup-record" onclick="setupRecording('reply')" class="btn-outline">啟 কথ動影音錄製權限</button>
 
                     <div id="reply-recorder-wrapper" class="recorder-video-wrapper" onmousemove="wakeUpRecorderControls('reply')" ontouchstart="wakeUpRecorderControls('reply', {passive:true})" onclick="wakeUpRecorderControls('reply')">
                         <video id="reply-preview-video" autoplay playsinline></video>
@@ -553,12 +539,12 @@
         // --- SVG Icons Definition ---
         const pauseSvg = `<svg viewBox="0 0 24 24" class="svg-icon"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
         const playSvg = `<svg viewBox="0 0 24 24" class="svg-icon"><path d="M8 5v14l11-7z"/></svg>`;
-        const fullScreenSvg = `<svg viewBox="0 0 24 24" class="svg-icon"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>`;
-        const muteSvg = `<svg viewBox="0 0 24 24" class="svg-icon"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.73v2.06c2.89.86 5 3.54 5 6.67zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>`;
-        const volLowSvg = `<svg viewBox="0 0 24 24" class="svg-icon"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>`;
-        const volHighSvg = `<svg viewBox="0 0 24 24" class="svg-icon"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>`;
-        const prevSvg = `<svg viewBox="0 0 24 24" class="svg-icon"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/></svg>`;
-        const nextSvg = `<svg viewBox="0 0 24 24" class="svg-icon"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>`;
+        const fullScreenSvg = `<svg viewBox="0 0 24 24" class="svg-icon" style="width:20px;height:20px;"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>`;
+        const muteSvg = `<svg viewBox="0 0 24 24" class="svg-icon" style="width:20px;height:20px;"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.73v2.06c2.89.86 5 3.54 5 6.67zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>`;
+        const volLowSvg = `<svg viewBox="0 0 24 24" class="svg-icon" style="width:20px;height:20px;"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>`;
+        const volHighSvg = `<svg viewBox="0 0 24 24" class="svg-icon" style="width:20px;height:20px;"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>`;
+        const prevSvg = `<svg viewBox="0 0 24 24" class="svg-icon" style="width:24px;height:24px;"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/></svg>`;
+        const nextSvg = `<svg viewBox="0 0 24 24" class="svg-icon" style="width:24px;height:24px;"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>`;
 
         // --- 多圖無限輪播器狀態與邏輯 (含底部控制列) ---
         let troyCarousels = {};
@@ -824,7 +810,7 @@
         }
 
         // ==========================================
-        // 圖片輪播與直傳管理
+        // 圖片輪播與直傳管理 (繞過 GAS 直傳)
         // ==========================================
         function handleImageSelected(type, inputEl) {
             const files = Array.from(inputEl.files);
@@ -861,11 +847,13 @@
                 showRecorderMsg(type, `正在直傳雲端圖片 (${i+1}/${files.length})...`, false, true, true);
                 
                 try {
+                    // 1. 取得 Drive 上傳專屬網址
                     const initRes = await fetch(GAS_LIVE_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'init_upload', filename: filename, mediaType: 'image' }) });
                     const initData = await initRes.json();
                     if (initData.status !== 'success') throw new Error(initData.message);
                     const uploadUrl = initData.uploadUrl;
                     
+                    // 2. 繞過 GAS，前端直接 PUT 給 Drive
                     const response = await fetch(uploadUrl, {
                         method: 'PUT',
                         headers: { 'Content-Range': `bytes 0-${file.size - 1}/${file.size}` },
