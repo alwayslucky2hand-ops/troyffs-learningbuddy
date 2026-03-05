@@ -307,7 +307,7 @@
     <div class="section" id="publish-section" style="display: none; border-left: 5px solid var(--primary-yellow);">
         <h3 style="margin-top:0;">發起新提問</h3>
         <p style="margin-bottom: 12px; font-size: 0.95rem;">
-            <span class="hint-label">系統升級</span><span style="color: var(--accent-green); font-weight: bold;">支援極速直傳雲端、暫停錄影與切換視角！</span>
+            <span class="hint-label">系統升級</span><span style="color: var(--accent-green); font-weight: bold;">支援極速雲端儲存、暫停錄影與切換視角！</span>
         </p>
 
         <div class="media-toggle-container">
@@ -511,7 +511,7 @@
         // ==========================================
         // 全局狀態管理 
         // ==========================================
-        const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbzvcdNnzFjLyXhuQ8DbO8a6IM7pWklGSv1exPW1YOzVnNU9k-tevGDZWWrD6Omy6-ZF/exec'; 
+        const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbwrdxQic3Zji7z_QgsHg4YlqSZFEvTcPALNuqZ0V6AdE5CBRaj8E0PbMW-2bUWB3zyv/exec'; 
         const ADMIN_EMAIL = 'alwayslucky2hand@gmail.com';
 
         let currentUserEmail = ''; 
@@ -526,8 +526,8 @@
         let pendingImages = { post: [], reply: [] }; 
         let currentLocalBlob = { post: null, reply: null }; 
 
-        // 串流直傳狀態管理 (256KB 切塊引擎)
-        const CHUNK_SIZE_MULTIPLE = 262144;
+        // 串流直傳狀態管理 (8MB 智能緩衝引擎，解決 Gemini 與 CORS 限制)
+        const CHUNK_SIZE_MULTIPLE = 8388608; // 8MB，同時滿足 Drive (256KB) 與 Gemini (8MB) 的嚴格規定
         let streamStates = {
             post: { driveUrl: '', geminiUrl: '', buffer: null, offset: 0, isUploading: false, queue: [], driveId: '', geminiUri: '', geminiName: '', isFinalized: false },
             reply: { driveUrl: '', geminiUrl: '', buffer: null, offset: 0, isUploading: false, queue: [], driveId: '', geminiUri: '', geminiName: '', isFinalized: false }
@@ -654,7 +654,6 @@
             const dots = document.querySelectorAll(`#tc-ind-${uid} .tc-dot`);
             dots.forEach((dot, idx) => dot.classList.toggle('active', idx === state.current));
         };
-        // ----------------------------------------
 
         function isMobileDevice() { return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent); }
 
@@ -889,7 +888,7 @@
         }
 
         // ==========================================
-        // 核心優化：邊錄邊傳 (GAS 隱形轉發串流引擎，解決 CORS 問題)
+        // 核心優化：GAS 隱形轉發串流引擎 (完美避開 CORS 與 8MB 限制)
         // ==========================================
         async function processUploadQueue(type) {
             const state = streamStates[type];
@@ -899,26 +898,23 @@
             const chunkObj = state.queue.shift();
             const { blob, isFinal } = chunkObj;
             const start = state.offset;
-            const end = start + blob.size - 1;
             
-            // 計算目前檔案大小狀態
-            // 注意：Google API 規定，未知總大小時用 '*'，最後一塊才寫上明確總大小
-            const totalSize = isFinal ? (start + blob.size) : '*';
-
             try {
-                // 如果這是一塊空資料（例如錄影瞬間結束），直接標記完成
+                // 如果是空資料（瞬間結束錄影），直接標記完成
                 if (blob.size === 0 && isFinal) {
                     state.isFinalized = true;
-                    showRecorderMsg(type, "雲端儲存與備份已準備就緒！您可以點擊下方發布。", false, true);
+                    showRecorderMsg(type, "雲端備份已就緒！您可以點擊下方發布交給 AI。", false, true);
                     state.isUploading = false;
                     processUploadQueue(type);
                     return;
                 }
 
-                // 將二進位影片碎片轉為 Base64 字串
+                // 總大小：只有最後一塊才知道確實大小
+                const totalSize = isFinal ? (start + blob.size) : '*';
+
+                // 將二進位轉換為 Base64 字串，透過 GAS 轉發繞過 CORS
                 const chunkBase64 = await blobToBase64(blob);
 
-                // 透過 GAS 作為中繼站，繞過 GitHub Pages 的 CORS 限制
                 const response = await fetch(GAS_LIVE_URL, {
                     method: 'POST',
                     redirect: 'follow',
@@ -930,23 +926,22 @@
                         uploadUrlGemini: state.geminiUrl,
                         chunkBase64: chunkBase64,
                         start: start,
-                        totalSize: isFinal ? totalSize : 999999999 // GAS 後端判斷 isFinal 的權宜之計
+                        totalSize: isFinal ? (start + blob.size) : 999999999 // 供後端判斷使用
                     })
                 });
 
                 const data = await response.json();
 
                 if (data.status === 'success' || data.status === 'resume') {
-                    // 記錄已上傳的偏移量
                     state.offset += blob.size;
 
-                    // 如果這是最後一塊，並且 GAS 回傳了檔案 ID
+                    // 最後一塊且 GAS 回傳成功，取得檔案 ID
                     if (isFinal && data.status === 'success') {
                         state.driveId = data.driveId;
                         state.geminiUri = data.geminiUri;
                         state.geminiName = data.geminiName;
                         state.isFinalized = true;
-                        showRecorderMsg(type, "雲端儲存與備份已準備就緒！您可以點擊下方發布。", false, true);
+                        showRecorderMsg(type, "雲端備份已就緒！您可以點擊下方發布交給 AI。", false, true);
                     }
                 } else {
                     throw new Error(data.message || "碎塊轉發失敗");
@@ -954,19 +949,18 @@
 
             } catch (e) {
                 console.error("Chunk upload error:", e);
-                // 發生錯誤退回佇列，延遲 2 秒後重新上傳
+                // 若遇網路不穩，退回佇列延遲重試
                 state.queue.unshift(chunkObj);
                 setTimeout(() => { state.isUploading = false; processUploadQueue(type); }, 2000);
                 return;
             }
 
             state.isUploading = false;
-            // 遞迴呼叫，繼續處理下一塊
             processUploadQueue(type);
         }
 
         // ==========================================
-        // 無縫錄影與預覽引擎 (1080p防卡頓版 + 視窗切換)
+        // 無縫錄影與原生預覽引擎 (1080p防卡頓版)
         // ==========================================
         function killMediaTracks() {
             if (drawLoopId) { clearTimeout(drawLoopId); drawLoopId = null; } 
@@ -1107,7 +1101,10 @@
                 }
 
                 let tracks = [...internalCanvas.captureStream(30).getVideoTracks(), ...dest.stream.getAudioTracks()]; combinedStream = new MediaStream(tracks);
-                const previewVideo = document.getElementById(`${type}-preview-video`); previewVideo.srcObject = combinedStream; previewVideo.muted = true; 
+                const previewVideo = document.getElementById(`${type}-preview-video`); 
+                previewVideo.srcObject = combinedStream; 
+                previewVideo.muted = true; 
+                previewVideo.style.pointerEvents = 'none'; // 錄影中禁止點擊畫面
                 
                 document.getElementById(`${type}-btn-setup-record`).style.display = 'none'; 
                 document.getElementById(`${type}-recorder-wrapper`).style.display = 'block';
@@ -1126,10 +1123,10 @@
             const filename = `${prefix}_Clip_${Date.now()}.webm`;
 
             try {
-                // 1. 取得 Drive/Gemini 專屬網址
+                // 1. 取得 Drive/Gemini 專屬網址 (不傳 totalSize 讓 GAS 自行判斷)
                 const initRes = await fetch(GAS_LIVE_URL, {
                     method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: 'init_upload', filename: filename, totalSize: 0, mediaType: 'video' }) 
+                    body: JSON.stringify({ action: 'init_upload', filename: filename, mediaType: 'video' }) 
                 });
                 const initData = await initRes.json();
                 if (initData.status !== 'success') throw new Error(initData.message);
@@ -1152,12 +1149,14 @@
 
             mediaRecorder = new MediaRecorder(combinedStream, options);
             
-            // 2. 邊錄邊切塊 256KB 串流上傳引擎
+            // 2. 邊錄邊累積至 8MB 後轉發 (滿足 Gemini 嚴苛限制)
             mediaRecorder.ondataavailable = (e) => { 
                 if (e.data.size > 0) { 
                     recordedChunks.push(e.data); // 儲存供本地預覽
                     const state = streamStates[type];
                     state.buffer = new Blob([state.buffer, e.data], { type: 'video/webm' });
+                    
+                    // 一旦達到 8MB (8388608 bytes)，就切出一塊送出
                     if (state.buffer.size >= CHUNK_SIZE_MULTIPLE) {
                         const bytesToUpload = Math.floor(state.buffer.size / CHUNK_SIZE_MULTIPLE) * CHUNK_SIZE_MULTIPLE;
                         const chunkToUpload = state.buffer.slice(0, bytesToUpload);
@@ -1170,6 +1169,7 @@
 
             mediaRecorder.onstop = function() {
                 const state = streamStates[type];
+                // 把最後剩下的 buffer 當作 Final 區塊送出
                 if (state.buffer && state.buffer.size > 0) {
                     state.queue.push({ blob: state.buffer, isFinal: true });
                 } else {
@@ -1178,10 +1178,14 @@
                 state.buffer = new Blob([], { type: 'video/webm' });
                 processUploadQueue(type);
 
+                // 解鎖原生預覽播放器介面
                 currentLocalBlob[type] = new Blob(recordedChunks, { type: options.mimeType || 'video/webm' });
                 const previewVideo = document.getElementById(`${type}-preview-video`);
-                previewVideo.srcObject = null; previewVideo.src = URL.createObjectURL(currentLocalBlob[type]); 
-                previewVideo.controls = true; previewVideo.muted = false; 
+                previewVideo.srcObject = null; 
+                previewVideo.src = URL.createObjectURL(currentLocalBlob[type]); 
+                previewVideo.controls = true; // 開啟原生控制列
+                previewVideo.muted = false; // 解除靜音
+                previewVideo.style.pointerEvents = 'auto'; // 關鍵修復：允許滑鼠點擊時間軸與按鈕！
                 
                 document.getElementById(`${type}-overlay-controls`).style.display = 'none';
                 document.getElementById(`${type}-preview-actions`).style.display = 'block'; 
@@ -1194,7 +1198,9 @@
                 showRecorderMsg(type, "錄製結束，等待雲端同步。滿意請點擊發布！", false, true);
                 killMediaTracks(); 
             };
-            mediaRecorder.start(2000); 
+            
+            // 每秒產生一個碎塊，讓系統檢查是否滿 8MB
+            mediaRecorder.start(1000); 
             
             document.getElementById(`${type}-btn-glass-start`).style.display = 'none';
             const pauseBtn = document.getElementById(`${type}-btn-glass-pause`);
@@ -1244,6 +1250,7 @@
             const previewVideo = document.getElementById(`${type}-preview-video`);
             previewVideo.src = ''; 
             previewVideo.controls = false;
+            previewVideo.style.pointerEvents = 'none'; // 重置點擊鎖定
             
             document.getElementById(`${type}-record-status-msg`).style.display = 'none';
         }
