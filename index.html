@@ -30,9 +30,10 @@
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Microsoft JhengHei', sans-serif; line-height: 1.6; max-width: 500px; margin: 0 auto; padding: 0 15px 20px 15px; background: var(--panel-bg); color: var(--text-dark); min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.05); -webkit-font-smoothing: antialiased; overflow-x: hidden;}
         .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--primary-yellow); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 6px; vertical-align: middle; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .record-dot { display: inline-block; width: 10px; height: 10px; background-color: white; border-radius: 50%; margin-right: 8px; animation: pulse-dot 1.5s infinite; }
-        .record-dot.danger-dot { background-color: var(--danger-color); }
+        .record-dot { display: inline-block; width: 12px; height: 12px; background-color: white; border-radius: 50%; margin: 0 auto; animation: pulse-dot 1.5s infinite; }
+        .record-dot.danger-dot { background-color: #FFFFFF; } /* Inside red button, keep it white */
         @keyframes pulse-dot { 0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); } 70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(255, 255, 255, 0); } 100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); } }
+        
         .role-badge { padding: 4px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; margin-right: 8px; display: inline-block; }
         .coach-badge { background-color: var(--accent-green); color: white; }
         .student-badge { background-color: var(--primary-yellow); color: white; }
@@ -46,6 +47,7 @@
         .arrow-up { display: inline-block; width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-bottom: 5px solid #3B82F6; margin-right: 6px; vertical-align: middle;}
         .arrow-down { display: inline-block; width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 5px solid #3B82F6; margin-right: 6px; vertical-align: middle;}
         .section-mark { display: inline-block; width: 4px; height: 16px; background: var(--primary-yellow); border-radius: 2px; margin-right: 8px; vertical-align: text-bottom; }
+        
         .app-header { display: flex; align-items: center; justify-content: space-between; padding: 15px 0; margin-bottom: 24px; border-bottom: 1px dashed var(--glass-border); background: var(--panel-bg); position: sticky; top: 0; z-index: 100; }
         .app-title { font-size: 1.5rem; margin: 0; text-align: center; color: var(--slate-blue); font-weight: bold; flex-grow: 1; }
         .hamburger-btn { background: transparent; border: none; padding: 5px; cursor: pointer; box-shadow: none; width: auto; margin: 0; color: var(--slate-blue); font-size: 28px; display: flex; align-items: center; justify-content: center; }
@@ -60,6 +62,7 @@
         .sidebar-link { display: block; padding: 16px 24px; color: #E8EAED; text-decoration: none; font-size: 1.1rem; transition: background 0.2s, color 0.2s; font-weight: normal; }
         .sidebar-link:hover { background: rgba(255,255,255,0.05); }
         .sidebar-link.active { color: #8AB4F8; font-weight: bold; }
+        
         h2, h3 { color: var(--slate-blue); font-weight: bold; margin-bottom: 16px; }
         .section { background: var(--panel-bg); padding: 24px 20px; margin-bottom: 24px; border-radius: var(--radius-soft); border: 1px solid var(--glass-border); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); }
         .input-box, textarea, select { padding: 14px 16px; border: 1px solid var(--glass-border); border-radius: 10px; font-size: 16px !important; width: 100%; margin-bottom: 12px; background: var(--input-bg); color: var(--text-dark); font-family: inherit; transition: all 0.3s ease; }
@@ -72,6 +75,7 @@
         .btn-outline:hover { background: var(--primary-yellow); color: #ffffff; border-color: var(--primary-yellow); }
         .media-toggle-btn:hover:not(.active) { background: var(--primary-yellow); color: #ffffff; }
         .btn-danger { background: var(--danger-color); box-shadow: 0 4px 6px rgba(239, 68, 68, 0.2); } 
+        
         .search-box { width: 100%; padding: 14px 16px; border: 1px solid var(--glass-border); border-radius: 10px; font-size: 1rem; background: var(--input-bg); margin-bottom: 24px; }
         .filter-section { background: var(--panel-bg); margin-bottom: 24px; padding: 20px; border-radius: var(--radius-soft); border: 1px solid var(--glass-border); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); }
         .filter-title { margin-bottom: 10px; font-weight: bold; color: var(--slate-blue); font-size: 0.95em; }
@@ -79,11 +83,11 @@
         .category-nav::-webkit-scrollbar { display: none; }
         .cat-btn { background: var(--input-bg); color: var(--text-muted); padding: 10px 18px; border-radius: 30px; border: 1px solid var(--glass-border); font-size: 0.9em; font-weight: bold; cursor: pointer; width: auto; margin-bottom: 0; box-shadow: none; flex-shrink: 0;}
         .cat-btn.active, .cat-btn:hover { background: var(--primary-yellow); color: #ffffff; border-color: var(--primary-yellow); transform: none;}
+        
         .media-toggle-container { display: flex; gap: 10px; margin-bottom: 15px; background: var(--input-bg); padding: 4px; border-radius: 12px; border: 1px solid var(--glass-border); }
         .media-toggle-btn { flex: 1; padding: 12px 10px; border-radius: 8px; border: none; background: transparent; color: var(--text-muted); font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: none; margin: 0; font-size: 0.95rem; }
         .media-toggle-btn.active { background: #FFFFFF; color: var(--primary-yellow); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
         
-        /* === UI/UX 新增：獨立卡片視覺強化 === */
         .post-card { background: var(--panel-bg); border: 1px solid var(--glass-border); padding: 24px 20px; margin-bottom: 15px; border-radius: var(--radius-soft); box-shadow: 0 6px 16px rgba(0, 0, 0, 0.04); transition: transform 0.2s; position: relative; }
         .post-card.status-pending { border-top: 5px solid #EF4444; }
         .post-card.status-replied { border-top: 5px solid var(--accent-green); }
@@ -93,11 +97,11 @@
         .tag-badge { padding: 4px 12px; border-radius: 6px; font-size: 0.85em; font-weight: bold; color: white; display: inline-block; white-space: nowrap; }
         .tag-pending { background: #EF4444; animation: pulse 2s infinite; }
         .tag-replied { background: var(--accent-green); }
-        .tag-rag { background: #3B82F6; }
         .post-meta { font-size: 0.85em; color: var(--text-muted); margin-bottom: 16px; display: flex; gap: 8px; flex-wrap: wrap; }
         .post-meta span { background: var(--input-bg); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--glass-border); color: var(--slate-blue); font-weight: bold;}
         .cta-container { display: none; padding: 40px 20px; text-align: center; background: #f8fafc; flex-direction: column; justify-content: center; align-items: center; border-radius: var(--radius-soft); border: 1px dashed var(--glass-border); margin-top: 20px; }
         .post-excerpt { color: var(--text-dark); margin-bottom: 20px; word-wrap: break-word; overflow-wrap: break-word; }
+        
         .ai-analysis-container { display: flex; flex-direction: column; gap: 16px; margin-top: 10px; }
         .ai-section-block { background: #FFFFFF; border: 1px solid var(--glass-border); border-radius: 12px; padding: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); position: relative; overflow: hidden; }
         .ai-section-block::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--primary-yellow); opacity: 0.8; }
@@ -119,7 +123,6 @@
         .summary-body { color: #374151; font-size: 0.95rem; line-height: 1.7; }
         .processing-msg { display: inline-flex; align-items: center; padding: 10px 20px; border-radius: 30px; background: #FEF3C7; border: 1px solid #FDE68A; color: #B45309; font-weight: bold; font-size: 0.95rem; }
         
-        /* === UI/UX 新增：日誌流對話視覺強化 === */
         .thread-item { background: var(--input-bg); padding: 20px; border-radius: 16px; margin-bottom: 15px; position: relative; box-shadow: 0 4px 10px rgba(0,0,0,0.03);}
         .thread-item.coach { border-top: 5px solid var(--accent-green); background: #F0FDF4; }
         .thread-item.student { border-top: 5px solid var(--primary-yellow); }
@@ -128,7 +131,6 @@
         .thread-time { color: var(--text-muted); }
         .thread-email { font-weight: normal; color: var(--slate-blue); font-size: 0.95rem; word-break: break-all;}
         
-        /* === UI/UX 新增：視覺專屬分隔線 === */
         .visual-divider { position: relative; text-align: center; margin: 5px 0 25px 0; }
         .visual-divider::before { content: ''; position: absolute; top: 50%; left: 5%; width: 90%; height: 0; border-top: 2px dashed #CBD5E1; z-index: 0; }
         .visual-divider-icon { display: inline-flex; align-items: center; justify-content: center; background: #F8FAFC; color: #94A3B8; width: 32px; height: 32px; border-radius: 50%; font-size: 14px; position: relative; z-index: 1; border: 4px solid #FFFFFF; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
@@ -147,21 +149,7 @@
         .system-msg { text-align: center; color: var(--slate-blue); padding: 30px 20px; font-weight: bold; }
         .recorder-box { background: #f1f5f9; border: 2px dashed var(--slate-blue); border-radius: 12px; padding: 20px; margin-bottom: 24px; text-align: center; transition: all 0.3s ease;}
         
-        .recorder-video-wrapper { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #111; margin-top: 15px; aspect-ratio: 16/9; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.1); cursor: pointer; -webkit-tap-highlight-color: transparent; }
-        .recorder-video-wrapper video { width: 100%; height: 100%; object-fit: contain; display: block; background: transparent; pointer-events: none; }
-        .recorder-overlay-controls { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 15px; z-index: 20; transition: opacity 0.3s ease; opacity: 0; pointer-events: none; }
-        .recorder-overlay-controls.show { opacity: 1; pointer-events: auto; }
-        .recorder-icon-btn { width: 48px; height: 48px; border-radius: 50%; background: rgba(31, 41, 55, 0.75); color: white; border: 2px solid rgba(255,255,255,0.4); display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.3); margin: 0; padding: 0; }
-        .recorder-icon-btn:hover { background: var(--primary-yellow); border-color: #fff; transform: scale(1.1); }
-        .recorder-icon-btn.btn-record { background: rgba(239, 68, 68, 0.85); border-color: #fff; }
-        .recorder-icon-btn.btn-record:hover { background: #DC2626; }
-        .recorder-icon-btn .record-dot { margin: 0; animation: none; }
-        .recorder-icon-btn.recording .record-dot { animation: pulse-dot 1.5s infinite; }
-        
-        .controls-row { display: flex; flex-direction: column; gap: 10px; justify-content: center; margin-top: 15px; width: 100%;}
-        
         .record-hint { font-size: 0.9rem; color: #991B1B; margin-bottom: 10px; display: inline-block; padding: 12px; background: #FEF2F2; border: 2px solid #FCA5A5; border-radius: 8px; line-height: 1.6; text-align: left; width: 100%;}
-        
         .sop-box { background: #FFFBEB; border-left: 4px solid var(--primary-yellow); padding: 16px; margin-bottom: 20px; border-radius: 8px; text-align: left;}
         .sop-title { color: var(--slate-blue); font-size: 1.05rem; font-weight: bold; }
         .sop-box ol { margin-top: 8px; margin-bottom: 0; padding-left: 20px; color: var(--text-dark); font-size: 0.95rem; line-height: 1.6;}
@@ -172,6 +160,29 @@
         .video-wrapper { margin-top: 15px; border-radius: 12px; overflow: hidden; background: #000; border: 1px solid var(--glass-border); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .video-container { position: relative; padding-bottom: 56.25%; height: 0; }
         .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        
+        /* === UI/UX 新增：劇院級 Glassmorphism 錄影預覽區塊 === */
+        .recorder-video-wrapper { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #111; margin-top: 15px; aspect-ratio: 16/9; display: none; box-shadow: 0 6px 16px rgba(0,0,0,0.15); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .recorder-video-wrapper:fullscreen { border-radius: 0; }
+        .recorder-video-wrapper:-webkit-full-screen { border-radius: 0; }
+        .recorder-video-wrapper video { width: 100%; height: 100%; object-fit: contain; display: block; background: transparent; pointer-events: none; }
+        
+        /* 沉浸式浮動控制列 */
+        .glass-control-bar { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px); display: flex; align-items: center; justify-content: center; gap: 14px; background: rgba(30, 41, 59, 0.65); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.2); padding: 10px 22px; border-radius: 40px; z-index: 30; opacity: 0; pointer-events: none; transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1); width: max-content; max-width: 90%; }
+        .glass-control-bar.show { opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0); }
+        
+        /* 毛玻璃風格按鈕 */
+        .glass-btn { background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; transition: all 0.2s ease; margin: 0; padding: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .glass-btn:hover { background: rgba(255, 255, 255, 0.25); transform: translateY(-2px); border-color: rgba(255, 255, 255, 0.4); }
+        .glass-btn:active { transform: scale(0.92); }
+        
+        /* 特殊狀態按鈕 */
+        .glass-btn.btn-record { background: rgba(239, 68, 68, 0.85); border-color: rgba(255, 165, 165, 0.4); }
+        .glass-btn.btn-record:hover { background: rgba(220, 38, 38, 1); box-shadow: 0 0 15px rgba(239, 68, 68, 0.5); }
+        .glass-btn.btn-stop { background: var(--primary-yellow); border-color: rgba(253, 230, 138, 0.4); color: white;}
+        .glass-btn.btn-stop:hover { background: var(--primary-hover); box-shadow: 0 0 15px rgba(245, 158, 11, 0.5); }
+        .glass-divider { width: 1px; height: 24px; background: rgba(255,255,255,0.2); margin: 0 4px; border-radius: 1px; }
+
         .custom-player-container { position: relative; width: 100%; background: #111827; border-radius: 12px; overflow: hidden; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; margin-top: 15px; }
         .custom-player-container:fullscreen { border-radius: 0; background: #000; }
         .custom-player-container:-webkit-full-screen { border-radius: 0; background: #000; }
@@ -301,20 +312,26 @@
 
             <button id="post-btn-setup-record" onclick="setupRecording('post')" class="btn-outline">1. 啟動影音錄製權限</button>
 
-            <div id="post-recorder-wrapper" class="recorder-video-wrapper" onmousemove="wakeUpRecorderControls('post')" ontouchstart="wakeUpRecorderControls('post')" onclick="wakeUpRecorderControls('post')">
+            <div id="post-recorder-wrapper" class="recorder-video-wrapper" onmousemove="wakeUpRecorderControls('post')" ontouchstart="wakeUpRecorderControls('post', {passive:true})" onclick="wakeUpRecorderControls('post')">
                 <video id="post-preview-video" autoplay playsinline></video>
-                <div id="post-overlay-controls" class="recorder-overlay-controls">
-                    <button id="post-btn-overlay-start" class="recorder-icon-btn btn-record" onclick="startRecording('post'); event.stopPropagation();" title="開始錄製">
+                
+                <div id="post-overlay-controls" class="glass-control-bar">
+                    <button id="post-btn-glass-start" class="glass-btn btn-record" onclick="startRecording('post'); event.stopPropagation();" title="開始錄製">
                         <div class="record-dot danger-dot"></div>
                     </button>
-                    <button id="post-btn-overlay-pause" class="recorder-icon-btn" onclick="togglePauseRecording('post'); event.stopPropagation();" style="display:none;" title="暫停/繼續">⏸️</button>
-                    <button id="post-btn-overlay-switch" class="recorder-icon-btn" onclick="switchVideoSource('post'); event.stopPropagation();" title="切換畫面">🔄</button>
+                    
+                    <button id="post-btn-glass-pause" class="glass-btn" onclick="togglePauseRecording('post'); event.stopPropagation();" style="display:none;" title="暫停/繼續">⏸️</button>
+                    <button id="post-btn-glass-stop" class="glass-btn btn-stop" onclick="stopRecording('post'); event.stopPropagation();" style="display:none;" title="結束錄影">⏹️</button>
+                    
+                    <div class="glass-divider"></div>
+                    
+                    <button id="post-btn-glass-switch" class="glass-btn" onclick="switchVideoSource('post'); event.stopPropagation();" title="切換畫面">🔄</button>
+                    <button id="post-btn-glass-fullscreen" class="glass-btn" onclick="toggleRecorderFullscreen('post'); event.stopPropagation();" title="全螢幕">⛶</button>
                 </div>
             </div>
             
-            <div id="post-bottom-controls" class="controls-row" style="display:none;">
-                <button id="post-btn-bottom-stop" onclick="stopRecording('post')" style="display:none; background: var(--slate-blue); padding: 12px;">⏹️ 結束錄影並預覽</button>
-                <button id="post-btn-bottom-discard" onclick="discardRecording('post')" class="btn-outline" style="display:none; padding: 12px;">🗑️ 捨棄重錄</button>
+            <div id="post-preview-actions" style="display:none; margin-top: 15px;">
+                <button onclick="discardRecording('post')" class="btn-outline">🗑️ 捨棄重錄</button>
             </div>
             
             <p id="post-record-status-msg" style="font-size: 0.95rem; margin-top: 15px; display: none;"></p>
@@ -405,20 +422,26 @@
 
                     <button id="reply-btn-setup-record" onclick="setupRecording('reply')" class="btn-outline">1. 啟動影音錄製權限</button>
 
-                    <div id="reply-recorder-wrapper" class="recorder-video-wrapper" onmousemove="wakeUpRecorderControls('reply')" ontouchstart="wakeUpRecorderControls('reply')" onclick="wakeUpRecorderControls('reply')">
+                    <div id="reply-recorder-wrapper" class="recorder-video-wrapper" onmousemove="wakeUpRecorderControls('reply')" ontouchstart="wakeUpRecorderControls('reply', {passive:true})" onclick="wakeUpRecorderControls('reply')">
                         <video id="reply-preview-video" autoplay playsinline></video>
-                        <div id="reply-overlay-controls" class="recorder-overlay-controls">
-                            <button id="reply-btn-overlay-start" class="recorder-icon-btn btn-record" onclick="startRecording('reply'); event.stopPropagation();" title="開始錄製">
+                        
+                        <div id="reply-overlay-controls" class="glass-control-bar">
+                            <button id="reply-btn-glass-start" class="glass-btn btn-record" onclick="startRecording('reply'); event.stopPropagation();" title="開始錄製">
                                 <div class="record-dot danger-dot"></div>
                             </button>
-                            <button id="reply-btn-overlay-pause" class="recorder-icon-btn" onclick="togglePauseRecording('reply'); event.stopPropagation();" style="display:none;" title="暫停/繼續">⏸️</button>
-                            <button id="reply-btn-overlay-switch" class="recorder-icon-btn" onclick="switchVideoSource('reply'); event.stopPropagation();" title="切換畫面">🔄</button>
+                            
+                            <button id="reply-btn-glass-pause" class="glass-btn" onclick="togglePauseRecording('reply'); event.stopPropagation();" style="display:none;" title="暫停/繼續">⏸️</button>
+                            <button id="reply-btn-glass-stop" class="glass-btn btn-stop" onclick="stopRecording('reply'); event.stopPropagation();" style="display:none;" title="結束錄影">⏹️</button>
+                            
+                            <div class="glass-divider"></div>
+                            
+                            <button id="reply-btn-glass-switch" class="glass-btn" onclick="switchVideoSource('reply'); event.stopPropagation();" title="切換畫面">🔄</button>
+                            <button id="reply-btn-glass-fullscreen" class="glass-btn" onclick="toggleRecorderFullscreen('reply'); event.stopPropagation();" title="全螢幕">⛶</button>
                         </div>
                     </div>
                     
-                    <div id="reply-bottom-controls" class="controls-row" style="display:none;">
-                        <button id="reply-btn-bottom-stop" onclick="stopRecording('reply')" style="display:none; background: var(--slate-blue); padding: 12px;">⏹️ 結束錄影並預覽</button>
-                        <button id="reply-btn-bottom-discard" onclick="discardRecording('reply')" class="btn-outline" style="display:none; padding: 12px;">🗑️ 捨棄重錄</button>
+                    <div id="reply-preview-actions" style="display:none; margin-top: 15px;">
+                        <button onclick="discardRecording('reply')" class="btn-outline">🗑️ 捨棄重錄</button>
                     </div>
 
                     <p id="reply-record-status-msg" style="font-size: 0.95rem; margin-top: 15px; display: none;"></p>
@@ -589,7 +612,7 @@
                     const hint = document.getElementById(`${type}-record-hint`);
                     const msg = document.getElementById(`${type}-desktop-msg`);
                     const camLabel = document.getElementById(`${type}-camera-label`);
-                    if(hint) hint.innerHTML = '<span class="warning-label">手機模式</span>因系統安全限制，手機網頁無法錄製螢幕。<br><span class="hint-label" style="margin-top:6px; display:inline-block;">操作提示</span>您可以隨時使用「🔄 切換畫面」按鈕，<strong>無縫切換前後鏡頭</strong>！';
+                    if(hint) hint.innerHTML = '<span class="warning-label">手機模式</span>因系統安全限制，手機網頁無法錄製螢幕。<br><span class="hint-label" style="margin-top:6px; display:inline-block;">操作提示</span>您可以隨時使用下方「🔄」按鈕，<strong>無縫切換前後鏡頭</strong>！';
                     if(msg) msg.style.display = 'none';
                     if(camLabel) camLabel.style.display = 'none';
                 });
@@ -597,19 +620,35 @@
         }
 
         // ==========================================
-        // 浮動控制列智能喚醒引擎
+        // 浮動控制列智能喚醒引擎 & 全螢幕
         // ==========================================
-        function wakeUpRecorderControls(type) {
+        window.wakeUpRecorderControls = function(type) {
             const overlay = document.getElementById(`${type}-overlay-controls`);
+            const container = document.getElementById(`${type}-recorder-wrapper`);
             if (!overlay || overlay.style.display === 'none') return;
             
             overlay.classList.add('show');
+            if(container) container.style.cursor = 'pointer';
+
             if (recorderHideTimers[type]) clearTimeout(recorderHideTimers[type]);
             
             recorderHideTimers[type] = setTimeout(() => {
                 overlay.classList.remove('show');
+                if(container) container.style.cursor = 'none';
             }, 3000);
-        }
+        };
+
+        window.toggleRecorderFullscreen = function(type) {
+            const container = document.getElementById(`${type}-recorder-wrapper`);
+            if (!container) return;
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                if (container.requestFullscreen) container.requestFullscreen();
+                else if (container.webkitRequestFullscreen) container.webkitRequestFullscreen();
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+            }
+        };
 
         // ==========================================
         // 防誤觸離開機制
@@ -842,7 +881,7 @@
 
         function togglePauseRecording(type) {
             if (!mediaRecorder) return;
-            const pauseBtn = document.getElementById(`${type}-btn-overlay-pause`);
+            const pauseBtn = document.getElementById(`${type}-btn-glass-pause`);
             if (mediaRecorder.state === 'recording') {
                 mediaRecorder.pause(); isPaused = true;
                 pauseBtn.innerHTML = '▶️';
@@ -852,7 +891,7 @@
                 pauseBtn.innerHTML = '⏸️';
                 showRecorderMsg(type, "正在錄製中...", false, true);
             }
-            wakeUpRecorderControls(type); // 點擊時維持控制列顯示
+            wakeUpRecorderControls(type); 
         }
 
         async function setupRecording(type) {
@@ -932,9 +971,9 @@
                 let tracks = [...internalCanvas.captureStream(30).getVideoTracks(), ...dest.stream.getAudioTracks()]; combinedStream = new MediaStream(tracks);
                 const previewVideo = document.getElementById(`${type}-preview-video`); previewVideo.srcObject = combinedStream; previewVideo.muted = true; 
                 
+                // UI 更新：隱藏設定按鈕，顯示播放器與毛玻璃控制列
                 document.getElementById(`${type}-btn-setup-record`).style.display = 'none'; 
                 document.getElementById(`${type}-recorder-wrapper`).style.display = 'block';
-                document.getElementById(`${type}-bottom-controls`).style.display = 'flex';
                 document.getElementById(`${type}-overlay-controls`).style.display = 'flex';
                 
                 wakeUpRecorderControls(type);
@@ -957,19 +996,20 @@
                 previewVideo.srcObject = null; previewVideo.src = URL.createObjectURL(currentLocalBlob[type]); 
                 previewVideo.controls = true; previewVideo.muted = false; 
                 
+                // UI 更新：隱藏內部控制列，顯示外部捨棄按鈕
                 document.getElementById(`${type}-overlay-controls`).style.display = 'none';
-                document.getElementById(`${type}-btn-bottom-stop`).style.display = 'none';
-                document.getElementById(`${type}-btn-bottom-discard`).style.display = 'flex'; 
+                document.getElementById(`${type}-preview-actions`).style.display = 'block'; 
                 
                 showRecorderMsg(type, "錄製結束，您可以直接預覽。滿意請點擊下方確認發布！", false, true);
                 killMediaTracks(); 
             };
             mediaRecorder.start(1000); 
             
-            document.getElementById(`${type}-btn-overlay-start`).style.display = 'none';
-            document.getElementById(`${type}-btn-overlay-pause`).style.display = 'flex';
-            document.getElementById(`${type}-btn-overlay-pause`).innerHTML = '⏸️';
-            document.getElementById(`${type}-btn-bottom-stop`).style.display = 'flex';
+            // UI 更新：進入錄製狀態，切換圖示
+            document.getElementById(`${type}-btn-glass-start`).style.display = 'none';
+            document.getElementById(`${type}-btn-glass-pause`).style.display = 'flex';
+            document.getElementById(`${type}-btn-glass-pause`).innerHTML = '⏸️';
+            document.getElementById(`${type}-btn-glass-stop`).style.display = 'flex';
             isPaused = false;
             
             wakeUpRecorderControls(type); 
@@ -987,12 +1027,11 @@
         function resetRecordingUI(type) {
             document.getElementById(`${type}-btn-setup-record`).style.display = 'flex';
             document.getElementById(`${type}-recorder-wrapper`).style.display = 'none';
-            document.getElementById(`${type}-bottom-controls`).style.display = 'none';
+            document.getElementById(`${type}-preview-actions`).style.display = 'none';
             
-            document.getElementById(`${type}-btn-overlay-start`).style.display = 'flex';
-            document.getElementById(`${type}-btn-overlay-pause`).style.display = 'none';
-            document.getElementById(`${type}-btn-bottom-stop`).style.display = 'none';
-            document.getElementById(`${type}-btn-bottom-discard`).style.display = 'none';
+            document.getElementById(`${type}-btn-glass-start`).style.display = 'flex';
+            document.getElementById(`${type}-btn-glass-pause`).style.display = 'none';
+            document.getElementById(`${type}-btn-glass-stop`).style.display = 'none';
             
             document.getElementById(`${type}-overlay-controls`).style.display = 'flex';
             document.getElementById(`${type}-overlay-controls`).classList.remove('show');
@@ -1493,7 +1532,6 @@
             let hasFeedback = post.desc.includes('系統紀錄：學員');
             if (post.status === '教練已回覆' && !hasFeedback) {
                 html += `<div id="feedback-box-${post.courseId}" class="thread-item" style="background: #F8FAFC; border: 2px dashed var(--primary-yellow); text-align: center; margin-bottom: 15px; padding: 25px 20px;"><p style="font-size:1.1rem; color:var(--slate-blue); margin-bottom:15px; font-weight:bold;">請問教練最新的解答有幫助您解決問題嗎？</p><div style="display:flex; gap:12px; justify-content:center; max-width: 300px; margin: 0 auto;"><button onclick="sendFeedback('${post.courseId}', 'yes')" style="margin:0; flex:1; background:#10B981; color:#fff; border:none; box-shadow:0 4px 6px rgba(16,185,129,0.2);">滿意</button><button onclick="sendFeedback('${post.courseId}', 'no')" style="margin:0; flex:1; background:#EF4444; color:#fff; border:none; box-shadow:0 4px 6px rgba(239,68,68,0.2);">不滿意</button></div></div>`;
-                // 新增分隔線
                 if (items.length > 0) {
                     html += `<div class="visual-divider"><div class="visual-divider-icon">💬</div></div>`;
                 }
@@ -1509,7 +1547,6 @@
                     ${item.contentHtml}
                 </div>`;
                 
-                // 新增分隔線
                 if (index < items.length - 1) {
                     html += `<div class="visual-divider"><div class="visual-divider-icon">💬</div></div>`;
                 }
@@ -1798,7 +1835,6 @@
                 `;
                 listContainer.appendChild(card);
 
-                // 新增分隔線
                 if (index < pagedData.length - 1) {
                     const divider = document.createElement('div');
                     divider.className = 'visual-divider';
