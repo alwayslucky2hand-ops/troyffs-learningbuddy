@@ -82,7 +82,12 @@
         .media-toggle-container { display: flex; gap: 10px; margin-bottom: 15px; background: var(--input-bg); padding: 4px; border-radius: 12px; border: 1px solid var(--glass-border); }
         .media-toggle-btn { flex: 1; padding: 12px 10px; border-radius: 8px; border: none; background: transparent; color: var(--text-muted); font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: none; margin: 0; font-size: 0.95rem; }
         .media-toggle-btn.active { background: #FFFFFF; color: var(--primary-yellow); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .post-card { background: var(--panel-bg); border: 1px solid var(--glass-border); padding: 24px 20px; margin-bottom: 20px; border-radius: var(--radius-soft); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); transition: transform 0.2s;}
+        
+        /* === UI/UX 新增：獨立卡片視覺強化 === */
+        .post-card { background: var(--panel-bg); border: 1px solid var(--glass-border); padding: 24px 20px; margin-bottom: 15px; border-radius: var(--radius-soft); box-shadow: 0 6px 16px rgba(0, 0, 0, 0.04); transition: transform 0.2s; position: relative; }
+        .post-card.status-pending { border-top: 5px solid #EF4444; }
+        .post-card.status-replied { border-top: 5px solid var(--accent-green); }
+        
         .post-title-row { display: flex; flex-direction: column; align-items: flex-start; margin-bottom: 16px; gap: 10px; }
         .post-title { font-size: 1.35em; margin: 0; font-weight: bold; color: var(--text-dark); line-height: 1.4; }
         .tag-badge { padding: 4px 12px; border-radius: 6px; font-size: 0.85em; font-weight: bold; color: white; display: inline-block; white-space: nowrap; }
@@ -113,13 +118,21 @@
         .summary-label { color: #166534; font-weight: 900; margin-bottom: 10px; font-size: 1rem; display: flex; align-items: center; border-bottom: 1px solid #BBF7D0; padding-bottom: 8px; }
         .summary-body { color: #374151; font-size: 0.95rem; line-height: 1.7; }
         .processing-msg { display: inline-flex; align-items: center; padding: 10px 20px; border-radius: 30px; background: #FEF3C7; border: 1px solid #FDE68A; color: #B45309; font-weight: bold; font-size: 0.95rem; }
-        .thread-item { background: var(--input-bg); padding: 20px; border-radius: 16px; margin-bottom: 24px; position: relative;}
+        
+        /* === UI/UX 新增：日誌流對話視覺強化 === */
+        .thread-item { background: var(--input-bg); padding: 20px; border-radius: 16px; margin-bottom: 15px; position: relative; box-shadow: 0 4px 10px rgba(0,0,0,0.03);}
         .thread-item.coach { border-top: 5px solid var(--accent-green); background: #F0FDF4; }
         .thread-item.student { border-top: 5px solid var(--primary-yellow); }
         .thread-header { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; margin-bottom: 16px; font-size: 0.9em; border-bottom: 1px dashed var(--glass-border); padding-bottom: 12px;}
         .thread-role { font-weight: 900; color: var(--slate-blue); font-size: 1.05rem; display: flex; align-items: center;}
         .thread-time { color: var(--text-muted); }
         .thread-email { font-weight: normal; color: var(--slate-blue); font-size: 0.95rem; word-break: break-all;}
+        
+        /* === UI/UX 新增：視覺專屬分隔線 === */
+        .visual-divider { position: relative; text-align: center; margin: 5px 0 25px 0; }
+        .visual-divider::before { content: ''; position: absolute; top: 50%; left: 5%; width: 90%; height: 0; border-top: 2px dashed #CBD5E1; z-index: 0; }
+        .visual-divider-icon { display: inline-flex; align-items: center; justify-content: center; background: #F8FAFC; color: #94A3B8; width: 32px; height: 32px; border-radius: 50%; font-size: 14px; position: relative; z-index: 1; border: 4px solid #FFFFFF; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+
         .image-carousel-wrapper { overflow-x: auto; scroll-snap-type: x mandatory; display: flex; gap: 12px; padding-bottom: 10px; margin-top: 15px; }
         .image-carousel-wrapper::-webkit-scrollbar { height: 6px; }
         .image-carousel-wrapper::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
@@ -134,7 +147,6 @@
         .system-msg { text-align: center; color: var(--slate-blue); padding: 30px 20px; font-weight: bold; }
         .recorder-box { background: #f1f5f9; border: 2px dashed var(--slate-blue); border-radius: 12px; padding: 20px; margin-bottom: 24px; text-align: center; transition: all 0.3s ease;}
         
-        /* === 浮動錄影控制區塊樣式 === */
         .recorder-video-wrapper { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #111; margin-top: 15px; aspect-ratio: 16/9; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.1); cursor: pointer; -webkit-tap-highlight-color: transparent; }
         .recorder-video-wrapper video { width: 100%; height: 100%; object-fit: contain; display: block; background: transparent; pointer-events: none; }
         .recorder-overlay-controls { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 15px; z-index: 20; transition: opacity 0.3s ease; opacity: 0; pointer-events: none; }
@@ -186,7 +198,6 @@
         .player-volume-slider::-webkit-slider-thumb { -webkit-appearance: none; height: 18px; width: 18px; border-radius: 50%; background: #ffffff; margin-top: -6px; transition: background 0.2s, transform 0.1s; }
         .player-volume-slider:hover::-webkit-slider-thumb { background: var(--primary-yellow); transform: scale(1.2); }
 
-        /* === UI/UX 新增：劇院級多圖滑動相簿 (底部控制列) === */
         .troy-carousel { position: relative; width: 100%; aspect-ratio: 16/9; overflow: hidden; border-radius: 12px; background: #000; margin-top: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); user-select: none; -webkit-touch-callout: none; transition: all 0.3s ease; }
         .troy-carousel.hide-cursor { cursor: none !important; }
         .tc-track { display: flex; width: 100%; height: 100%; transition: transform 0.3s ease-in-out; cursor: grab; touch-action: pan-y; }
@@ -1481,10 +1492,14 @@
 
             let hasFeedback = post.desc.includes('系統紀錄：學員');
             if (post.status === '教練已回覆' && !hasFeedback) {
-                html += `<div id="feedback-box-${post.courseId}" class="thread-item" style="background: #F8FAFC; border: 2px dashed var(--primary-yellow); text-align: center; margin-bottom: 24px; padding: 25px 20px;"><p style="font-size:1.1rem; color:var(--slate-blue); margin-bottom:15px; font-weight:bold;">請問教練最新的解答有幫助您解決問題嗎？</p><div style="display:flex; gap:12px; justify-content:center; max-width: 300px; margin: 0 auto;"><button onclick="sendFeedback('${post.courseId}', 'yes')" style="margin:0; flex:1; background:#10B981; color:#fff; border:none; box-shadow:0 4px 6px rgba(16,185,129,0.2);">滿意</button><button onclick="sendFeedback('${post.courseId}', 'no')" style="margin:0; flex:1; background:#EF4444; color:#fff; border:none; box-shadow:0 4px 6px rgba(239,68,68,0.2);">不滿意</button></div></div>`;
+                html += `<div id="feedback-box-${post.courseId}" class="thread-item" style="background: #F8FAFC; border: 2px dashed var(--primary-yellow); text-align: center; margin-bottom: 15px; padding: 25px 20px;"><p style="font-size:1.1rem; color:var(--slate-blue); margin-bottom:15px; font-weight:bold;">請問教練最新的解答有幫助您解決問題嗎？</p><div style="display:flex; gap:12px; justify-content:center; max-width: 300px; margin: 0 auto;"><button onclick="sendFeedback('${post.courseId}', 'yes')" style="margin:0; flex:1; background:#10B981; color:#fff; border:none; box-shadow:0 4px 6px rgba(16,185,129,0.2);">滿意</button><button onclick="sendFeedback('${post.courseId}', 'no')" style="margin:0; flex:1; background:#EF4444; color:#fff; border:none; box-shadow:0 4px 6px rgba(239,68,68,0.2);">不滿意</button></div></div>`;
+                // 新增分隔線
+                if (items.length > 0) {
+                    html += `<div class="visual-divider"><div class="visual-divider-icon">💬</div></div>`;
+                }
             }
 
-            items.forEach(item => {
+            items.forEach((item, index) => {
                 html += `
                 <div class="thread-item ${item.itemClass}">
                     <div class="thread-header">
@@ -1493,6 +1508,11 @@
                     </div>
                     ${item.contentHtml}
                 </div>`;
+                
+                // 新增分隔線
+                if (index < items.length - 1) {
+                    html += `<div class="visual-divider"><div class="visual-divider-icon">💬</div></div>`;
+                }
             });
 
             document.getElementById('thread-container').innerHTML = html;
@@ -1754,12 +1774,16 @@
             const start = (currentPage - 1) * itemsPerPage;
             const pagedData = data.slice(start, start + itemsPerPage);
 
-            pagedData.forEach(post => {
+            pagedData.forEach((post, index) => {
                 let statusTagClass = 'tag-pending';
-                if (post.status.includes('已回覆') || post.status.includes('完成')) statusTagClass = 'tag-replied';
+                let cardBorderClass = 'status-pending';
+                if (post.status.includes('已回覆') || post.status.includes('完成')) {
+                    statusTagClass = 'tag-replied';
+                    cardBorderClass = 'status-replied';
+                }
 
                 const card = document.createElement('div');
-                card.className = 'post-card';
+                card.className = `post-card ${cardBorderClass}`;
                 card.innerHTML = `
                     <div class="post-title-row">
                         <span class="tag-badge ${statusTagClass}">${post.status}</span>
@@ -1773,6 +1797,14 @@
                     <button onclick="enterClass('${post.courseId}')" style="margin-top: 16px; background: var(--slate-blue);">進入日誌</button>
                 `;
                 listContainer.appendChild(card);
+
+                // 新增分隔線
+                if (index < pagedData.length - 1) {
+                    const divider = document.createElement('div');
+                    divider.className = 'visual-divider';
+                    divider.innerHTML = '<div class="visual-divider-icon">▼</div>';
+                    listContainer.appendChild(divider);
+                }
             });
 
             renderPagination(totalPages);
