@@ -133,8 +133,19 @@
         .inline-msg.success { color: var(--accent-green); }
         .system-msg { text-align: center; color: var(--slate-blue); padding: 30px 20px; font-weight: bold; }
         .recorder-box { background: #f1f5f9; border: 2px dashed var(--slate-blue); border-radius: 12px; padding: 20px; margin-bottom: 24px; text-align: center; transition: all 0.3s ease;}
-        .recorder-box.recording { border-color: var(--danger-color); background: #fef2f2; }
-        .preview-video-el { width: 100%; border-radius: 10px; background: #111; margin-top: 15px; display: none; aspect-ratio: 16/9; }
+        
+        /* === UI/UX 新增：浮動錄影控制區塊樣式 === */
+        .recorder-video-wrapper { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #111; margin-top: 15px; aspect-ratio: 16/9; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.1); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .recorder-video-wrapper video { width: 100%; height: 100%; object-fit: contain; display: block; background: transparent; pointer-events: none; }
+        .recorder-overlay-controls { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 15px; z-index: 20; transition: opacity 0.3s ease; opacity: 0; pointer-events: none; }
+        .recorder-overlay-controls.show { opacity: 1; pointer-events: auto; }
+        .recorder-icon-btn { width: 48px; height: 48px; border-radius: 50%; background: rgba(31, 41, 55, 0.75); color: white; border: 2px solid rgba(255,255,255,0.4); display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.3); margin: 0; padding: 0; }
+        .recorder-icon-btn:hover { background: var(--primary-yellow); border-color: #fff; transform: scale(1.1); }
+        .recorder-icon-btn.btn-record { background: rgba(239, 68, 68, 0.85); border-color: #fff; }
+        .recorder-icon-btn.btn-record:hover { background: #DC2626; }
+        .recorder-icon-btn .record-dot { margin: 0; animation: none; }
+        .recorder-icon-btn.recording .record-dot { animation: pulse-dot 1.5s infinite; }
+        
         .controls-row { display: flex; flex-direction: column; gap: 10px; justify-content: center; margin-top: 15px; width: 100%;}
         
         .record-hint { font-size: 0.9rem; color: #991B1B; margin-bottom: 10px; display: inline-block; padding: 12px; background: #FEF2F2; border: 2px solid #FCA5A5; border-radius: 8px; line-height: 1.6; text-align: left; width: 100%;}
@@ -258,28 +269,24 @@
                 ※ 分享螢幕時，請記得勾選「一併分享系統音訊」！
             </span>
 
-            <video id="post-preview-video" class="preview-video-el" autoplay playsinline></video>
-            
-            <div class="controls-row">
-                <button id="post-btn-setup-record" onclick="setupRecording('post')" class="btn-outline">1. 啟動影音錄製權限</button>
-                
-                <div id="post-ready-controls" style="display:none; gap: 10px; width: 100%;">
-                    <button id="post-btn-start-record" onclick="startRecording('post')" class="btn-danger" style="flex:2; margin:0;"><span class="record-dot"></span>開始錄製</button>
-                    <button class="switch-btn" onclick="switchVideoSource('post')" class="btn-outline" style="flex:1; margin:0; padding: 10px;">切換畫面</button>
-                </div>
+            <button id="post-btn-setup-record" onclick="setupRecording('post')" class="btn-outline">1. 啟動影音錄製權限</button>
 
-                <div id="post-active-controls" style="display:none; gap: 10px; width: 100%; flex-wrap: wrap;">
-                    <button id="post-btn-pause-record" onclick="togglePauseRecording('post')" class="btn-outline" style="flex:1; margin:0; padding: 10px;">暫停錄影</button>
-                    <button class="switch-btn" onclick="switchVideoSource('post')" class="btn-outline" style="flex:1; margin:0; padding: 10px;">切換畫面</button>
-                    <button id="post-btn-stop-record" onclick="stopRecording('post')" style="flex:100%; margin-top:5px; background: var(--slate-blue); padding: 10px;">結束錄製並預覽</button>
-                </div>
-
-                <div id="post-preview-controls" style="display:none; gap: 10px; width: 100%; flex-direction: column;">
-                    <div style="display: flex; gap: 10px;">
-                        <button onclick="discardRecording('post')" class="btn-outline" style="flex:1; margin:0;">捨棄重錄</button>
-                    </div>
+            <div id="post-recorder-wrapper" class="recorder-video-wrapper" onmousemove="wakeUpRecorderControls('post')" ontouchstart="wakeUpRecorderControls('post')" onclick="wakeUpRecorderControls('post')">
+                <video id="post-preview-video" autoplay playsinline></video>
+                <div id="post-overlay-controls" class="recorder-overlay-controls">
+                    <button id="post-btn-overlay-start" class="recorder-icon-btn btn-record" onclick="startRecording('post'); event.stopPropagation();" title="開始錄製">
+                        <div class="record-dot danger-dot"></div>
+                    </button>
+                    <button id="post-btn-overlay-pause" class="recorder-icon-btn" onclick="togglePauseRecording('post'); event.stopPropagation();" style="display:none;" title="暫停/繼續">⏸️</button>
+                    <button id="post-btn-overlay-switch" class="recorder-icon-btn" onclick="switchVideoSource('post'); event.stopPropagation();" title="切換畫面">🔄</button>
                 </div>
             </div>
+            
+            <div id="post-bottom-controls" class="controls-row" style="display:none;">
+                <button id="post-btn-bottom-stop" onclick="stopRecording('post')" style="display:none; background: var(--slate-blue); padding: 12px;">⏹️ 結束錄影並預覽</button>
+                <button id="post-btn-bottom-discard" onclick="discardRecording('post')" class="btn-outline" style="display:none; padding: 12px;">🗑️ 捨棄重錄</button>
+            </div>
+            
             <p id="post-record-status-msg" style="font-size: 0.95rem; margin-top: 15px; display: none;"></p>
         </div>
 
@@ -365,28 +372,25 @@
                         <b>如果您在錄影時會「切換不同的網頁分頁」或「開啟其他軟體」</b>，請務必在分享畫面時選擇 <strong>「整個螢幕畫面」</strong>！若選擇「分頁」或「視窗」，您切換畫面時將無法被錄製到。<br>
                         ※ 分享螢幕時，請記得勾選「一併分享系統音訊」！
                     </span>
-                    <video id="reply-preview-video" class="preview-video-el" autoplay playsinline></video>
-                    
-                    <div class="controls-row">
-                        <button id="reply-btn-setup-record" onclick="setupRecording('reply')" class="btn-outline">1. 啟動影音錄製權限</button>
-                        
-                        <div id="reply-ready-controls" style="display:none; gap: 10px; width: 100%;">
-                            <button id="reply-btn-start-record" onclick="startRecording('reply')" class="btn-danger" style="flex:2; margin:0;"><span class="record-dot"></span>開始錄製</button>
-                            <button class="switch-btn" onclick="switchVideoSource('reply')" class="btn-outline" style="flex:1; margin:0; padding: 10px;">切換畫面</button>
-                        </div>
 
-                        <div id="reply-active-controls" style="display:none; gap: 10px; width: 100%; flex-wrap: wrap;">
-                            <button id="reply-btn-pause-record" onclick="togglePauseRecording('reply')" class="btn-outline" style="flex:1; margin:0; padding: 10px;">暫停錄影</button>
-                            <button class="switch-btn" onclick="switchVideoSource('reply')" class="btn-outline" style="flex:1; margin:0; padding: 10px;">切換畫面</button>
-                            <button id="reply-btn-stop-record" onclick="stopRecording('reply')" style="flex:100%; margin-top:5px; background: var(--slate-blue); padding: 10px;">結束錄製並預覽</button>
-                        </div>
+                    <button id="reply-btn-setup-record" onclick="setupRecording('reply')" class="btn-outline">1. 啟動影音錄製權限</button>
 
-                        <div id="reply-preview-controls" style="display:none; gap: 10px; width: 100%; flex-direction: column;">
-                            <div style="display: flex; gap: 10px;">
-                                <button onclick="discardRecording('reply')" class="btn-outline" style="flex:1; margin:0;">捨棄重錄</button>
-                            </div>
+                    <div id="reply-recorder-wrapper" class="recorder-video-wrapper" onmousemove="wakeUpRecorderControls('reply')" ontouchstart="wakeUpRecorderControls('reply')" onclick="wakeUpRecorderControls('reply')">
+                        <video id="reply-preview-video" autoplay playsinline></video>
+                        <div id="reply-overlay-controls" class="recorder-overlay-controls">
+                            <button id="reply-btn-overlay-start" class="recorder-icon-btn btn-record" onclick="startRecording('reply'); event.stopPropagation();" title="開始錄製">
+                                <div class="record-dot danger-dot"></div>
+                            </button>
+                            <button id="reply-btn-overlay-pause" class="recorder-icon-btn" onclick="togglePauseRecording('reply'); event.stopPropagation();" style="display:none;" title="暫停/繼續">⏸️</button>
+                            <button id="reply-btn-overlay-switch" class="recorder-icon-btn" onclick="switchVideoSource('reply'); event.stopPropagation();" title="切換畫面">🔄</button>
                         </div>
                     </div>
+                    
+                    <div id="reply-bottom-controls" class="controls-row" style="display:none;">
+                        <button id="reply-btn-bottom-stop" onclick="stopRecording('reply')" style="display:none; background: var(--slate-blue); padding: 12px;">⏹️ 結束錄影並預覽</button>
+                        <button id="reply-btn-bottom-discard" onclick="discardRecording('reply')" class="btn-outline" style="display:none; padding: 12px;">🗑️ 捨棄重錄</button>
+                    </div>
+
                     <p id="reply-record-status-msg" style="font-size: 0.95rem; margin-top: 15px; display: none;"></p>
                 </div>
 
@@ -445,6 +449,8 @@
         let internalCanvas, internalCtx, drawLoopId;
         let screenHiddenVideo, cameraHiddenVideo;
         let lastDrawTime = 0; const fpsInterval = 1000 / 30; // 鎖定 30FPS 防當機
+        
+        let recorderHideTimers = { post: null, reply: null }; // 控制浮動 UI 的隱藏
 
         function isMobileDevice() { return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent); }
 
@@ -454,7 +460,7 @@
                     const hint = document.getElementById(`${type}-record-hint`);
                     const msg = document.getElementById(`${type}-desktop-msg`);
                     const camLabel = document.getElementById(`${type}-camera-label`);
-                    if(hint) hint.innerHTML = '<span class="warning-label">手機模式</span>因系統安全限制，手機網頁無法錄製螢幕。<br><span class="hint-label" style="margin-top:6px; display:inline-block;">操作提示</span>您可以使用下方「切換畫面」按鈕，<strong>無縫切換前置/後置鏡頭</strong>！';
+                    if(hint) hint.innerHTML = '<span class="warning-label">手機模式</span>因系統安全限制，手機網頁無法錄製螢幕。<br><span class="hint-label" style="margin-top:6px; display:inline-block;">操作提示</span>您可以隨時使用「🔄 切換畫面」按鈕，<strong>無縫切換前後鏡頭</strong>！';
                     if(msg) msg.style.display = 'none';
                     if(camLabel) camLabel.style.display = 'none';
                 });
@@ -462,7 +468,23 @@
         }
 
         // ==========================================
-        // 5. 防誤觸離開機制
+        // 浮動控制列智能喚醒引擎
+        // ==========================================
+        function wakeUpRecorderControls(type) {
+            const overlay = document.getElementById(`${type}-overlay-controls`);
+            if (!overlay || overlay.style.display === 'none') return;
+            
+            overlay.classList.add('show');
+            if (recorderHideTimers[type]) clearTimeout(recorderHideTimers[type]);
+            
+            // 靜置 3 秒後自動隱藏
+            recorderHideTimers[type] = setTimeout(() => {
+                overlay.classList.remove('show');
+            }, 3000);
+        }
+
+        // ==========================================
+        // 防誤觸離開機制
         // ==========================================
         window.addEventListener('beforeunload', function (e) {
             const hasPostText = document.getElementById('post-title')?.value || document.getElementById('post-desc')?.value;
@@ -472,12 +494,12 @@
 
             if (hasPostText || hasReplyText || hasPostMedia || hasReplyMedia) {
                 e.preventDefault();
-                e.returnValue = ''; // 觸發瀏覽器原生的離開確認對話框
+                e.returnValue = ''; 
             }
         });
 
         // ==========================================
-        // 6. 文字草稿自動儲存機制
+        // 文字草稿自動儲存機制
         // ==========================================
         function setupAutoSave() {
             const fields = ['post-title', 'post-desc', 'reply-desc'];
@@ -510,7 +532,7 @@
         }
 
         // ==========================================
-        // 7. 記住登入狀態機制 (6小時自動失效)
+        // 記住登入狀態機制 (6小時自動失效)
         // ==========================================
         function checkLogin() {
             const savedEmail = localStorage.getItem('user_email');
@@ -518,7 +540,7 @@
             
             if (savedEmail && savedTime) {
                 const now = Date.now();
-                const sixHours = 6 * 60 * 60 * 1000; // 6 小時的毫秒數
+                const sixHours = 6 * 60 * 60 * 1000; 
                 
                 if (now - parseInt(savedTime) < sixHours) {
                     currentUserEmail = savedEmail;
@@ -530,7 +552,6 @@
                     document.getElementById('publish-section').style.display = 'block';
                     return true;
                 } else {
-                    // 超過 6 小時，清除登入資訊
                     localStorage.removeItem('user_email');
                     localStorage.removeItem('login_timestamp');
                 }
@@ -693,16 +714,17 @@
 
         function togglePauseRecording(type) {
             if (!mediaRecorder) return;
-            const pauseBtn = document.getElementById(`${type}-btn-pause-record`);
+            const pauseBtn = document.getElementById(`${type}-btn-overlay-pause`);
             if (mediaRecorder.state === 'recording') {
                 mediaRecorder.pause(); isPaused = true;
-                pauseBtn.innerHTML = '<span class="record-dot"></span> 繼續錄影'; pauseBtn.classList.replace('btn-outline', 'btn-danger');
+                pauseBtn.innerHTML = '▶️';
                 showRecorderMsg(type, "錄影已暫停... (準備好再繼續)", false, true);
             } else if (mediaRecorder.state === 'paused') {
                 mediaRecorder.resume(); isPaused = false;
-                pauseBtn.innerHTML = '暫停錄影'; pauseBtn.classList.replace('btn-danger', 'btn-outline');
+                pauseBtn.innerHTML = '⏸️';
                 showRecorderMsg(type, "正在錄製中...", false, true);
             }
+            wakeUpRecorderControls(type); // 點擊時維持控制列顯示
         }
 
         async function setupRecording(type) {
@@ -780,8 +802,17 @@
                 }
 
                 let tracks = [...internalCanvas.captureStream(30).getVideoTracks(), ...dest.stream.getAudioTracks()]; combinedStream = new MediaStream(tracks);
-                const previewVideo = document.getElementById(`${type}-preview-video`); previewVideo.srcObject = combinedStream; previewVideo.style.display = 'block'; previewVideo.muted = true; 
-                document.getElementById(`${type}-btn-setup-record`).style.display = 'none'; document.getElementById(`${type}-ready-controls`).style.display = 'flex';
+                const previewVideo = document.getElementById(`${type}-preview-video`); previewVideo.srcObject = combinedStream; previewVideo.muted = true; 
+                
+                // UI 狀態更新：隱藏設定按鈕，顯示播放器與下控制列
+                document.getElementById(`${type}-btn-setup-record`).style.display = 'none'; 
+                document.getElementById(`${type}-recorder-wrapper`).style.display = 'block';
+                document.getElementById(`${type}-bottom-controls`).style.display = 'flex';
+                document.getElementById(`${type}-overlay-controls`).style.display = 'flex';
+                
+                // 喚醒控制列
+                wakeUpRecorderControls(type);
+                
             } catch (err) { showRecorderMsg(type, "發生錯誤：" + err.message, true, true); killMediaTracks(); }
         }
 
@@ -800,18 +831,24 @@
                 previewVideo.srcObject = null; previewVideo.src = URL.createObjectURL(currentLocalBlob[type]); 
                 previewVideo.controls = true; previewVideo.muted = false; 
                 
-                document.getElementById(`${type}-active-controls`).style.display = 'none';
-                document.getElementById(`${type}-preview-controls`).style.display = 'flex'; 
-                document.getElementById(`${type}-recorder-container`).classList.remove('recording');
+                // UI 狀態更新：關閉浮動層，顯示下方捨棄按鈕
+                document.getElementById(`${type}-overlay-controls`).style.display = 'none';
+                document.getElementById(`${type}-btn-bottom-stop`).style.display = 'none';
+                document.getElementById(`${type}-btn-bottom-discard`).style.display = 'flex'; 
                 
                 showRecorderMsg(type, "錄製結束，您可以直接預覽。滿意請點擊下方確認發布！", false, true);
                 killMediaTracks(); 
             };
             mediaRecorder.start(1000); 
-            document.getElementById(`${type}-ready-controls`).style.display = 'none';
-            document.getElementById(`${type}-active-controls`).style.display = 'flex';
-            const pauseBtn = document.getElementById(`${type}-btn-pause-record`); pauseBtn.innerHTML = '暫停錄影'; pauseBtn.classList.replace('btn-danger', 'btn-outline'); isPaused = false;
-            document.getElementById(`${type}-recorder-container`).classList.add('recording');
+            
+            // UI 狀態更新：進入錄製中狀態
+            document.getElementById(`${type}-btn-overlay-start`).style.display = 'none';
+            document.getElementById(`${type}-btn-overlay-pause`).style.display = 'flex';
+            document.getElementById(`${type}-btn-overlay-pause`).innerHTML = '⏸️';
+            document.getElementById(`${type}-btn-bottom-stop`).style.display = 'flex';
+            isPaused = false;
+            
+            wakeUpRecorderControls(type); // 喚醒顯示狀態
             showRecorderMsg(type, "正在錄製中...", false, true);
         }
 
@@ -824,14 +861,23 @@
         }
 
         function resetRecordingUI(type) {
-            document.getElementById(`${type}-btn-setup-record`).innerText = "1. 啟動影音錄製權限"; 
             document.getElementById(`${type}-btn-setup-record`).style.display = 'flex';
-            document.getElementById(`${type}-ready-controls`).style.display = 'none';
-            document.getElementById(`${type}-active-controls`).style.display = 'none';
-            document.getElementById(`${type}-preview-controls`).style.display = 'none'; 
-            document.getElementById(`${type}-preview-video`).style.display = 'none'; document.getElementById(`${type}-preview-video`).src = ''; 
+            document.getElementById(`${type}-recorder-wrapper`).style.display = 'none';
+            document.getElementById(`${type}-bottom-controls`).style.display = 'none';
+            
+            document.getElementById(`${type}-btn-overlay-start`).style.display = 'flex';
+            document.getElementById(`${type}-btn-overlay-pause`).style.display = 'none';
+            document.getElementById(`${type}-btn-bottom-stop`).style.display = 'none';
+            document.getElementById(`${type}-btn-bottom-discard`).style.display = 'none';
+            
+            document.getElementById(`${type}-overlay-controls`).style.display = 'flex';
+            document.getElementById(`${type}-overlay-controls`).classList.remove('show');
+            
+            const previewVideo = document.getElementById(`${type}-preview-video`);
+            previewVideo.src = ''; 
+            previewVideo.controls = false;
+            
             document.getElementById(`${type}-record-status-msg`).style.display = 'none';
-            document.getElementById(`${type}-recorder-container`).classList.remove('recording');
         }
 
         function blobToBase64(blob) { return new Promise((resolve, _) => { const reader = new FileReader(); reader.onloadend = () => resolve(reader.result.split(',')[1]); reader.readAsDataURL(blob); }); }
@@ -900,7 +946,6 @@
                     let match = aiText.match(sec.regex);
                     if (match && match[1].trim() && match[1].trim() !== "無") {
                         let content = processMarkdown(match[1].trim()); 
-                        // 改動點：讓所有區塊都變成可以收合/展開
                         let isCollapsible = true; 
                         html += `<div class="ai-section-block"><div class="ai-section-header ${isCollapsible ? 'collapsible' : ''}" ${isCollapsible ? 'onclick="toggleAiSection(this)"' : ''}><div style="display:flex; align-items:center;"><span class="section-mark"></span> ${sec.name}</div>${isCollapsible ? '<span class="toggle-btn"><span class="arrow-down"></span> 點擊展開</span>' : ''}</div><div class="ai-section-body" ${isCollapsible ? 'style="display:none;"' : ''}>${content}</div></div>`;
                     }
@@ -1180,7 +1225,7 @@
                 btn.disabled = false; btn.innerText = "確認發布並呼叫 AI 解析";
                 document.getElementById('post-title').value = ''; document.getElementById('post-desc').value = ''; 
                 
-                clearDraft('post'); // 清除草稿
+                clearDraft('post'); 
                 resetRecordingUI('post'); showAppMsg('post-msg', '提問發布成功！已交由 AI 處理。'); fetchLiveData(); 
 
             } catch(err) {
@@ -1226,7 +1271,7 @@
                 btn.disabled = false; btn.innerText = "確認發布並呼叫 AI 解析";
                 document.getElementById('reply-desc').value = ''; 
                 
-                clearDraft('reply'); // 清除草稿
+                clearDraft('reply'); 
                 resetRecordingUI('reply'); showAppMsg('reply-msg', '回覆成功！已交由 AI 處理歸檔。'); fetchLiveData(); 
 
             } catch(err) {
@@ -1508,19 +1553,16 @@
         }
 
         function filterPosts() {
-            // 新增：處理登入與訪客狀態顯示邏輯
             const guestCta = document.getElementById('guest-cta-container');
             const listContainer = document.getElementById('post-list');
             const pagination = document.getElementById('pagination-container');
 
             if (!currentUserEmail) {
-                // 如果未登入，顯示 CTA，隱藏日誌列表與分頁
                 guestCta.style.display = 'flex';
                 listContainer.style.display = 'none';
                 pagination.style.display = 'none';
                 return;
             } else {
-                // 如果已登入，隱藏 CTA，顯示日誌列表與分頁
                 guestCta.style.display = 'none';
                 listContainer.style.display = 'block';
                 pagination.style.display = 'flex';
@@ -1530,7 +1572,6 @@
             const selectedDate = document.getElementById('datePicker').value;
 
             let filtered = allLiveData.filter(post => {
-                // 權限過濾：只顯示自己的紀錄，管理員則全看
                 const isAdmin = currentUserEmail.toLowerCase() === ADMIN_EMAIL.toLowerCase();
                 const validEmails = post.email.toLowerCase().split(/[\n,]+/).map(e => e.trim());
                 const isOwner = validEmails.includes(currentUserEmail.toLowerCase());
