@@ -30,9 +30,6 @@
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Microsoft JhengHei', sans-serif; line-height: 1.6; max-width: 500px; margin: 0 auto; padding: 0 15px 20px 15px; background: var(--panel-bg); color: var(--text-dark); min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.05); -webkit-font-smoothing: antialiased; overflow-x: hidden;}
         .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--primary-yellow); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 6px; vertical-align: middle; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .record-dot { display: inline-block; width: 12px; height: 12px; background-color: white; border-radius: 50%; margin: 0 auto; animation: pulse-dot 1.5s infinite; }
-        .record-dot.danger-dot { background-color: #FFFFFF; }
-        @keyframes pulse-dot { 0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); } 70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(255, 255, 255, 0); } 100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); } }
         
         .role-badge { padding: 4px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; margin-right: 8px; display: inline-block; }
         .coach-badge { background-color: var(--accent-green); color: white; }
@@ -161,27 +158,32 @@
         .video-container { position: relative; padding-bottom: 56.25%; height: 0; }
         .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
         
-        /* === UI/UX 新增：劇院級 Glassmorphism 錄影預覽區塊 === */
+        /* === 優化：高質感 SVG 按鈕錄影控制列 === */
         .recorder-video-wrapper { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #111; margin-top: 15px; aspect-ratio: 16/9; display: none; box-shadow: 0 6px 16px rgba(0,0,0,0.15); -webkit-tap-highlight-color: transparent; }
         .recorder-video-wrapper video { width: 100%; height: 100%; object-fit: contain; display: block; background: transparent; pointer-events: none; }
         
         /* 針對全螢幕與偽全螢幕的極致排版修復 */
         .recorder-video-wrapper:fullscreen { border-radius: 0; background: #000; width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; }
         .recorder-video-wrapper:-webkit-full-screen { border-radius: 0; background: #000; width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; }
-        
         .recorder-video-wrapper.pseudo-fullscreen { position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; z-index: 99999 !important; border-radius: 0 !important; background: #000 !important; margin: 0 !important; display: flex; align-items: center; justify-content: center; }
         
-        /* 沉浸式浮動控制列 */
-        .glass-control-bar { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px); display: flex; align-items: center; justify-content: center; gap: 14px; background: rgba(30, 41, 59, 0.65); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.2); padding: 10px 22px; border-radius: 40px; z-index: 30; opacity: 0; pointer-events: none; transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1); width: max-content; max-width: 90%; }
+        /* 全新設計：暗黑質感控制列 */
+        .glass-control-bar { 
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px); 
+            display: flex; align-items: center; justify-content: center; gap: 20px; 
+            background-color: #333333; /* 暗黑背景 */
+            padding: 12px 24px; border-radius: 50px; /* 藥丸形狀 */
+            z-index: 30; opacity: 0; pointer-events: none; 
+            transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5); width: max-content; max-width: 90%; 
+        }
         .glass-control-bar.show { opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0); }
         
-        /* 全螢幕時，控制列必須改為 fixed 以避免被畫面擠壓或定位偏移 */
+        /* 全螢幕時，控制列必須改為 fixed */
         .recorder-video-wrapper:fullscreen .glass-control-bar,
         .recorder-video-wrapper:-webkit-full-screen .glass-control-bar,
         .recorder-video-wrapper.pseudo-fullscreen .glass-control-bar {
-            position: fixed !important;
-            bottom: 40px !important;
-            transform: translateX(-50%) translateY(20px);
+            position: fixed !important; bottom: 40px !important; transform: translateX(-50%) translateY(20px);
         }
         .recorder-video-wrapper:fullscreen .glass-control-bar.show,
         .recorder-video-wrapper:-webkit-full-screen .glass-control-bar.show,
@@ -189,17 +191,22 @@
             transform: translateX(-50%) translateY(0);
         }
 
-        /* 毛玻璃風格按鈕 */
-        .glass-btn { background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; transition: all 0.2s ease; margin: 0; padding: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .glass-btn:hover { background: rgba(255, 255, 255, 0.25); transform: translateY(-2px); border-color: rgba(255, 255, 255, 0.4); }
-        .glass-btn:active { transform: scale(0.92); }
+        /* 按鈕樣式更新為去背無邊框 */
+        .glass-btn { 
+            background-color: transparent; border: none; color: white; 
+            padding: 10px; border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+            cursor: pointer; transition: background-color 0.3s ease, transform 0.1s ease; 
+            box-shadow: none; margin: 0; width: auto; height: auto; 
+        }
+        .glass-btn:hover { background-color: rgba(255, 255, 255, 0.15); transform: none; border-color: transparent; }
+        .glass-btn:active { transform: scale(0.9); }
         
-        /* 特殊狀態按鈕 */
-        .glass-btn.btn-record { background: rgba(239, 68, 68, 0.85); border-color: rgba(255, 165, 165, 0.4); }
-        .glass-btn.btn-record:hover { background: rgba(220, 38, 38, 1); box-shadow: 0 0 15px rgba(239, 68, 68, 0.5); }
-        .glass-btn.btn-stop { background: var(--primary-yellow); border-color: rgba(253, 230, 138, 0.4); color: white;}
-        .glass-btn.btn-stop:hover { background: var(--primary-hover); box-shadow: 0 0 15px rgba(245, 158, 11, 0.5); }
-        .glass-divider { width: 1px; height: 24px; background: rgba(255,255,255,0.2); margin: 0 4px; border-radius: 1px; }
+        .svg-icon { width: 28px; height: 28px; fill: white; pointer-events: none; }
+        
+        /* 專屬錄影按鈕顏色 */
+        .glass-btn.btn-record .svg-icon { fill: #ff4d4f; }
+        .glass-btn.btn-record:hover { background-color: transparent; box-shadow: none; }
+        .glass-btn.btn-record:hover .svg-icon { fill: #ff7875; }
 
         /* 播放器控制列 */
         .custom-player-container { position: relative; width: 100%; background: #111827; border-radius: 12px; overflow: hidden; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; margin-top: 15px; }
@@ -331,21 +338,29 @@
 
             <button id="post-btn-setup-record" onclick="setupRecording('post')" class="btn-outline">1. 啟動影音錄製權限</button>
 
-            <div id="post-recorder-wrapper" class="recorder-video-wrapper" onmousemove="wakeUpRecorderControls('post')" ontouchstart="wakeUpRecorderControls('post')" onclick="wakeUpRecorderControls('post')">
+            <div id="post-recorder-wrapper" class="recorder-video-wrapper" onmousemove="wakeUpRecorderControls('post')" ontouchstart="wakeUpRecorderControls('post', {passive:true})" onclick="wakeUpRecorderControls('post')">
                 <video id="post-preview-video" autoplay playsinline></video>
                 
                 <div id="post-overlay-controls" class="glass-control-bar">
+                    <button id="post-btn-glass-switch" class="glass-btn" onclick="switchVideoSource('post'); event.stopPropagation();" title="切換鏡頭/畫面">
+                        <svg viewBox="0 0 24 24" class="svg-icon"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>
+                    </button>
+
                     <button id="post-btn-glass-start" class="glass-btn btn-record" onclick="startRecording('post'); event.stopPropagation();" title="開始錄製">
-                        <div class="record-dot danger-dot" style="margin:0;"></div>
+                        <svg viewBox="0 0 24 24" class="svg-icon"><circle cx="12" cy="12" r="8"/></svg>
                     </button>
                     
-                    <button id="post-btn-glass-pause" class="glass-btn" onclick="togglePauseRecording('post'); event.stopPropagation();" style="display:none;" title="暫停/繼續">⏸️</button>
-                    <button id="post-btn-glass-stop" class="glass-btn btn-stop" onclick="stopRecording('post'); event.stopPropagation();" style="display:none;" title="結束錄影">⏹️</button>
+                    <button id="post-btn-glass-pause" class="glass-btn" onclick="togglePauseRecording('post'); event.stopPropagation();" style="display:none;" title="暫停/繼續">
+                        <svg viewBox="0 0 24 24" class="svg-icon" id="post-icon-pause"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                    </button>
+
+                    <button id="post-btn-glass-stop" class="glass-btn" onclick="stopRecording('post'); event.stopPropagation();" style="display:none;" title="結束錄影">
+                        <svg viewBox="0 0 24 24" class="svg-icon"><path d="M6 6h12v12H6z"/></svg>
+                    </button>
                     
-                    <div class="glass-divider"></div>
-                    
-                    <button id="post-btn-glass-switch" class="glass-btn" onclick="switchVideoSource('post'); event.stopPropagation();" title="切換畫面">🔄</button>
-                    <button id="post-btn-glass-fullscreen" class="glass-btn" onclick="toggleRecorderFullscreen('post', event);" title="全螢幕切換">⛶</button>
+                    <button id="post-btn-glass-fullscreen" class="glass-btn" onclick="toggleRecorderFullscreen('post', event);" title="全螢幕切換">
+                        <svg viewBox="0 0 24 24" class="svg-icon"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+                    </button>
                 </div>
             </div>
             
@@ -441,21 +456,29 @@
 
                     <button id="reply-btn-setup-record" onclick="setupRecording('reply')" class="btn-outline">1. 啟動影音錄製權限</button>
 
-                    <div id="reply-recorder-wrapper" class="recorder-video-wrapper" onmousemove="wakeUpRecorderControls('reply')" ontouchstart="wakeUpRecorderControls('reply')" onclick="wakeUpRecorderControls('reply')">
+                    <div id="reply-recorder-wrapper" class="recorder-video-wrapper" onmousemove="wakeUpRecorderControls('reply')" ontouchstart="wakeUpRecorderControls('reply', {passive:true})" onclick="wakeUpRecorderControls('reply')">
                         <video id="reply-preview-video" autoplay playsinline></video>
                         
                         <div id="reply-overlay-controls" class="glass-control-bar">
+                            <button id="reply-btn-glass-switch" class="glass-btn" onclick="switchVideoSource('reply'); event.stopPropagation();" title="切換鏡頭/畫面">
+                                <svg viewBox="0 0 24 24" class="svg-icon"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>
+                            </button>
+
                             <button id="reply-btn-glass-start" class="glass-btn btn-record" onclick="startRecording('reply'); event.stopPropagation();" title="開始錄製">
-                                <div class="record-dot danger-dot" style="margin:0;"></div>
+                                <svg viewBox="0 0 24 24" class="svg-icon"><circle cx="12" cy="12" r="8"/></svg>
                             </button>
                             
-                            <button id="reply-btn-glass-pause" class="glass-btn" onclick="togglePauseRecording('reply'); event.stopPropagation();" style="display:none;" title="暫停/繼續">⏸️</button>
-                            <button id="reply-btn-glass-stop" class="glass-btn btn-stop" onclick="stopRecording('reply'); event.stopPropagation();" style="display:none;" title="結束錄影">⏹️</button>
+                            <button id="reply-btn-glass-pause" class="glass-btn" onclick="togglePauseRecording('reply'); event.stopPropagation();" style="display:none;" title="暫停/繼續">
+                                <svg viewBox="0 0 24 24" class="svg-icon" id="reply-icon-pause"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                            </button>
+
+                            <button id="reply-btn-glass-stop" class="glass-btn" onclick="stopRecording('reply'); event.stopPropagation();" style="display:none;" title="結束錄影">
+                                <svg viewBox="0 0 24 24" class="svg-icon"><path d="M6 6h12v12H6z"/></svg>
+                            </button>
                             
-                            <div class="glass-divider"></div>
-                            
-                            <button id="reply-btn-glass-switch" class="glass-btn" onclick="switchVideoSource('reply'); event.stopPropagation();" title="切換畫面">🔄</button>
-                            <button id="reply-btn-glass-fullscreen" class="glass-btn" onclick="toggleRecorderFullscreen('reply', event);" title="全螢幕切換">⛶</button>
+                            <button id="reply-btn-glass-fullscreen" class="glass-btn" onclick="toggleRecorderFullscreen('reply', event);" title="全螢幕切換">
+                                <svg viewBox="0 0 24 24" class="svg-icon"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+                            </button>
                         </div>
                     </div>
                     
@@ -523,6 +546,10 @@
         let lastDrawTime = 0; const fpsInterval = 1000 / 30; // 鎖定 30FPS 防當機
         
         let recorderHideTimers = { post: null, reply: null }; 
+
+        // --- SVG Icons Definition ---
+        const pauseSvg = `<svg viewBox="0 0 24 24" class="svg-icon"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
+        const playSvg = `<svg viewBox="0 0 24 24" class="svg-icon"><path d="M8 5v14l11-7z"/></svg>`;
 
         // --- 多圖無限輪播器狀態與邏輯 (含底部控制列) ---
         let troyCarousels = {};
@@ -627,7 +654,7 @@
                     const hint = document.getElementById(`${type}-record-hint`);
                     const msg = document.getElementById(`${type}-desktop-msg`);
                     const camLabel = document.getElementById(`${type}-camera-label`);
-                    if(hint) hint.innerHTML = '<span class="warning-label">手機模式</span>因系統安全限制，手機網頁無法錄製螢幕。<br><span class="hint-label" style="margin-top:6px; display:inline-block;">操作提示</span>您可以隨時使用下方「🔄」按鈕，<strong>無縫切換前後鏡頭</strong>！';
+                    if(hint) hint.innerHTML = '<span class="warning-label">手機模式</span>因系統安全限制，手機網頁無法錄製螢幕。<br><span class="hint-label" style="margin-top:6px; display:inline-block;">操作提示</span>您可以隨時使用下方「切換畫面」按鈕，<strong>無縫切換前後鏡頭</strong>！';
                     if(msg) msg.style.display = 'none';
                     if(camLabel) camLabel.style.display = 'none';
                 });
@@ -656,30 +683,24 @@
         window.toggleRecorderFullscreen = function(type, event) {
             if(event) event.stopPropagation();
             const container = document.getElementById(`${type}-recorder-wrapper`);
-            const fsBtn = document.getElementById(`${type}-btn-glass-fullscreen`);
             if (!container) return;
 
-            // 處理 iOS 偽全螢幕的復原
             if (container.classList.contains('pseudo-fullscreen')) {
                 container.classList.remove('pseudo-fullscreen');
-                if(fsBtn) fsBtn.innerHTML = '⛶';
                 wakeUpRecorderControls(type);
                 return;
             }
 
-            // 執行原生全螢幕
             if (!document.fullscreenElement && !document.webkitFullscreenElement) {
                 if (container.requestFullscreen) {
                     container.requestFullscreen().catch(err => {
                         container.classList.add('pseudo-fullscreen'); 
-                        if(fsBtn) fsBtn.innerHTML = '✖';
                     });
                 }
                 else if (container.webkitRequestFullscreen) {
                     container.webkitRequestFullscreen();
                 } else {
                     container.classList.add('pseudo-fullscreen');
-                    if(fsBtn) fsBtn.innerHTML = '✖';
                 }
             } else {
                 if (document.exitFullscreen) document.exitFullscreen();
@@ -688,20 +709,17 @@
             wakeUpRecorderControls(type);
         };
 
-        // 監聽原生全螢幕變化以更新按鈕 Icon
-        document.addEventListener('fullscreenchange', () => updateFsIcon());
-        document.addEventListener('webkitfullscreenchange', () => updateFsIcon());
-        function updateFsIcon() {
-            ['post', 'reply'].forEach(type => {
-                const fsBtn = document.getElementById(`${type}-btn-glass-fullscreen`);
-                if(fsBtn) {
-                    if (document.fullscreenElement || document.webkitFullscreenElement) {
-                        fsBtn.innerHTML = '✖';
-                    } else {
-                        fsBtn.innerHTML = '⛶';
-                    }
+        // 判斷是否隱藏全螢幕按鈕 (防止無限迴圈)
+        function updateFullscreenBtnVisibility(type) {
+            const fsBtn = document.getElementById(`${type}-btn-glass-fullscreen`);
+            if (fsBtn) {
+                // 如果是在錄製螢幕畫面，就不顯示全螢幕按鈕
+                if (activeVideoSource === 'screen') {
+                    fsBtn.style.display = 'none';
+                } else {
+                    fsBtn.style.display = 'flex';
                 }
-            });
+            }
         }
 
         // ==========================================
@@ -928,6 +946,8 @@
                 }
             } else {
                 activeVideoSource = (activeVideoSource === 'screen') ? 'camera' : 'screen';
+                updateFullscreenBtnVisibility(type); // 更新全螢幕按鈕顯示狀態
+                
                 showRecorderMsg(type, `已無縫切換至「${activeVideoSource === 'screen' ? '螢幕' : '鏡頭'}」畫面`, false, false);
                 if (mediaRecorder && mediaRecorder.state === 'recording' && !isPaused) setTimeout(() => showRecorderMsg(type, "正在錄製中...", false, true), 2000);
             }
@@ -938,11 +958,11 @@
             const pauseBtn = document.getElementById(`${type}-btn-glass-pause`);
             if (mediaRecorder.state === 'recording') {
                 mediaRecorder.pause(); isPaused = true;
-                pauseBtn.innerHTML = '▶️';
+                pauseBtn.innerHTML = playSvg;
                 showRecorderMsg(type, "錄影已暫停... (準備好再繼續)", false, true);
             } else if (mediaRecorder.state === 'paused') {
                 mediaRecorder.resume(); isPaused = false;
-                pauseBtn.innerHTML = '⏸️';
+                pauseBtn.innerHTML = pauseSvg;
                 showRecorderMsg(type, "正在錄製中...", false, true);
             }
             wakeUpRecorderControls(type); // 點擊時維持控制列顯示
@@ -963,6 +983,7 @@
 
                 if (isMobileDevice()) {
                     currentFacingMode = 'user';
+                    activeVideoSource = 'camera';
                     try { micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: { facingMode: currentFacingMode, width: { ideal: 1920 }, height: { ideal: 1080 } } });
                     } catch(e) { showRecorderMsg(type, "相機被封鎖", true, true); return; }
                     if (micStream.getAudioTracks().length > 0) audioContext.createMediaStreamSource(micStream).connect(dest);
@@ -1030,6 +1051,9 @@
                 document.getElementById(`${type}-recorder-wrapper`).style.display = 'block';
                 document.getElementById(`${type}-overlay-controls`).style.display = 'flex';
                 
+                // 檢查是否需要隱藏全螢幕按鈕 (防止無限迴圈)
+                updateFullscreenBtnVisibility(type);
+
                 wakeUpRecorderControls(type);
                 
             } catch (err) { showRecorderMsg(type, "發生錯誤：" + err.message, true, true); killMediaTracks(); }
@@ -1067,8 +1091,10 @@
             
             // UI 更新：進入錄製狀態，切換圖示
             document.getElementById(`${type}-btn-glass-start`).style.display = 'none';
-            document.getElementById(`${type}-btn-glass-pause`).style.display = 'flex';
-            document.getElementById(`${type}-btn-glass-pause`).innerHTML = '⏸️';
+            const pauseBtn = document.getElementById(`${type}-btn-glass-pause`);
+            pauseBtn.style.display = 'flex';
+            pauseBtn.innerHTML = pauseSvg; // 確保顯示暫停圖示
+            
             document.getElementById(`${type}-btn-glass-stop`).style.display = 'flex';
             isPaused = false;
             
