@@ -210,6 +210,28 @@
         .custom-player-container { position: relative; width: 100%; background: #111827; border-radius: 12px; overflow: hidden; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; margin-top: 15px; }
         .custom-player-container:fullscreen { border-radius: 0; background: #000; }
         .custom-player-container:-webkit-full-screen { border-radius: 0; background: #000; }
+        /* 手機版 YouTube 播放器偽全螢幕備用機制 */
+        .custom-player-container.pseudo-fullscreen {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 99999 !important;
+            border-radius: 0 !important;
+            background: #000 !important;
+            margin: 0 !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .custom-player-container.pseudo-fullscreen .player-video-wrapper {
+            padding-bottom: 0 !important;
+            width: 100% !important;
+            height: auto !important;
+            aspect-ratio: 16 / 9;
+            max-height: 100vh;
+        }
         .custom-player-container:fullscreen .player-video-wrapper { padding-bottom: 0 !important; height: 100% !important; }
         .custom-player-container:-webkit-full-screen .player-video-wrapper { padding-bottom: 0 !important; height: 100% !important; }
         .custom-player-container.hide-cursor { cursor: none !important; }
@@ -1609,10 +1631,35 @@
         function togglePlayerFullscreen(uid) {
             const container = document.getElementById(`container-${uid}`);
             if (!container) return;
+
+            // 1. 如果已經處於「偽全螢幕」狀態，再次點擊就會退出
+            if (container.classList.contains('pseudo-fullscreen')) {
+                container.classList.remove('pseudo-fullscreen');
+                return;
+            }
+
+            // 2. 判斷並進入全螢幕
             if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-                if (container.requestFullscreen) container.requestFullscreen();
-                else if (container.webkitRequestFullscreen) container.webkitRequestFullscreen();
                 
+                // 偵測是否為 iOS 裝置 (iPhone/iPad)
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+                if (isIOS) {
+                    // iOS 系統不支援 div 原生全螢幕，直接強制套用 CSS 偽全螢幕
+                    container.classList.add('pseudo-fullscreen');
+                } else if (container.requestFullscreen) {
+                    container.requestFullscreen().catch(err => {
+                        // 若被瀏覽器阻擋，啟動備用方案
+                        container.classList.add('pseudo-fullscreen'); 
+                    });
+                } else if (container.webkitRequestFullscreen) {
+                    container.webkitRequestFullscreen();
+                } else {
+                    // 最舊的設備防呆方案
+                    container.classList.add('pseudo-fullscreen');
+                }
+
+                // 2.5 秒後自動將畫質切換為 1080p
                 setTimeout(() => {
                     try {
                         if (ytPlayers[uid] && ytPlayers[uid].setPlaybackQuality) {
@@ -1622,6 +1669,7 @@
                 }, 2500);
 
             } else {
+                // 3. 退出原生全螢幕
                 if (document.exitFullscreen) document.exitFullscreen();
                 else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
             }
