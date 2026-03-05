@@ -889,7 +889,7 @@
         }
 
         // ==========================================
-        // 核心優化：前端直傳 256KB 切塊串流引擎 (取代舊雙軌)
+        // 核心優化：邊錄邊傳 (GAS 隱形轉發串流引擎，解決 CORS 問題)
         // ==========================================
         async function processUploadQueue(type) {
             const state = streamStates[type];
@@ -900,50 +900,68 @@
             const { blob, isFinal } = chunkObj;
             const start = state.offset;
             const end = start + blob.size - 1;
-            const totalSize = isFinal ? start + blob.size : '*';
+            
+            // 計算目前檔案大小狀態
+            // 注意：Google API 規定，未知總大小時用 '*'，最後一塊才寫上明確總大小
+            const totalSize = isFinal ? (start + blob.size) : '*';
 
             try {
-                // 直傳 Google Drive
-                let contentRange;
-                if (blob.size === 0) contentRange = `bytes */${totalSize}`;
-                else contentRange = `bytes ${start}-${end}/${totalSize}`;
-                
-                const driveRes = await fetch(state.driveUrl, { method: 'PUT', headers: { 'Content-Range': contentRange }, body: blob });
-                if (driveRes.status === 200 || driveRes.status === 201) {
-                    const driveData = await driveRes.json();
-                    state.driveId = driveData.id;
-                }
-
-                // 直傳 Gemini API
-                const geminiHeaders = { "X-Goog-Upload-Protocol": "resumable", "X-Goog-Upload-Command": isFinal ? "upload, finalize" : "upload", "X-Goog-Upload-Offset": start.toString() };
-                const geminiRes = await fetch(state.geminiUrl, { method: 'POST', headers: geminiHeaders, body: blob });
-                if (geminiRes.status === 200) {
-                    const text = await geminiRes.text();
-                    if (text) {
-                        const geminiData = JSON.parse(text);
-                        if (geminiData.file) {
-                            state.geminiUri = geminiData.file.uri;
-                            state.geminiName = geminiData.file.name;
-                        }
-                    }
-                }
-
-                state.offset += blob.size;
-
-                if (isFinal) {
+                // 如果這是一塊空資料（例如錄影瞬間結束），直接標記完成
+                if (blob.size === 0 && isFinal) {
                     state.isFinalized = true;
                     showRecorderMsg(type, "雲端儲存與備份已準備就緒！您可以點擊下方發布。", false, true);
+                    state.isUploading = false;
+                    processUploadQueue(type);
+                    return;
+                }
+
+                // 將二進位影片碎片轉為 Base64 字串
+                const chunkBase64 = await blobToBase64(blob);
+
+                // 透過 GAS 作為中繼站，繞過 GitHub Pages 的 CORS 限制
+                const response = await fetch(GAS_LIVE_URL, {
+                    method: 'POST',
+                    redirect: 'follow',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({
+                        action: 'upload_chunk',
+                        isDualTrack: true,
+                        uploadUrlDrive: state.driveUrl,
+                        uploadUrlGemini: state.geminiUrl,
+                        chunkBase64: chunkBase64,
+                        start: start,
+                        totalSize: isFinal ? totalSize : 999999999 // GAS 後端判斷 isFinal 的權宜之計
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.status === 'success' || data.status === 'resume') {
+                    // 記錄已上傳的偏移量
+                    state.offset += blob.size;
+
+                    // 如果這是最後一塊，並且 GAS 回傳了檔案 ID
+                    if (isFinal && data.status === 'success') {
+                        state.driveId = data.driveId;
+                        state.geminiUri = data.geminiUri;
+                        state.geminiName = data.geminiName;
+                        state.isFinalized = true;
+                        showRecorderMsg(type, "雲端儲存與備份已準備就緒！您可以點擊下方發布。", false, true);
+                    }
+                } else {
+                    throw new Error(data.message || "碎塊轉發失敗");
                 }
 
             } catch (e) {
                 console.error("Chunk upload error:", e);
-                // 發生錯誤退回佇列重新上傳
+                // 發生錯誤退回佇列，延遲 2 秒後重新上傳
                 state.queue.unshift(chunkObj);
                 setTimeout(() => { state.isUploading = false; processUploadQueue(type); }, 2000);
                 return;
             }
 
             state.isUploading = false;
+            // 遞迴呼叫，繼續處理下一塊
             processUploadQueue(type);
         }
 
