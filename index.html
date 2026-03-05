@@ -511,7 +511,7 @@
         // ==========================================
         // 全局狀態管理 
         // ==========================================
-        const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbwrdxQic3Zji7z_QgsHg4YlqSZFEvTcPALNuqZ0V6AdE5CBRaj8E0PbMW-2bUWB3zyv/exec'; 
+        const GAS_LIVE_URL = 'https://script.google.com/macros/s/AKfycbxf6y8YZoAk2EYzaUkw7lUf_bXf_nDix24YB5BRuCG_9AS0-N0tlLJb8vH7QUCgtcdp/exec'; 
         const ADMIN_EMAIL = 'alwayslucky2hand@gmail.com';
 
         let currentUserEmail = ''; 
@@ -888,7 +888,7 @@
         }
 
         // ==========================================
-        // 核心優化：GAS 隱形轉發串流引擎 (完美避開 CORS 與 8MB 限制)
+        // 核心優化：真・直傳與斷點續傳引擎 (解決大檔案中斷、提供精準進度)
         // ==========================================
         async function processUploadQueue(type) {
             const state = streamStates[type];
@@ -897,65 +897,137 @@
 
             const chunkObj = state.queue.shift();
             const { blob, isFinal } = chunkObj;
-            const start = state.offset;
             
+            // 每次上傳前，先確保知道總大小的狀態
+            // 如果是錄影中，我們不知道總大小，填 '*'；如果是最後一塊，就計算出確切大小
+            const currentTotalSize = isFinal ? (state.offset + blob.size) : '*';
+
             try {
-                // 如果是空資料（瞬間結束錄影），直接標記完成
+                // 防呆：如果是空資料且是最後一塊，直接標記完成
                 if (blob.size === 0 && isFinal) {
                     state.isFinalized = true;
-                    showRecorderMsg(type, "雲端備份已就緒！您可以點擊下方發布交給 AI。", false, true);
+                    showRecorderMsg(type, "✅ 雲端備份已 100% 完成！請點擊下方確認發布。", false, true);
                     state.isUploading = false;
                     processUploadQueue(type);
                     return;
                 }
 
-                // 總大小：只有最後一塊才知道確實大小
-                const totalSize = isFinal ? (start + blob.size) : '*';
+                // 計算當前碎片在整個檔案中的起點與終點
+                const start = state.offset;
+                const end = start + blob.size - 1;
+                const contentRange = `bytes ${start}-${end}/${currentTotalSize}`;
 
-                // 將二進位轉換為 Base64 字串，透過 GAS 轉發繞過 CORS
-                const chunkBase64 = await blobToBase64(blob);
+                // 更新進度顯示 (例如：正在上傳 20%...)
+                let progressText = `雲端同步中... (已上傳 ${(start / 1024 / 1024).toFixed(1)} MB)`;
+                if (isFinal || currentRecordType !== type) { 
+                     // 只有在按下停止錄影後，我們才能精確計算總進度百分比
+                     const totalBytesToUpload = state.offset + state.queue.reduce((acc, curr) => acc + curr.blob.size, 0) + blob.size;
+                     const percent = Math.round((end / totalBytesToUpload) * 100);
+                     progressText = `雲端備份進度：${percent}%`;
+                }
+                showRecorderMsg(type, `<span class="spinner"></span> ${progressText}`, false, true);
 
-                const response = await fetch(GAS_LIVE_URL, {
-                    method: 'POST',
-                    redirect: 'follow',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({
-                        action: 'upload_chunk',
-                        isDualTrack: true,
-                        uploadUrlDrive: state.driveUrl,
-                        uploadUrlGemini: state.geminiUrl,
-                        chunkBase64: chunkBase64,
-                        start: start,
-                        totalSize: isFinal ? (start + blob.size) : 999999999 // 供後端判斷使用
-                    })
-                });
+                // ----------------------------------------------------
+                // 1. 直傳 Google Drive (繞過 GAS，精簡 Header 以避免 CORS)
+                // ----------------------------------------------------
+                let driveSuccess = false;
+                try {
+                    const driveRes = await fetch(state.driveUrl, {
+                        method: 'PUT',
+                        // 關鍵修復：直傳 Drive 時，只需給 Content-Range，不要帶其他複雜的 Header
+                        headers: { 'Content-Range': contentRange }, 
+                        body: blob
+                    });
+                    
+                    if (driveRes.status === 308) {
+                        // 308 Resume Incomplete：表示 Google 成功收到了這一塊，等下一塊
+                        driveSuccess = true;
+                    } else if (driveRes.status === 200 || driveRes.status === 201) {
+                        // 200/201：表示整個檔案已經上傳完畢！
+                        const driveData = await driveRes.json();
+                        state.driveId = driveData.id;
+                        driveSuccess = true;
+                    } else {
+                        console.error("Drive upload failed with status:", driveRes.status);
+                        throw new Error(`Drive 傳輸失敗 (${driveRes.status})`);
+                    }
+                } catch (driveErr) {
+                    console.error("Drive error details:", driveErr);
+                    throw new Error("Drive 網路連線異常");
+                }
 
-                const data = await response.json();
+                // ----------------------------------------------------
+                // 2. 直傳 Gemini API (嚴格遵守 8MB 限制與專屬 Header)
+                // ----------------------------------------------------
+                let geminiSuccess = false;
+                try {
+                    const geminiHeaders = {
+                        "X-Goog-Upload-Protocol": "resumable",
+                        "X-Goog-Upload-Command": isFinal ? "upload, finalize" : "upload",
+                        "X-Goog-Upload-Offset": start.toString()
+                        // 關鍵修復：移除所有可能觸發 CORS 的自訂 Header，專注於必要參數
+                    };
+                    
+                    const geminiRes = await fetch(state.geminiUrl, {
+                        method: 'POST',
+                        headers: geminiHeaders,
+                        body: blob
+                    });
 
-                if (data.status === 'success' || data.status === 'resume') {
+                    if (geminiRes.status === 200) {
+                        // 200 OK：表示這一塊成功，或是全部完成
+                        const text = await geminiRes.text();
+                        if (text) {
+                            try {
+                                const geminiData = JSON.parse(text);
+                                if (geminiData.file) {
+                                    state.geminiUri = geminiData.file.uri;
+                                    state.geminiName = geminiData.file.name;
+                                }
+                            } catch(e) {} // 忽略 JSON 解析錯誤，因為中途的 200 可能沒有回傳 body
+                        }
+                        geminiSuccess = true;
+                    } else {
+                        console.error("Gemini upload failed with status:", geminiRes.status);
+                        throw new Error(`Gemini 傳輸失敗 (${geminiRes.status})`);
+                    }
+                } catch (geminiErr) {
+                     console.error("Gemini error details:", geminiErr);
+                     throw new Error("Gemini 網路連線異常");
+                }
+
+                // ----------------------------------------------------
+                // 3. 狀態更新與完成判定
+                // ----------------------------------------------------
+                if (driveSuccess && geminiSuccess) {
+                    // 兩邊都成功，更新 offset，準備處理下一塊
                     state.offset += blob.size;
-
-                    // 最後一塊且 GAS 回傳成功，取得檔案 ID
-                    if (isFinal && data.status === 'success') {
-                        state.driveId = data.driveId;
-                        state.geminiUri = data.geminiUri;
-                        state.geminiName = data.geminiName;
+                    
+                    if (isFinal) {
                         state.isFinalized = true;
-                        showRecorderMsg(type, "雲端備份已就緒！您可以點擊下方發布交給 AI。", false, true);
+                        showRecorderMsg(type, "✅ 雲端備份已 100% 完成！請點擊下方確認發布。", false, true);
                     }
                 } else {
-                    throw new Error(data.message || "碎塊轉發失敗");
+                     throw new Error("部分通道傳輸失敗");
                 }
 
             } catch (e) {
-                console.error("Chunk upload error:", e);
-                // 若遇網路不穩，退回佇列延遲重試
+                console.error("Chunk upload error caught:", e);
+                showRecorderMsg(type, `傳輸不穩定 (${e.message})，系統將於 3 秒後自動重試...`, true, true);
+                
+                // 發生錯誤，將這塊碎片塞回佇列的最前面
                 state.queue.unshift(chunkObj);
-                setTimeout(() => { state.isUploading = false; processUploadQueue(type); }, 2000);
+                
+                // 延遲 3 秒後再重試，避免短時間內狂炸請求導致被鎖
+                setTimeout(() => { 
+                    state.isUploading = false; 
+                    processUploadQueue(type); 
+                }, 3000);
                 return;
             }
 
             state.isUploading = false;
+            // 順利完成這一塊，馬上接著處理下一塊
             processUploadQueue(type);
         }
 
@@ -980,6 +1052,7 @@
             const msgEl = document.getElementById(elId); if(!msgEl) return;
             let badgeHtml = '';
             if (isError) badgeHtml = '<span class="status-icon status-error">錯誤</span>';
+            else if (text.includes("雲端同步中") || text.includes("進度")) badgeHtml = '<span class="status-icon" style="background:#DBEAFE; color:#1E40AF;">雲端處理</span>';
             else if (text.includes("錄製中")) badgeHtml = '<span class="status-icon" style="background:#FEE2E2; color:#991B1B;">錄製中</span>';
             else if (text.includes("暫停") || text.includes("切換")) badgeHtml = '<span class="status-icon" style="background:#FEF3C7; color:#B45309;">暫停</span>';
             else badgeHtml = '<span class="status-icon status-success">系統提示</span>';
@@ -1031,7 +1104,17 @@
 
             try {
                 audioContext = new (window.AudioContext || window.webkitAudioContext)(); const dest = audioContext.createMediaStreamDestination();
-                internalCanvas = document.createElement('canvas'); internalCanvas.width = 1920; internalCanvas.height = 1080;
+                internalCanvas = document.createElement('canvas'); 
+                
+                // 動態解析度：手機降載為 720p，電腦維持 1080p
+                if (isMobileDevice()) {
+                    internalCanvas.width = 720;
+                    internalCanvas.height = 1280;
+                } else {
+                    internalCanvas.width = 1920;
+                    internalCanvas.height = 1080;
+                }
+                
                 internalCanvas.style.position = 'fixed'; internalCanvas.style.top = '-9999px'; internalCanvas.style.opacity = '0'; document.body.appendChild(internalCanvas);
                 internalCtx = internalCanvas.getContext('2d', { alpha: false });
                 internalCtx.imageSmoothingEnabled = true; internalCtx.imageSmoothingQuality = 'high';
@@ -1041,7 +1124,8 @@
                 if (isMobileDevice()) {
                     currentFacingMode = 'user';
                     activeVideoSource = 'camera';
-                    try { micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: { facingMode: currentFacingMode, width: { ideal: 1920 }, height: { ideal: 1080 } } });
+                    try { 
+                        micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: { facingMode: currentFacingMode, width: { ideal: 1280 }, height: { ideal: 720 } } });
                     } catch(e) { showRecorderMsg(type, "相機被封鎖", true, true); return; }
                     if (micStream.getAudioTracks().length > 0) audioContext.createMediaStreamSource(micStream).connect(dest);
                     cameraHiddenVideo.srcObject = new MediaStream([micStream.getVideoTracks()[0]]);
@@ -1143,9 +1227,13 @@
 
             recordedChunks = []; 
             let options;
-            if (MediaRecorder.isTypeSupported('video/webm;codecs=h264,opus')) options = { mimeType: 'video/webm;codecs=h264,opus', videoBitsPerSecond: 5000000 };
-            else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')) options = { mimeType: 'video/webm;codecs=vp8,opus', videoBitsPerSecond: 5000000 };
-            else options = { videoBitsPerSecond: 5000000 };
+            
+            // 動態傳輸率：手機降低一半位元率 (2.5Mbps)，防止 4G 網路塞車
+            const targetBps = isMobileDevice() ? 2500000 : 5000000;
+
+            if (MediaRecorder.isTypeSupported('video/webm;codecs=h264,opus')) options = { mimeType: 'video/webm;codecs=h264,opus', videoBitsPerSecond: targetBps };
+            else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')) options = { mimeType: 'video/webm;codecs=vp8,opus', videoBitsPerSecond: targetBps };
+            else options = { videoBitsPerSecond: targetBps };
 
             mediaRecorder = new MediaRecorder(combinedStream, options);
             
@@ -1194,8 +1282,7 @@
                 if (wrapper) wrapper.classList.remove('pseudo-fullscreen');
                 if (document.fullscreenElement) document.exitFullscreen().catch(()=>{});
                 else if (document.webkitFullscreenElement) document.webkitExitFullscreen();
-
-                showRecorderMsg(type, "錄製結束，等待雲端同步。滿意請點擊發布！", false, true);
+                
                 killMediaTracks(); 
             };
             
