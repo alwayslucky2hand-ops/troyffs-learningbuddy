@@ -1273,10 +1273,15 @@ async function startRecording(type) {
             const targetBps = isMobileDevice() ? 5000000 : 8000000;
 
             // ==========================================
-            // 💡 關鍵修復：拔除強制的 mimeType，讓手機使用原生預設編碼，避免預覽時間軸壞掉！
+            // 💡 關鍵修復 1：分離預覽與上傳的編碼要求
             // ==========================================
             let options = { videoBitsPerSecond: targetBps };
-            // 我們只設定傳輸率，不強加 mimeType，讓瀏覽器自己決定最穩定的錄製格式
+            // 只有在「非手機端(電腦)」時才強制指定 mimeType。
+            // 手機端(iOS)讓瀏覽器自適應，避免預覽黑畫面或時間軸損壞！
+            if (!isMobileDevice() && mimeTypeToUse) {
+                options.mimeType = mimeTypeToUse;
+            }
+
             mediaRecorder = new MediaRecorder(combinedStream, options);
             
             // 2. 邊錄邊累積至 8MB 後轉發
@@ -1284,9 +1289,11 @@ async function startRecording(type) {
                 if (e.data.size > 0) { 
                     recordedChunks.push(e.data); // 儲存供本地預覽
                     const state = streamStates[type];
-                    // 傳給雲端的依然標記為 mp4
+                    
+                    // 💡 傳給雲端的資料，依然堅守 mp4 屬性，讓 Drive 快速轉檔
                     state.buffer = new Blob([state.buffer, e.data], { type: mimeTypeToUse });
                     
+                    // 一旦達到 8MB (8388608 bytes)，就切出一塊送出
                     if (state.buffer.size >= CHUNK_SIZE_MULTIPLE) {
                         const bytesToUpload = Math.floor(state.buffer.size / CHUNK_SIZE_MULTIPLE) * CHUNK_SIZE_MULTIPLE;
                         const chunkToUpload = state.buffer.slice(0, bytesToUpload);
@@ -1299,6 +1306,7 @@ async function startRecording(type) {
 
             mediaRecorder.onstop = function() {
                 const state = streamStates[type];
+                // 把最後剩下的 buffer 當作 Final 區塊送出
                 if (state.buffer && state.buffer.size > 0) {
                     state.queue.push({ blob: state.buffer, isFinal: true });
                 } else {
@@ -1308,18 +1316,18 @@ async function startRecording(type) {
                 processUploadQueue(type);
 
                 // ==========================================
-                // 💡 關鍵修復：前端預覽 Blob 也不要強制綁定 mp4，讓它自己抓原生格式！
+                // 💡 關鍵修復 2：預覽 Blob 使用手機最原始的格式
                 // ==========================================
-                // 解鎖原生預覽播放器介面
-                // 這裡拔掉 { type: options.mimeType || 'video/mp4' }，讓瀏覽器用預設格式組合預覽影片
-                currentLocalBlob[type] = new Blob(recordedChunks); 
+                // 這裡改用 mediaRecorder.mimeType，讓手機用它自己聽得懂的格式來播放預覽，解決黑畫面！
+                let actualMimeType = mediaRecorder.mimeType || 'video/mp4';
+                currentLocalBlob[type] = new Blob(recordedChunks, { type: actualMimeType });
                 
                 const previewVideo = document.getElementById(`${type}-preview-video`);
                 previewVideo.srcObject = null; 
                 previewVideo.src = URL.createObjectURL(currentLocalBlob[type]); 
                 previewVideo.controls = true; // 開啟原生控制列
                 previewVideo.muted = false; // 解除靜音
-                previewVideo.style.pointerEvents = 'auto'; // 允許滑鼠點擊時間軸與按鈕！
+                previewVideo.style.pointerEvents = 'auto'; // 允許滑鼠點擊時間軸與按鈕
                 
                 document.getElementById(`${type}-overlay-controls`).style.display = 'none';
                 document.getElementById(`${type}-preview-actions`).style.display = 'block'; 
