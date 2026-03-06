@@ -1234,7 +1234,7 @@ async function startRecording(type) {
             // 🚀 核心破解：全面強制 MP4 與動態 Blob 型態
             // ==========================================
             let mimeTypeToUse = 'video/mp4'; // 預設 MIME 類型
-            let extension = 'mp4'; // 【優化】強制副檔名為 mp4，全面消滅 webm
+            let extension = 'mp4'; // 強制副檔名為 mp4，全面消滅 webm
 
             // 判斷瀏覽器支援的最佳編碼，但最終封裝都偽裝/指定為 mp4
             if (MediaRecorder.isTypeSupported('video/mp4')) {
@@ -1259,7 +1259,6 @@ async function startRecording(type) {
 
                 streamStates[type] = {
                     driveUrl: initData.uploadUrlDrive, geminiUrl: initData.uploadUrlGemini,
-                    // 【優化】不再寫死 webm，使用動態偵測的最佳 mimeType
                     buffer: new Blob([], { type: mimeTypeToUse }), offset: 0, isUploading: false, queue: [],
                     driveId: '', geminiUri: '', geminiName: '', isFinalized: false
                 };
@@ -1270,25 +1269,24 @@ async function startRecording(type) {
 
             recordedChunks = []; 
             
-            // 【優化】動態傳輸率：為了支撐 1080p，手機提升至 5Mbps，電腦提升至 8Mbps
+            // 動態傳輸率：為了支撐 1080p，手機提升至 5Mbps，電腦提升至 8Mbps
             const targetBps = isMobileDevice() ? 5000000 : 8000000;
 
             // ==========================================
-            // 🚀 套用新的編碼設定
+            // 💡 關鍵修復：拔除強制的 mimeType，讓手機使用原生預設編碼，避免預覽時間軸壞掉！
             // ==========================================
-            let options = { videoBitsPerSecond: targetBps, mimeType: mimeTypeToUse };
-
+            let options = { videoBitsPerSecond: targetBps };
+            // 我們只設定傳輸率，不強加 mimeType，讓瀏覽器自己決定最穩定的錄製格式
             mediaRecorder = new MediaRecorder(combinedStream, options);
             
-            // 2. 邊錄邊累積至 8MB 後轉發 (滿足 Gemini 嚴苛限制)
+            // 2. 邊錄邊累積至 8MB 後轉發
             mediaRecorder.ondataavailable = (e) => { 
                 if (e.data.size > 0) { 
                     recordedChunks.push(e.data); // 儲存供本地預覽
                     const state = streamStates[type];
-                    // 【優化】同步修改這裡的 Blob 屬性
+                    // 傳給雲端的依然標記為 mp4
                     state.buffer = new Blob([state.buffer, e.data], { type: mimeTypeToUse });
                     
-                    // 一旦達到 8MB (8388608 bytes)，就切出一塊送出
                     if (state.buffer.size >= CHUNK_SIZE_MULTIPLE) {
                         const bytesToUpload = Math.floor(state.buffer.size / CHUNK_SIZE_MULTIPLE) * CHUNK_SIZE_MULTIPLE;
                         const chunkToUpload = state.buffer.slice(0, bytesToUpload);
@@ -1301,25 +1299,27 @@ async function startRecording(type) {
 
             mediaRecorder.onstop = function() {
                 const state = streamStates[type];
-                // 把最後剩下的 buffer 當作 Final 區塊送出
                 if (state.buffer && state.buffer.size > 0) {
                     state.queue.push({ blob: state.buffer, isFinal: true });
                 } else {
-                    // 【優化】同步修改空 Blob 的屬性
                     state.queue.push({ blob: new Blob([], { type: mimeTypeToUse }), isFinal: true });
                 }
-                // 【優化】同步修改重置的 Blob 屬性
                 state.buffer = new Blob([], { type: mimeTypeToUse });
                 processUploadQueue(type);
 
+                // ==========================================
+                // 💡 關鍵修復：前端預覽 Blob 也不要強制綁定 mp4，讓它自己抓原生格式！
+                // ==========================================
                 // 解鎖原生預覽播放器介面
-                currentLocalBlob[type] = new Blob(recordedChunks, { type: options.mimeType || 'video/mp4' });
+                // 這裡拔掉 { type: options.mimeType || 'video/mp4' }，讓瀏覽器用預設格式組合預覽影片
+                currentLocalBlob[type] = new Blob(recordedChunks); 
+                
                 const previewVideo = document.getElementById(`${type}-preview-video`);
                 previewVideo.srcObject = null; 
                 previewVideo.src = URL.createObjectURL(currentLocalBlob[type]); 
                 previewVideo.controls = true; // 開啟原生控制列
                 previewVideo.muted = false; // 解除靜音
-                previewVideo.style.pointerEvents = 'auto'; // 關鍵修復：允許滑鼠點擊時間軸與按鈕！
+                previewVideo.style.pointerEvents = 'auto'; // 允許滑鼠點擊時間軸與按鈕！
                 
                 document.getElementById(`${type}-overlay-controls`).style.display = 'none';
                 document.getElementById(`${type}-preview-actions`).style.display = 'block'; 
