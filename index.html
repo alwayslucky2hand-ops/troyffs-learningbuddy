@@ -1082,10 +1082,12 @@
                 audioContext = new (window.AudioContext || window.webkitAudioContext)(); const dest = audioContext.createMediaStreamDestination();
                 internalCanvas = document.createElement('canvas'); 
                 
-                // 動態解析度：手機降載為 720p，電腦維持 1080p
-                if (isMobileDevice()) {
-                    internalCanvas.width = 720;
-                    internalCanvas.height = 1280;
+                // 動態解析度初始化
+                const isMobile = isMobileDevice();
+                if (isMobile) {
+                    const isLandscape = window.innerWidth > window.innerHeight;
+                    internalCanvas.width = isLandscape ? 1280 : 720;
+                    internalCanvas.height = isLandscape ? 720 : 1280;
                 } else {
                     internalCanvas.width = 1920;
                     internalCanvas.height = 1080;
@@ -1097,7 +1099,7 @@
                 cameraHiddenVideo = document.createElement('video'); cameraHiddenVideo.muted = true; cameraHiddenVideo.autoplay = true; cameraHiddenVideo.playsInline = true;
                 lastDrawTime = 0;
 
-                if (isMobileDevice()) {
+                if (isMobile) {
                     currentFacingMode = 'user';
                     activeVideoSource = 'camera';
                     try { 
@@ -1108,15 +1110,52 @@
 
                     function drawMobileFrame() {
                         if (!internalCtx) return; drawLoopId = setTimeout(drawMobileFrame, fpsInterval);
-                        internalCtx.fillStyle = '#111'; internalCtx.fillRect(0, 0, internalCanvas.width, internalCanvas.height);
+                        
+                        // 💡 核心修復 1：動態偵測螢幕旋轉，隨時調整畫布比例
+                        const currentIsLandscape = window.innerWidth > window.innerHeight;
+                        const targetW = currentIsLandscape ? 1280 : 720;
+                        const targetH = currentIsLandscape ? 720 : 1280;
+                        if (internalCanvas.width !== targetW) {
+                            internalCanvas.width = targetW;
+                            internalCanvas.height = targetH;
+                        }
+
+                        // 💡 核心修復 2：動態調整網頁 UI 播放框的比例，貼齊手機
+                        const wrapper = document.getElementById(`${type}-recorder-wrapper`);
+                        if (wrapper) {
+                            const currentAspect = currentIsLandscape ? '16/9' : '9/16';
+                            if (wrapper.style.aspectRatio !== currentAspect) wrapper.style.aspectRatio = currentAspect;
+                        }
+
+                        internalCtx.fillStyle = '#000'; 
+                        internalCtx.fillRect(0, 0, internalCanvas.width, internalCanvas.height);
+                        
                         if (cameraHiddenVideo.readyState >= 2 && cameraHiddenVideo.videoWidth > 0) {
-                            const vRatio = cameraHiddenVideo.videoWidth / cameraHiddenVideo.videoHeight; const cRatio = internalCanvas.width / internalCanvas.height;
+                            const vRatio = cameraHiddenVideo.videoWidth / cameraHiddenVideo.videoHeight; 
+                            const cRatio = internalCanvas.width / internalCanvas.height;
                             let drawWidth, drawHeight, x, y;
-                            if (vRatio > cRatio) { drawWidth = internalCanvas.width; drawHeight = internalCanvas.width / vRatio; x = 0; y = (internalCanvas.height - drawHeight) / 2;
-                            } else { drawHeight = internalCanvas.height; drawWidth = internalCanvas.height * vRatio; x = (internalCanvas.width - drawWidth) / 2; y = 0; }
+                            
+                            // 💡 核心修復 3：無黑邊滿版裁切 (Cover) 演算法
+                            if (vRatio > cRatio) { 
+                                drawHeight = internalCanvas.height; 
+                                drawWidth = internalCanvas.height * vRatio; 
+                                x = (internalCanvas.width - drawWidth) / 2; 
+                                y = 0;
+                            } else { 
+                                drawWidth = internalCanvas.width; 
+                                drawHeight = internalCanvas.width / vRatio; 
+                                x = 0; 
+                                y = (internalCanvas.height - drawHeight) / 2; 
+                            }
+                            
                             internalCtx.save();
-                            if (currentFacingMode === 'user') { internalCtx.translate(x + drawWidth / 2, y + drawHeight / 2); internalCtx.scale(-1, 1); internalCtx.drawImage(cameraHiddenVideo, -drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight);
-                            } else { internalCtx.drawImage(cameraHiddenVideo, x, y, drawWidth, drawHeight); }
+                            if (currentFacingMode === 'user') { 
+                                internalCtx.translate(x + drawWidth / 2, y + drawHeight / 2); 
+                                internalCtx.scale(-1, 1); 
+                                internalCtx.drawImage(cameraHiddenVideo, -drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight);
+                            } else { 
+                                internalCtx.drawImage(cameraHiddenVideo, x, y, drawWidth, drawHeight); 
+                            }
                             internalCtx.restore();
                         }
                     }
@@ -1166,6 +1205,13 @@
                 previewVideo.muted = true; 
                 previewVideo.style.pointerEvents = 'none'; // 錄影中禁止點擊畫面
                 
+                // 💡 核心修復 4：強制預覽畫面使用滿版屬性
+                if (isMobile) {
+                    previewVideo.style.objectFit = 'cover';
+                } else {
+                    previewVideo.style.objectFit = 'contain';
+                }
+
                 document.getElementById(`${type}-btn-setup-record`).style.display = 'none'; 
                 document.getElementById(`${type}-recorder-wrapper`).style.display = 'block';
                 document.getElementById(`${type}-overlay-controls`).style.display = 'flex';
