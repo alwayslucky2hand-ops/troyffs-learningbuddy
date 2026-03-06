@@ -1171,10 +1171,34 @@
             showRecorderMsg(type, "正在初始化雲端直傳通道...", false, true);
             const emailInput = document.getElementById('email') ? document.getElementById('email').value.trim() : currentUserEmail;
             const prefix = emailInput ? emailInput.split('@')[0] : 'User';
-            const filename = `${prefix}_Clip_${Date.now()}.webm`;
+
+            // ==========================================
+            // 🚀 核心破解：動態編碼與副檔名偽裝技術
+            // ==========================================
+            let mimeTypeToUse = '';
+            let extension = 'webm'; // 預設值
+
+            // 1. 優先嘗試 mp4 (Safari 瀏覽器原生支援)
+            if (MediaRecorder.isTypeSupported('video/mp4')) {
+                mimeTypeToUse = 'video/mp4';
+                extension = 'mp4';
+            } 
+            // 2. Chrome/Edge：強制使用 H.264，並「偽裝」成 .mp4 讓 Drive 優先高速處理
+            else if (MediaRecorder.isTypeSupported('video/webm;codecs=h264,opus') || MediaRecorder.isTypeSupported('video/webm;codecs=h264')) {
+                mimeTypeToUse = 'video/webm;codecs=h264,opus';
+                extension = 'mp4'; // 這是破解轉檔卡死的關鍵！
+            } 
+            // 3. 退路：如果使用者的設備只支援 vp8，改用 .mkv 副檔名，Drive 處理速度也比 .webm 快很多
+            else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')) {
+                mimeTypeToUse = 'video/webm;codecs=vp8,opus';
+                extension = 'mkv'; 
+            }
+
+            // 使用新的副檔名建立檔案名稱
+            const filename = `${prefix}_Clip_${Date.now()}.${extension}`;
 
             try {
-                // 1. 取得 Drive/Gemini 專屬網址 (不傳 totalSize 讓 GAS 自行判斷)
+                // 1. 取得 Drive/Gemini 專屬網址
                 const initRes = await fetch(GAS_LIVE_URL, {
                     method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({ action: 'init_upload', filename: filename, mediaType: 'video' }) 
@@ -1193,14 +1217,17 @@
             }
 
             recordedChunks = []; 
-            let options;
             
             // 動態傳輸率：手機降低一半位元率 (2.5Mbps)，防止 4G 網路塞車
             const targetBps = isMobileDevice() ? 2500000 : 5000000;
 
-            if (MediaRecorder.isTypeSupported('video/webm;codecs=h264,opus')) options = { mimeType: 'video/webm;codecs=h264,opus', videoBitsPerSecond: targetBps };
-            else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')) options = { mimeType: 'video/webm;codecs=vp8,opus', videoBitsPerSecond: targetBps };
-            else options = { videoBitsPerSecond: targetBps };
+            // ==========================================
+            // 🚀 套用新的編碼設定
+            // ==========================================
+            let options = { videoBitsPerSecond: targetBps };
+            if (mimeTypeToUse) {
+                options.mimeType = mimeTypeToUse;
+            }
 
             mediaRecorder = new MediaRecorder(combinedStream, options);
             
