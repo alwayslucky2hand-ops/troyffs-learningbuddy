@@ -1086,8 +1086,9 @@
                 const isMobile = isMobileDevice();
                 if (isMobile) {
                     const isLandscape = window.innerWidth > window.innerHeight;
-                    internalCanvas.width = isLandscape ? 1280 : 720;
-                    internalCanvas.height = isLandscape ? 720 : 1280;
+                    // 【修改點】強制手機畫布初始化為 1080p
+                    internalCanvas.width = isLandscape ? 1920 : 1080;
+                    internalCanvas.height = isLandscape ? 1080 : 1920;
                 } else {
                     internalCanvas.width = 1920;
                     internalCanvas.height = 1080;
@@ -1103,7 +1104,8 @@
                     currentFacingMode = 'user';
                     activeVideoSource = 'camera';
                     try { 
-                        micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: { facingMode: currentFacingMode, width: { ideal: 1280 }, height: { ideal: 720 } } });
+                        // 【修改點】強制要求手機鏡頭提供 1080p 訊號
+                        micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: { facingMode: currentFacingMode, width: { ideal: 1920 }, height: { ideal: 1080 } } });
                     } catch(e) { showRecorderMsg(type, "相機被封鎖", true, true); return; }
                     if (micStream.getAudioTracks().length > 0) audioContext.createMediaStreamSource(micStream).connect(dest);
                     cameraHiddenVideo.srcObject = new MediaStream([micStream.getVideoTracks()[0]]);
@@ -1113,8 +1115,9 @@
                         
                         // 💡 核心修復 1：動態偵測螢幕旋轉，隨時調整畫布比例
                         const currentIsLandscape = window.innerWidth > window.innerHeight;
-                        const targetW = currentIsLandscape ? 1280 : 720;
-                        const targetH = currentIsLandscape ? 720 : 1280;
+                        // 【修改點】動態調整目標寬高為 1080p
+                        const targetW = currentIsLandscape ? 1920 : 1080;
+                        const targetH = currentIsLandscape ? 1080 : 1920;
                         if (internalCanvas.width !== targetW) {
                             internalCanvas.width = targetW;
                             internalCanvas.height = targetH;
@@ -1222,31 +1225,24 @@
             } catch (err) { showRecorderMsg(type, "發生錯誤：" + err.message, true, true); killMediaTracks(); }
         }
 
-        async function startRecording(type) {
+async function startRecording(type) {
             showRecorderMsg(type, "正在初始化雲端直傳通道...", false, true);
             const emailInput = document.getElementById('email') ? document.getElementById('email').value.trim() : currentUserEmail;
             const prefix = emailInput ? emailInput.split('@')[0] : 'User';
 
             // ==========================================
-            // 🚀 核心破解：動態編碼與副檔名偽裝技術
+            // 🚀 核心破解：全面強制 MP4 與動態 Blob 型態
             // ==========================================
-            let mimeTypeToUse = '';
-            let extension = 'webm'; // 預設值
+            let mimeTypeToUse = 'video/mp4'; // 預設 MIME 類型
+            let extension = 'mp4'; // 【優化】強制副檔名為 mp4，全面消滅 webm
 
-            // 1. 優先嘗試 mp4 (Safari 瀏覽器原生支援)
+            // 判斷瀏覽器支援的最佳編碼，但最終封裝都偽裝/指定為 mp4
             if (MediaRecorder.isTypeSupported('video/mp4')) {
                 mimeTypeToUse = 'video/mp4';
-                extension = 'mp4';
-            } 
-            // 2. Chrome/Edge：強制使用 H.264，並「偽裝」成 .mp4 讓 Drive 優先高速處理
-            else if (MediaRecorder.isTypeSupported('video/webm;codecs=h264,opus') || MediaRecorder.isTypeSupported('video/webm;codecs=h264')) {
+            } else if (MediaRecorder.isTypeSupported('video/webm;codecs=h264,opus') || MediaRecorder.isTypeSupported('video/webm;codecs=h264')) {
                 mimeTypeToUse = 'video/webm;codecs=h264,opus';
-                extension = 'mp4'; // 這是破解轉檔卡死的關鍵！
-            } 
-            // 3. 退路：如果使用者的設備只支援 vp8，改用 .mkv 副檔名，Drive 處理速度也比 .webm 快很多
-            else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')) {
+            } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')) {
                 mimeTypeToUse = 'video/webm;codecs=vp8,opus';
-                extension = 'mkv'; 
             }
 
             // 使用新的副檔名建立檔案名稱
@@ -1263,7 +1259,8 @@
 
                 streamStates[type] = {
                     driveUrl: initData.uploadUrlDrive, geminiUrl: initData.uploadUrlGemini,
-                    buffer: new Blob([], { type: 'video/webm' }), offset: 0, isUploading: false, queue: [],
+                    // 【優化】不再寫死 webm，使用動態偵測的最佳 mimeType
+                    buffer: new Blob([], { type: mimeTypeToUse }), offset: 0, isUploading: false, queue: [],
                     driveId: '', geminiUri: '', geminiName: '', isFinalized: false
                 };
             } catch(e) {
@@ -1273,16 +1270,13 @@
 
             recordedChunks = []; 
             
-            // 動態傳輸率：手機降低一半位元率 (2.5Mbps)，防止 4G 網路塞車
-            const targetBps = isMobileDevice() ? 2500000 : 5000000;
+            // 【優化】動態傳輸率：為了支撐 1080p，手機提升至 5Mbps，電腦提升至 8Mbps
+            const targetBps = isMobileDevice() ? 5000000 : 8000000;
 
             // ==========================================
             // 🚀 套用新的編碼設定
             // ==========================================
-            let options = { videoBitsPerSecond: targetBps };
-            if (mimeTypeToUse) {
-                options.mimeType = mimeTypeToUse;
-            }
+            let options = { videoBitsPerSecond: targetBps, mimeType: mimeTypeToUse };
 
             mediaRecorder = new MediaRecorder(combinedStream, options);
             
@@ -1291,7 +1285,8 @@
                 if (e.data.size > 0) { 
                     recordedChunks.push(e.data); // 儲存供本地預覽
                     const state = streamStates[type];
-                    state.buffer = new Blob([state.buffer, e.data], { type: 'video/webm' });
+                    // 【優化】同步修改這裡的 Blob 屬性
+                    state.buffer = new Blob([state.buffer, e.data], { type: mimeTypeToUse });
                     
                     // 一旦達到 8MB (8388608 bytes)，就切出一塊送出
                     if (state.buffer.size >= CHUNK_SIZE_MULTIPLE) {
@@ -1310,13 +1305,15 @@
                 if (state.buffer && state.buffer.size > 0) {
                     state.queue.push({ blob: state.buffer, isFinal: true });
                 } else {
-                    state.queue.push({ blob: new Blob([]), isFinal: true });
+                    // 【優化】同步修改空 Blob 的屬性
+                    state.queue.push({ blob: new Blob([], { type: mimeTypeToUse }), isFinal: true });
                 }
-                state.buffer = new Blob([], { type: 'video/webm' });
+                // 【優化】同步修改重置的 Blob 屬性
+                state.buffer = new Blob([], { type: mimeTypeToUse });
                 processUploadQueue(type);
 
                 // 解鎖原生預覽播放器介面
-                currentLocalBlob[type] = new Blob(recordedChunks, { type: options.mimeType || 'video/webm' });
+                currentLocalBlob[type] = new Blob(recordedChunks, { type: options.mimeType || 'video/mp4' });
                 const previewVideo = document.getElementById(`${type}-preview-video`);
                 previewVideo.srcObject = null; 
                 previewVideo.src = URL.createObjectURL(currentLocalBlob[type]); 
